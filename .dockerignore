@@ -1,0 +1,10 @@
+**/node_modules
+**/.next
+**/dist
+**/.turbo
+**/.cache
+**/.DS_Store
+.git
+.env
+**/.env
+uploads
