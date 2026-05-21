@@ -1,1 +1,3 @@
-// page.tsx
+export default function ConfiguracoesPage() {
+  return null;
+}
