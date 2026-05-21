@@ -1,1 +1,48 @@
-// schema.prisma
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum WorkspaceStatus {
+  INACTIVE
+  ACTIVE
+  BLOCKED
+}
+
+enum UserRole {
+  ADMIN
+  ATTENDANT
+}
+
+model Workspace {
+  id        String          @id @default(cuid())
+  name      String
+  status    WorkspaceStatus @default(INACTIVE)
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+
+  users     User[]
+}
+
+model User {
+  id           String   @id @default(cuid())
+  workspaceId  String
+  workspace    Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  name         String
+  email        String   @unique
+  passwordHash String
+  role         UserRole @default(ADMIN)
+
+  // refresh token hash (MVP: 1 sessão por usuário)
+  refreshHash  String?
+
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([workspaceId])
+}
