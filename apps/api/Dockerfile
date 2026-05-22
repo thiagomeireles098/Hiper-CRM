@@ -27,4 +27,4 @@ COPY --from=build /repo/apps/api/prisma ./prisma
 COPY --from=build /repo/apps/api/package.json ./package.json
 COPY --from=deps  /repo/apps/api/node_modules ./node_modules
 EXPOSE 3001
-CMD ["node", "dist/main.js"]
+CMD ["node", "dist/src/main.js"]
