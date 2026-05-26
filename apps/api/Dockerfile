@@ -14,7 +14,7 @@ FROM base AS build
 COPY . .
 COPY --from=deps /repo/node_modules /repo/node_modules
 WORKDIR /repo/apps/api
-RUN pnpm -C /repo/apps/api prisma generate
+RUN pnpm prisma generate
 RUN pnpm build
 
 # 3) Gera uma pasta com deps de produção somente da API
