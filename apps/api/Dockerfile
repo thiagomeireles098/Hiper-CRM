@@ -1,8 +1,11 @@
 # syntax=docker/dockerfile:1
-FROM node:20-alpine AS base
+FROM node:20-bookworm-slim AS base
 WORKDIR /app
 
-# fixa pnpm compatível com Node 20
+# deps necessárias pro prisma (openssl + certs)
+RUN apt-get update && apt-get install -y openssl ca-certificates && rm -rf /var/lib/apt/lists/*
+
+# fixa pnpm compatível com node 20
 RUN corepack enable && corepack prepare pnpm@9.0.0 --activate
 
 # deps
@@ -20,9 +23,11 @@ RUN pnpm exec prisma generate
 RUN pnpm build
 
 # runtime
-FROM node:20-alpine AS runtime
+FROM node:20-bookworm-slim AS runtime
 WORKDIR /app
 ENV NODE_ENV=production
+
+RUN apt-get update && apt-get install -y openssl ca-certificates && rm -rf /var/lib/apt/lists/*
 
 COPY --from=base /app/dist ./dist
 COPY --from=base /app/prisma ./prisma
