@@ -9,9 +9,9 @@ import { WorkspaceStatus } from "@prisma/client";
 export class AuthService {
   constructor(private prisma: PrismaService, private jwt: JwtService) {}
 
-  private signAccessToken(user: { id: string; workspaceId: string; role: any; email: string }) {
+  private signAccessToken(user: { id: string; workspaceId?: string | null; role: any; email: string }) {
     return this.jwt.sign(
-      { sub: user.id, workspaceId: user.workspaceId, role: user.role, email: user.email },
+      { sub: user.id, workspaceId: user.workspaceId ?? null, role: user.role, email: user.email },
       { secret: process.env.JWT_ACCESS_SECRET, expiresIn: process.env.ACCESS_TOKEN_TTL ?? "15m" }
     );
   }
@@ -57,7 +57,7 @@ export class AuthService {
     const ok = await bcrypt.compare(password, user.passwordHash);
     if (!ok) throw new UnauthorizedException("INVALID_CREDENTIALS");
 
-    const accessToken = this.signAccessToken({ id: user.id, workspaceId: user.workspaceId, role: user.role, email: user.email });
+    const accessToken = this.signAccessToken({ id: user.id, workspaceId: user.workspaceId ?? null, role: user.role, email: user.email });
     const refreshToken = this.signRefreshToken(user.id);
 
     const refreshHash = await bcrypt.hash(refreshToken, 10);
@@ -70,7 +70,7 @@ export class AuthService {
     const user = await this.prisma.user.findUnique({ where: { id: userId }, include: { workspace: true } });
     if (!user) throw new UnauthorizedException("INVALID_REFRESH");
 
-    const accessToken = this.signAccessToken({ id: user.id, workspaceId: user.workspaceId, role: user.role, email: user.email });
+    const accessToken = this.signAccessToken({ id: user.id, workspaceId: user.workspaceId ?? null, role: user.role, email: user.email });
     const refreshToken = this.signRefreshToken(user.id);
 
     const refreshHash = await bcrypt.hash(refreshToken, 10);

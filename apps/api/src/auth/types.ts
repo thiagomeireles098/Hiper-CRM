@@ -1,7 +1,7 @@
 export type JwtPayload = {
   sub: string;
-  workspaceId: string;
-  role: "ADMIN" | "ATTENDANT";
+  workspaceId?: string | null;
+  role: "SUPER_ADMIN" | "SUPPORT" | "ADMIN" | "CASHIER";
   email: string;
 };
 
