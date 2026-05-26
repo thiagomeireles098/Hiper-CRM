@@ -1,29 +1,34 @@
 # syntax=docker/dockerfile:1
+FROM node:20-bookworm-slim AS base
+WORKDIR /app
 
-FROM node:20-alpine AS base
-WORKDIR /repo
-RUN corepack enable
+RUN corepack enable && corepack prepare pnpm@9.0.0 --activate
 
-FROM base AS deps
-COPY package.json pnpm-workspace.yaml ./
-COPY apps/web/package.json apps/web/package.json
-RUN pnpm install --filter @hiperlink/web... --no-frozen-lockfile
+# deps do web
+COPY apps/web/package.json ./
+COPY pnpm-lock.yaml ./pnpm-lock.yaml
+RUN pnpm install --no-frozen-lockfile
 
-FROM base AS build
-COPY --from=deps /repo/node_modules /repo/node_modules
-COPY --from=deps /repo/apps/web/node_modules /repo/apps/web/node_modules
-COPY package.json pnpm-workspace.yaml ./
-COPY apps/web apps/web
+# código do web
+COPY apps/web/next.config.ts ./next.config.ts
+COPY apps/web/postcss.config.js ./postcss.config.js
+COPY apps/web/tailwind.config.ts ./tailwind.config.ts
+COPY apps/web/tsconfig.json ./tsconfig.json
+COPY apps/web/src ./src
+COPY apps/web/public ./public
 
-WORKDIR /repo/apps/web
+# build
 RUN pnpm build
 
-FROM node:20-alpine AS runtime
+# runtime
+FROM node:20-bookworm-slim AS runtime
 WORKDIR /app
 ENV NODE_ENV=production
-COPY --from=build /repo/apps/web/.next ./.next
-COPY --from=build /repo/apps/web/public ./public
-COPY --from=build /repo/apps/web/package.json ./package.json
-COPY --from=deps  /repo/apps/web/node_modules ./node_modules
+
+COPY --from=base /app/.next ./.next
+COPY --from=base /app/public ./public
+COPY --from=base /app/node_modules ./node_modules
+COPY --from=base /app/package.json ./package.json
+
 EXPOSE 3000
 CMD ["node", "node_modules/next/dist/bin/next", "start", "-p", "3000"]
