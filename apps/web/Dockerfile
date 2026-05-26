@@ -18,6 +18,8 @@ COPY apps/web/src ./src
 COPY apps/web/public ./public
 
 # build
+ARG NEXT_PUBLIC_API_URL
+ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
 RUN pnpm build
 
 # runtime
