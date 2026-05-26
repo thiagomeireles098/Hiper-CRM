@@ -1,35 +1,30 @@
 # syntax=docker/dockerfile:1
 FROM node:20-alpine AS base
-WORKDIR /repo
+WORKDIR /app
 RUN corepack enable
 
-# deps do monorepo
-FROM base AS deps
-COPY package.json pnpm-workspace.yaml pnpm-lock.yaml ./
-COPY apps/api/package.json apps/api/package.json
-RUN pnpm install --frozen-lockfile
+# deps
+COPY apps/api/package.json ./
+COPY pnpm-lock.yaml ./pnpm-lock.yaml
+# instala dependências (inclui prisma do devDependencies)
+RUN pnpm install --no-frozen-lockfile
 
-# build da API
-FROM base AS build
-COPY . .
-COPY --from=deps /repo/node_modules /repo/node_modules
-WORKDIR /repo/apps/api
+# copia código da API
+COPY apps/api/tsconfig.json ./tsconfig.json
+COPY apps/api/src ./src
+COPY apps/api/prisma ./prisma
+
+# prisma + build
 RUN pnpm exec prisma generate
 RUN pnpm build
 
-# runtime (COPIANDO node_modules COMPLETO DO MONOREPO)
+# runtime
 FROM node:20-alpine AS runtime
 WORKDIR /app
 ENV NODE_ENV=production
-
-# dist + prisma
-COPY --from=build /repo/apps/api/dist ./dist
-COPY --from=build /repo/apps/api/prisma ./prisma
-COPY --from=build /repo/apps/api/package.json ./package.json
-
-# aqui está o segredo: copiar o node_modules do monorepo inteiro
-# (isso garante que @nestjs/core existe)
-COPY --from=deps /repo/node_modules ./node_modules
-
+COPY --from=base /app/dist ./dist
+COPY --from=base /app/prisma ./prisma
+COPY --from=base /app/node_modules ./node_modules
+COPY --from=base /app/package.json ./package.json
 EXPOSE 3001
 CMD ["node", "dist/src/main.js"]
