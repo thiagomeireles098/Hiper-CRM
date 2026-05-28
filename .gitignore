@@ -1,54 +1,33 @@
-# Dependencies
-node_modules/
-**/node_modules/
-
-# Build outputs
-dist/
-**/dist/
-.next/
-**/.next/
-out/
-**/out/
-coverage/
-**/coverage/
-
-# Caches
-.turbo/
-**/.turbo/
-.cache/
-**/.cache/
-.npm/
-.pnpm-store/
-
-# Env files / secrets
-.env
-.env.*
-!.env.example
-**/.env
-**/.env.*
-
-# Logs
-logs/
 *.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-
-# OS / Editor
 .DS_Store
+.env
+.env.backup
+.env.production
+.phpactor.json
+.phpunit.result.cache
+/.fleet
+/.idea
+/.nova
+/.phpunit.cache
+/.vscode
+/.zed
+/auth.json
+/node_modules
+# Plugins instalados pelo painel / ZIP (persistente; não versionar)
+/plugins-installed
+/storage/app/plugins-installed
+.docker/plugins-installed
+/public/hot
+/public/storage
+/public/.install
+/storage/app/install.lock
+/storage/*.key
+/storage/pail
+Homestead.json
+Homestead.yaml
 Thumbs.db
-.vscode/
-.idea/
-
-# Prisma
-**/prisma/*.db
-**/prisma/*.db-journal
-
-# Docker local volumes / uploads (se você usa pasta local)
-uploads/
-wa-sessions/
-
-# Lockfiles (mantenha só o do pnpm)
-package-lock.json
-yarn.lock
+/docs
+/Docs Gateways
+docs
+Docs Gateways
+/plugins
