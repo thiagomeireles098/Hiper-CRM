@@ -45,9 +45,7 @@ return new class extends Migration
             return;
         }
 
-        DB::transaction(function () {
-            $this->runUpMySQL();
-        });
+        $this->runUpMySQL();
     }
 
     private function runUpMySQL(): void
