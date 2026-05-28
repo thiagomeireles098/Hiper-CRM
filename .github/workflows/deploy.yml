@@ -38,4 +38,8 @@ jobs:
             export GETFY_HTTPS_PORT=443
 
             docker compose -p hiperlink -f docker-compose.caddy.yml down --remove-orphans || true
-            docker compose -p hiperlink -f docker-compose.caddy.yml up -d --build --remove-orphans
+            if ! docker compose -p hiperlink -f docker-compose.caddy.yml up -d --build --remove-orphans; then
+              docker compose -p hiperlink -f docker-compose.caddy.yml ps || true
+              docker compose -p hiperlink -f docker-compose.caddy.yml logs --tail=200 app queue mysql caddy || true
+              exit 1
+            fi
