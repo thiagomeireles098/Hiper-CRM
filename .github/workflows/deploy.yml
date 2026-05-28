@@ -43,3 +43,8 @@ jobs:
               docker compose -p hiperlink -f docker-compose.caddy.yml logs --tail=200 app queue mysql caddy || true
               exit 1
             fi
+            docker compose -p hiperlink -f docker-compose.caddy.yml ps || true
+            docker compose -p hiperlink -f docker-compose.caddy.yml logs --tail=120 caddy || true
+            ss -ltnp | grep -E ':(80|443)\s' || true
+            curl -I --max-time 15 http://127.0.0.1/login || true
+            curl -kI --max-time 20 https://127.0.0.1/login || true
