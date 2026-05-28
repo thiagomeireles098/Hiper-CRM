@@ -8,6 +8,8 @@ services:
     ports:
       - "${GETFY_HTTP_PORT:-80}:80"
       - "${GETFY_HTTPS_PORT:-443}:443"
+    environment:
+      GETFY_CADDY_HOST: ${GETFY_CADDY_HOST:-localhost}
     volumes:
       - ./docker/Caddyfile:/etc/caddy/Caddyfile:ro
       - caddy_data:/data
