@@ -16,7 +16,14 @@ jobs:
           key: ${{ secrets.VPS_SSH_KEY }}
           script: |
             set -e
-            cd /opt/hiperlink
+            GIT_DIR="$(find /opt/hiperlink -maxdepth 4 -type d -name .git -print -quit)"
+            if [ -z "$GIT_DIR" ]; then
+              echo "No git checkout found under /opt/hiperlink"
+              exit 1
+            fi
+
+            APP_DIR="$(dirname "$GIT_DIR")"
+            cd "$APP_DIR"
 
             git fetch origin main
             git reset --hard origin/main
@@ -30,5 +37,5 @@ jobs:
             export GETFY_HTTP_PORT=80
             export GETFY_HTTPS_PORT=443
 
-            docker compose -f docker-compose.caddy.yml down --remove-orphans || true
-            docker compose -f docker-compose.caddy.yml up -d --build --remove-orphans
+            docker compose -p hiperlink -f docker-compose.caddy.yml down --remove-orphans || true
+            docker compose -p hiperlink -f docker-compose.caddy.yml up -d --build --remove-orphans
