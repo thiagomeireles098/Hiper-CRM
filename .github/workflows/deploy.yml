@@ -15,4 +15,20 @@ jobs:
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
           script: |
-            /opt/hiperlink/deploy.sh
+            set -e
+            cd /opt/hiperlink
+
+            git fetch origin main
+            git reset --hard origin/main
+
+            rm -f docker-compose.override.yml docker-compose.prod.yml Caddyfile
+
+            export GETFY_CADDY_HOST=app.hiperlinksolutions.com.br
+            export GETFY_APP_URL=https://app.hiperlinksolutions.com.br
+            export GETFY_APP_ENV=production
+            export GETFY_APP_DEBUG=false
+            export GETFY_HTTP_PORT=80
+            export GETFY_HTTPS_PORT=443
+
+            docker compose -f docker-compose.caddy.yml down --remove-orphans || true
+            docker compose -f docker-compose.caddy.yml up -d --build --remove-orphans
