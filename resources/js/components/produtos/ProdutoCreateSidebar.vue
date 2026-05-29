@@ -1,13 +1,14 @@
 <script setup>
-import { ref, computed, watch } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { useForm } from '@inertiajs/vue3';
 import {
+    BookOpen,
+    ChevronRight,
+    CreditCard,
+    Link,
+    Package,
     Smartphone,
     Users,
-    BookOpen,
-    Link,
-    CreditCard,
-    ChevronRight,
     X,
 } from 'lucide-vue-next';
 import Button from '@/components/ui/Button.vue';
@@ -29,9 +30,200 @@ const selectedType = ref(null);
 const typeIcons = {
     aplicativo: Smartphone,
     area_membros: Users,
+    produto: Package,
     link: Link,
     link_pagamento: CreditCard,
 };
+
+const businessTypes = [
+    { value: 'supermercado', label: 'Supermercado', description: 'Estoque, validade, fiscal, balanca e etiquetas.' },
+    { value: 'farmacia', label: 'Farmacia', description: 'ANVISA, lote, validade, receitas e convenios.' },
+    { value: 'loja_roupas', label: 'Loja de roupas', description: 'Variacoes por tamanho, cor, grade, SKU e catalogo.' },
+    { value: 'informatica_assistencia', label: 'Loja de informatica / Assistencia tecnica', description: 'Produto, serial, garantia, equipamento e ordem de servico.' },
+    { value: 'padaria', label: 'Padaria', description: 'Producao, ficha tecnica, pereciveis, venda por peso e perdas.' },
+];
+
+const businessFieldGroups = {
+    supermercado: [
+        { title: 'Informacoes basicas', fields: [
+            field('nome_produto', 'Nome do produto', 'text', { bind: 'name', required: true }),
+            field('codigo_barras', 'Codigo de barras', 'text', { helper: 'Use o leitor com este campo selecionado para preencher automaticamente.' }),
+            field('codigo_interno', 'Codigo interno'),
+            field('categoria', 'Categoria'),
+            field('marca', 'Marca'),
+            field('unidade', 'Unidade', 'select', { options: ['UN', 'KG', 'LT'] }),
+        ] },
+        { title: 'Controle de estoque', fields: [
+            field('quantidade', 'Quantidade', 'number'),
+            field('estoque_minimo', 'Estoque minimo', 'number'),
+            field('localizacao', 'Localizacao'),
+            checkbox('controle_grade', 'Controle por grade'),
+            checkbox('controle_peso', 'Controle por peso'),
+        ] },
+        { title: 'Alimenticios', fields: [
+            field('data_validade', 'Data de validade', 'date'),
+            field('lote', 'Lote'),
+            field('peso', 'Peso', 'number'),
+            checkbox('controle_fifo_fefo', 'Controle FIFO/FEFO'),
+        ] },
+        { title: 'Precos', fields: [
+            field('preco_custo', 'Preco custo', 'number'),
+            field('preco_venda', 'Preco venda', 'number', { bind: 'price', required: true }),
+            checkbox('promocao', 'Promocao'),
+            field('atacado_varejo', 'Atacado/varejo'),
+        ] },
+        { title: 'Fiscal', fields: [
+            field('ncm', 'NCM'),
+            field('cfop', 'CFOP'),
+            field('cst_csosn', 'CST/CSOSN'),
+            field('icms', 'ICMS'),
+            field('pis_cofins', 'PIS/COFINS'),
+        ] },
+        resources(['Integracao com balanca', 'Etiquetas', 'Leitor codigo de barras', 'Promocoes automaticas', 'Combos']),
+    ],
+    farmacia: [
+        { title: 'Informacoes basicas', fields: [
+            field('nome_medicamento', 'Nome medicamento', 'text', { bind: 'name', required: true }),
+            field('nome_generico', 'Nome generico'),
+            field('laboratorio', 'Laboratorio'),
+            field('codigo_barras', 'Codigo barras', 'text', { helper: 'Use o leitor com este campo selecionado para preencher automaticamente.' }),
+        ] },
+        { title: 'Controle farmaceutico', fields: [
+            field('registro_anvisa', 'Registro ANVISA'),
+            field('principio_ativo', 'Principio ativo'),
+            field('dosagem', 'Dosagem'),
+            field('tipo_receita', 'Tipo receita'),
+            checkbox('medicamento_controlado', 'Medicamento controlado'),
+            field('lista_anvisa', 'Lista ANVISA'),
+        ] },
+        { title: 'Controle de lote', fields: [
+            field('numero_lote', 'Numero lote'),
+            field('validade', 'Validade', 'date'),
+            field('fabricacao', 'Fabricacao', 'date'),
+            field('quantidade_lote', 'Quantidade por lote', 'number'),
+        ] },
+        { title: 'Fiscal', fields: [
+            field('ncm', 'NCM'),
+            field('pmc', 'PMC', 'number', { bind: 'price' }),
+            field('tributacao_especifica', 'Tributacao especifica'),
+        ] },
+        resources(['Controle SNGPC', 'Bloqueio vencidos', 'Controle receitas', 'Historico paciente', 'Convenios']),
+    ],
+    loja_roupas: [
+        { title: 'Informacoes basicas', fields: [
+            field('nome_produto', 'Nome produto', 'text', { bind: 'name', required: true }),
+            field('marca', 'Marca'),
+            field('colecao', 'Colecao'),
+            field('genero', 'Genero'),
+        ] },
+        { title: 'Variacoes', fields: [
+            field('tamanho', 'Tamanho'),
+            field('cor', 'Cor'),
+            field('modelo', 'Modelo'),
+            field('grade', 'Grade'),
+        ] },
+        { title: 'Estoque', fields: [
+            field('quantidade_variacao', 'Quantidade por variacao', 'number'),
+            checkbox('controle_grade', 'Controle grade'),
+            field('sku_individual', 'Codigo SKU individual'),
+        ] },
+        { title: 'Precos', fields: [
+            field('custo', 'Custo', 'number'),
+            field('venda', 'Venda', 'number', { bind: 'price', required: true }),
+            checkbox('promocao', 'Promocao'),
+            field('cashback', 'Cashback'),
+        ] },
+        resources(['Foto produto', 'Etiquetas', 'Codigo interno por tamanho/cor', 'Catalogo online']),
+    ],
+    informatica_assistencia: [
+        { title: 'Produtos informatica', fields: [
+            field('nome_produto', 'Nome produto', 'text', { bind: 'name', required: true }),
+            field('marca', 'Marca'),
+            field('modelo', 'Modelo'),
+            field('numero_serie', 'Numero serie'),
+        ] },
+        { title: 'Especificacoes', fields: [
+            field('voltagem', 'Voltagem'),
+            field('capacidade', 'Capacidade'),
+            field('compatibilidade', 'Compatibilidade'),
+            field('garantia', 'Garantia'),
+        ] },
+        { title: 'Controle', fields: [
+            field('imei_serial', 'IMEI/SERIAL'),
+            field('estoque', 'Estoque', 'number'),
+            field('fornecedor', 'Fornecedor'),
+        ] },
+        { title: 'Fiscal', fields: [
+            field('ncm', 'NCM'),
+            field('tributacao_eletronicos', 'Tributacao eletronicos'),
+        ] },
+        { title: 'Cadastro equipamento', fields: [
+            field('cliente', 'Cliente'),
+            field('equipamento', 'Equipamento'),
+            field('defeito_relatado', 'Defeito relatado', 'textarea'),
+            field('senha', 'Senha'),
+            field('estado_aparelho', 'Estado aparelho'),
+        ] },
+        { title: 'Ordem de servico', fields: [
+            field('tecnico_responsavel', 'Tecnico responsavel'),
+            field('pecas_utilizadas', 'Pecas utilizadas', 'textarea'),
+            field('fotos', 'Fotos', 'textarea', { helper: 'Anote links, nomes dos arquivos ou observacoes das fotos.' }),
+            field('status_servico', 'Status do servico'),
+            field('laudo_tecnico', 'Laudo tecnico', 'textarea'),
+        ] },
+        resources(['Checklist entrada', 'Assinatura digital', 'Garantia servico', 'Historico reparos']),
+    ],
+    padaria: [
+        { title: 'Informacoes basicas', fields: [
+            field('nome_produto', 'Nome produto', 'text', { bind: 'name', required: true }),
+            field('categoria', 'Categoria'),
+            field('unidade', 'Unidade'),
+            field('peso', 'Peso', 'number'),
+        ] },
+        { title: 'Producao', fields: [
+            field('receita_ficha_tecnica', 'Receita/Ficha tecnica', 'textarea'),
+            field('ingredientes', 'Ingredientes', 'textarea'),
+            field('custo_producao', 'Custo producao', 'number'),
+            field('rendimento', 'Rendimento'),
+        ] },
+        { title: 'Controle', fields: [
+            field('validade_curta', 'Validade curta', 'date'),
+            field('producao_diaria', 'Producao diaria', 'number'),
+            checkbox('produtos_pereciveis', 'Produtos pereciveis'),
+        ] },
+        { title: 'Venda', fields: [
+            checkbox('venda_peso', 'Venda por peso'),
+            checkbox('etiquetas', 'Etiquetas'),
+            checkbox('balanca_integrada', 'Balanca integrada'),
+            field('preco_venda', 'Preco venda', 'number', { bind: 'price', required: true }),
+        ] },
+        resources(['Controle producao', 'Consumo materia-prima', 'Perda/desperdicio', 'Produtos fabricados internamente']),
+    ],
+};
+
+function field(key, label, type = 'text', extra = {}) {
+    return { key, label, type, ...extra };
+}
+
+function checkbox(key, label) {
+    return field(key, label, 'checkbox');
+}
+
+function resources(labels) {
+    return {
+        title: 'Recursos importantes',
+        fields: labels.map((label) => checkbox(slugKey(label), label)),
+    };
+}
+
+function slugKey(label) {
+    return label
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '_')
+        .replace(/^_|_$/g, '');
+}
 
 const form = useForm({
     name: '',
@@ -43,34 +235,70 @@ const form = useForm({
     is_active: true,
     image: null,
     deliverable_link: '',
+    business_type: '',
+    business_product_data: {},
 });
 
 const priceNum = computed(() => parseFloat(form.price) || 0);
 const priceEur = computed(() => (priceNum.value * (props.exchangeRates.brl_eur ?? 0.16)).toFixed(2));
 const priceUsd = computed(() => (priceNum.value * (props.exchangeRates.brl_usd ?? 0.18)).toFixed(2));
-
-const availableTypes = computed(() =>
-    props.productTypes.filter((t) => t.available)
-);
+const currentBusinessConfig = computed(() => businessFieldGroups[form.business_type] ?? []);
+const selectedBusinessTypeLabel = computed(() => businessTypes.find((type) => type.value === form.business_type)?.label ?? '');
+const isBusinessProduct = computed(() => form.type === 'produto');
 
 function selectType(type) {
     if (!type.available) return;
     selectedType.value = type.value;
     form.type = type.value;
-    step.value = 2;
+    step.value = type.value === 'produto' ? 2 : 3;
+}
+
+function selectBusinessType(type) {
+    form.business_type = type.value;
+    form.business_product_data = {};
+    step.value = 3;
+}
+
+function fieldModel(fieldConfig) {
+    if (fieldConfig.bind === 'name') return form.name;
+    if (fieldConfig.bind === 'price') return form.price;
+    return form.business_product_data[fieldConfig.key] ?? (fieldConfig.type === 'checkbox' ? false : '');
+}
+
+function updateField(fieldConfig, value) {
+    if (fieldConfig.bind === 'name') {
+        form.name = value;
+        return;
+    }
+    if (fieldConfig.bind === 'price') {
+        form.price = value;
+        return;
+    }
+    form.business_product_data[fieldConfig.key] = value;
 }
 
 function back() {
+    if (step.value === 3 && isBusinessProduct.value) {
+        step.value = 2;
+        return;
+    }
     step.value = 1;
     selectedType.value = null;
     form.type = '';
+    form.business_type = '';
+    form.business_product_data = {};
 }
 
 function close() {
+    resetState();
+    emit('close');
+}
+
+function resetState() {
     step.value = 1;
     selectedType.value = null;
     form.reset();
-    emit('close');
+    form.business_product_data = {};
 }
 
 function submit() {
@@ -91,11 +319,7 @@ function onFileChange(e) {
 watch(
     () => props.open,
     (isOpen) => {
-        if (!isOpen) {
-            step.value = 1;
-            selectedType.value = null;
-            form.reset();
-        }
+        if (!isOpen) resetState();
     }
 );
 </script>
@@ -115,14 +339,12 @@ watch(
                 @click="close"
             />
             <aside
-                class="relative z-[100001] flex h-full w-full max-w-md flex-col rounded-l-2xl bg-white shadow-xl dark:bg-zinc-900 sm:w-[420px]"
+                class="relative z-[100001] flex h-full w-full max-w-2xl flex-col rounded-l-2xl bg-white shadow-xl dark:bg-zinc-900 sm:w-[640px]"
                 @click.stop
             >
-                <div
-                    class="flex shrink-0 items-center justify-between rounded-tl-2xl border-b border-zinc-200 px-4 py-3 dark:border-zinc-800"
-                >
+                <div class="flex shrink-0 items-center justify-between rounded-tl-2xl border-b border-zinc-200 px-4 py-3 dark:border-zinc-800">
                     <h2 id="sidebar-title" class="text-lg font-semibold text-zinc-900 dark:text-white">
-                        {{ step === 1 ? 'Novo produto' : 'Criar produto' }}
+                        {{ step === 1 ? 'Novo produto' : step === 2 ? 'Tipo de negocio' : 'Criar produto' }}
                     </h2>
                     <button
                         type="button"
@@ -135,7 +357,6 @@ watch(
                 </div>
 
                 <div class="flex-1 overflow-y-auto px-4 py-4">
-                    <!-- Step 1: Tipo -->
                     <div v-if="step === 1" class="space-y-3">
                         <p class="text-sm text-zinc-600 dark:text-zinc-400">
                             Escolha o tipo de entrega do produto.
@@ -154,13 +375,8 @@ watch(
                                 ]"
                                 @click="selectType(t)"
                             >
-                                <span
-                                    class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-white dark:bg-zinc-700"
-                                >
-                                    <component
-                                        :is="typeIcons[t.value] || BookOpen"
-                                        class="h-5 w-5 text-zinc-600 dark:text-zinc-300"
-                                    />
+                                <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-white dark:bg-zinc-700">
+                                    <component :is="typeIcons[t.value] || BookOpen" class="h-5 w-5 text-zinc-600 dark:text-zinc-300" />
                                 </span>
                                 <div class="min-w-0 flex-1">
                                     <div class="flex items-center gap-2">
@@ -178,43 +394,144 @@ watch(
                                         {{ t.description }}
                                     </p>
                                 </div>
-                                <ChevronRight
-                                    v-if="t.available"
-                                    class="h-5 w-5 shrink-0 text-zinc-400"
-                                />
+                                <ChevronRight v-if="t.available" class="h-5 w-5 shrink-0 text-zinc-400" />
                             </button>
                         </div>
                     </div>
 
-                    <!-- Step 2: Formulário -->
-                    <form v-else class="space-y-4" @submit.prevent="submit">
-                        <div>
+                    <div v-else-if="step === 2" class="space-y-3">
+                        <button type="button" class="text-sm text-[var(--color-primary)] hover:underline" @click="back">
+                            Voltar ao tipo
+                        </button>
+                        <p class="text-sm text-zinc-600 dark:text-zinc-400">
+                            Escolha para qual tipo de negocio esse produto sera cadastrado.
+                        </p>
+                        <div class="grid gap-3">
                             <button
+                                v-for="type in businessTypes"
+                                :key="type.value"
                                 type="button"
-                                class="mb-2 text-sm text-[var(--color-primary)] hover:underline"
-                                @click="back"
+                                class="flex items-start gap-3 rounded-xl border border-zinc-200 bg-zinc-50 p-4 text-left transition hover:border-[var(--color-primary)] hover:bg-[var(--color-primary)]/5 dark:border-zinc-700 dark:bg-zinc-800/50"
+                                @click="selectBusinessType(type)"
                             >
-                                ← Voltar ao tipo
+                                <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-white dark:bg-zinc-700">
+                                    <Package class="h-5 w-5 text-zinc-600 dark:text-zinc-300" />
+                                </span>
+                                <span class="min-w-0 flex-1">
+                                    <span class="block font-medium text-zinc-900 dark:text-white">{{ type.label }}</span>
+                                    <span class="mt-0.5 block text-sm text-zinc-500 dark:text-zinc-400">{{ type.description }}</span>
+                                </span>
+                                <ChevronRight class="h-5 w-5 shrink-0 text-zinc-400" />
                             </button>
                         </div>
+                    </div>
+
+                    <form v-else class="space-y-4" @submit.prevent="submit">
                         <div>
-                            <label class="block text-sm font-medium text-zinc-700 dark:text-zinc-300">
-                                Nome *
-                            </label>
-                            <input
-                                v-model="form.name"
-                                type="text"
-                                required
-                                class="mt-1 block w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-zinc-900 placeholder-zinc-400 focus:border-[var(--color-primary)] focus:outline-none focus:ring-1 focus:ring-[var(--color-primary)] dark:border-zinc-600 dark:bg-zinc-800 dark:text-white dark:placeholder-zinc-500"
-                                placeholder="Ex: Curso de Desenvolvimento Web"
-                            />
-                            <p v-if="form.errors.name" class="mt-1 text-sm text-red-600 dark:text-red-400">
-                                {{ form.errors.name }}
+                            <button type="button" class="mb-2 text-sm text-[var(--color-primary)] hover:underline" @click="back">
+                                {{ isBusinessProduct ? 'Voltar ao tipo de negocio' : 'Voltar ao tipo' }}
+                            </button>
+                            <p v-if="isBusinessProduct" class="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+                                Produto para {{ selectedBusinessTypeLabel }}
                             </p>
                         </div>
+
+                        <template v-if="isBusinessProduct">
+                            <div
+                                v-for="group in currentBusinessConfig"
+                                :key="group.title"
+                                class="space-y-3 rounded-xl border border-zinc-200 p-3 dark:border-zinc-700"
+                            >
+                                <h3 class="text-sm font-semibold text-zinc-900 dark:text-white">{{ group.title }}</h3>
+                                <div class="grid gap-3 sm:grid-cols-2">
+                                    <div
+                                        v-for="fieldConfig in group.fields"
+                                        :key="fieldConfig.key"
+                                        :class="fieldConfig.type === 'textarea' ? 'sm:col-span-2' : ''"
+                                    >
+                                        <label
+                                            v-if="fieldConfig.type !== 'checkbox'"
+                                            class="block text-sm font-medium text-zinc-700 dark:text-zinc-300"
+                                        >
+                                            {{ fieldConfig.label }} <span v-if="fieldConfig.required">*</span>
+                                        </label>
+                                        <select
+                                            v-if="fieldConfig.type === 'select'"
+                                            :value="fieldModel(fieldConfig)"
+                                            :required="fieldConfig.required"
+                                            class="mt-1 block w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-zinc-900 focus:border-[var(--color-primary)] focus:outline-none focus:ring-1 focus:ring-[var(--color-primary)] dark:border-zinc-600 dark:bg-zinc-800 dark:text-white"
+                                            @change="updateField(fieldConfig, $event.target.value)"
+                                        >
+                                            <option value="">Selecione</option>
+                                            <option v-for="option in fieldConfig.options" :key="option" :value="option">{{ option }}</option>
+                                        </select>
+                                        <textarea
+                                            v-else-if="fieldConfig.type === 'textarea'"
+                                            :value="fieldModel(fieldConfig)"
+                                            rows="3"
+                                            :required="fieldConfig.required"
+                                            class="mt-1 block w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-zinc-900 placeholder-zinc-400 focus:border-[var(--color-primary)] focus:outline-none focus:ring-1 focus:ring-[var(--color-primary)] dark:border-zinc-600 dark:bg-zinc-800 dark:text-white dark:placeholder-zinc-500"
+                                            @input="updateField(fieldConfig, $event.target.value)"
+                                        />
+                                        <label v-else-if="fieldConfig.type === 'checkbox'" class="flex items-center gap-2 rounded-lg border border-zinc-200 p-2 text-sm text-zinc-700 dark:border-zinc-700 dark:text-zinc-300">
+                                            <input
+                                                type="checkbox"
+                                                :checked="Boolean(fieldModel(fieldConfig))"
+                                                class="h-4 w-4 rounded border-zinc-300 text-[var(--color-primary)] focus:ring-[var(--color-primary)]"
+                                                @change="updateField(fieldConfig, $event.target.checked)"
+                                            />
+                                            {{ fieldConfig.label }}
+                                        </label>
+                                        <input
+                                            v-else
+                                            :value="fieldModel(fieldConfig)"
+                                            :type="fieldConfig.type"
+                                            :step="fieldConfig.type === 'number' ? '0.01' : undefined"
+                                            :min="fieldConfig.type === 'number' ? '0' : undefined"
+                                            :required="fieldConfig.required"
+                                            class="mt-1 block w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-zinc-900 placeholder-zinc-400 focus:border-[var(--color-primary)] focus:outline-none focus:ring-1 focus:ring-[var(--color-primary)] dark:border-zinc-600 dark:bg-zinc-800 dark:text-white dark:placeholder-zinc-500"
+                                            @input="updateField(fieldConfig, $event.target.value)"
+                                        />
+                                        <p v-if="fieldConfig.helper" class="mt-0.5 text-xs text-zinc-500 dark:text-zinc-400">
+                                            {{ fieldConfig.helper }}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </template>
+
+                        <template v-else>
+                            <div>
+                                <label class="block text-sm font-medium text-zinc-700 dark:text-zinc-300">
+                                    Nome *
+                                </label>
+                                <input
+                                    v-model="form.name"
+                                    type="text"
+                                    required
+                                    class="mt-1 block w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-zinc-900 placeholder-zinc-400 focus:border-[var(--color-primary)] focus:outline-none focus:ring-1 focus:ring-[var(--color-primary)] dark:border-zinc-600 dark:bg-zinc-800 dark:text-white dark:placeholder-zinc-500"
+                                    placeholder="Ex: Curso de Desenvolvimento Web"
+                                />
+                                <p v-if="form.errors.name" class="mt-1 text-sm text-red-600 dark:text-red-400">
+                                    {{ form.errors.name }}
+                                </p>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-zinc-700 dark:text-zinc-300">
+                                    Descricao
+                                </label>
+                                <textarea
+                                    v-model="form.description"
+                                    rows="3"
+                                    class="mt-1 block w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-zinc-900 placeholder-zinc-400 focus:border-[var(--color-primary)] focus:outline-none focus:ring-1 focus:ring-[var(--color-primary)] dark:border-zinc-600 dark:bg-zinc-800 dark:text-white dark:placeholder-zinc-500"
+                                    placeholder="Breve descricao do produto"
+                                />
+                            </div>
+                        </template>
+
                         <div>
                             <label class="block text-sm font-medium text-zinc-700 dark:text-zinc-300">
-                                Tipo de cobrança
+                                Tipo de cobranca
                             </label>
                             <div class="mt-1.5 flex gap-2">
                                 <button
@@ -233,20 +550,10 @@ watch(
                                 </button>
                             </div>
                         </div>
-                        <div>
-                            <label class="block text-sm font-medium text-zinc-700 dark:text-zinc-300">
-                                Descrição
-                            </label>
-                            <textarea
-                                v-model="form.description"
-                                rows="3"
-                                class="mt-1 block w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-zinc-900 placeholder-zinc-400 focus:border-[var(--color-primary)] focus:outline-none focus:ring-1 focus:ring-[var(--color-primary)] dark:border-zinc-600 dark:bg-zinc-800 dark:text-white dark:placeholder-zinc-500"
-                                placeholder="Breve descrição do produto"
-                            />
-                        </div>
+
                         <div v-if="form.type === 'link'">
                             <label class="block text-sm font-medium text-zinc-700 dark:text-zinc-300">
-                                Link do entregável
+                                Link do entregavel
                             </label>
                             <input
                                 v-model="form.deliverable_link"
@@ -255,15 +562,16 @@ watch(
                                 placeholder="https://..."
                             />
                             <p class="mt-0.5 text-xs text-zinc-500 dark:text-zinc-400">
-                                Enviado por e-mail após a compra.
+                                Enviado por e-mail apos a compra.
                             </p>
                             <p v-if="form.errors.deliverable_link" class="mt-1 text-sm text-red-600 dark:text-red-400">
                                 {{ form.errors.deliverable_link }}
                             </p>
                         </div>
-                        <div>
+
+                        <div v-if="!isBusinessProduct">
                             <label class="block text-sm font-medium text-zinc-700 dark:text-zinc-300">
-                                Preço (BRL) *
+                                Preco (BRL) *
                             </label>
                             <input
                                 v-model="form.price"
@@ -274,13 +582,17 @@ watch(
                                 class="mt-1 block w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-zinc-900 placeholder-zinc-400 focus:border-[var(--color-primary)] focus:outline-none focus:ring-1 focus:ring-[var(--color-primary)] dark:border-zinc-600 dark:bg-zinc-800 dark:text-white dark:placeholder-zinc-500"
                                 placeholder="0,00"
                             />
-                            <p class="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
-                                ≈ € {{ priceEur }} · $ {{ priceUsd }}
-                            </p>
-                            <p v-if="form.errors.price" class="mt-1 text-sm text-red-600 dark:text-red-400">
-                                {{ form.errors.price }}
-                            </p>
                         </div>
+                        <p class="text-xs text-zinc-500 dark:text-zinc-400">
+                            Valor aproximado: EUR {{ priceEur }} · USD {{ priceUsd }}
+                        </p>
+                        <p v-if="form.errors.price" class="text-sm text-red-600 dark:text-red-400">
+                            {{ form.errors.price }}
+                        </p>
+                        <p v-if="form.errors.business_type" class="text-sm text-red-600 dark:text-red-400">
+                            {{ form.errors.business_type }}
+                        </p>
+
                         <div>
                             <label class="block text-sm font-medium text-zinc-700 dark:text-zinc-300">
                                 Imagem
@@ -298,10 +610,11 @@ watch(
                                 {{ form.image.name }}
                             </p>
                         </div>
+
                         <div class="flex items-center gap-2">
                             <Toggle v-model="form.is_active" label="Produto ativo" />
                         </div>
-                        <!-- Área para plugins -->
+
                         <div v-if="pluginFormSections?.length" class="space-y-2 border-t border-zinc-200 pt-4 dark:border-zinc-700">
                             <template v-for="(section, idx) in pluginFormSections" :key="idx">
                                 <div v-if="section.html" v-html="section.html" />

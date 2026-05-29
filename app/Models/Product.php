@@ -19,6 +19,7 @@ class Product extends Model
     public const TYPE_AREA_MEMBROS_EXTERNA = 'area_membros_externa';
     public const TYPE_LINK = 'link';
     public const TYPE_LINK_PAGAMENTO = 'link_pagamento';
+    public const TYPE_PRODUTO = 'produto';
 
     public const BILLING_ONE_TIME = 'one_time';
     public const BILLING_SUBSCRIPTION = 'subscription';
@@ -666,6 +667,11 @@ class Product extends Model
             self::TYPE_LINK_PAGAMENTO => [
                 'label' => 'Somente link de pagamento',
                 'description' => 'Apenas gera link de checkout, sem entrega automática.',
+                'available' => true,
+            ],
+            self::TYPE_PRODUTO => [
+                'label' => 'Produto',
+                'description' => 'Cadastro de produto físico por tipo de negócio.',
                 'available' => true,
             ],
         ];

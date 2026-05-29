@@ -38,6 +38,7 @@ class ProdutosController extends Controller
         Product::TYPE_AREA_MEMBROS_EXTERNA,
         Product::TYPE_LINK,
         Product::TYPE_LINK_PAGAMENTO,
+        Product::TYPE_PRODUTO,
     ];
 
     private const BILLING_TYPES = [
@@ -98,6 +99,9 @@ class ProdutosController extends Controller
             'is_active' => ['boolean'],
             'image' => ['nullable', 'image', 'max:2048'],
             'deliverable_link' => ['nullable', 'string', 'url', 'max:500'],
+            'business_type' => ['nullable', 'required_if:type,'.Product::TYPE_PRODUTO, 'string', 'in:supermercado,farmacia,loja_roupas,informatica_assistencia,padaria'],
+            'business_product_data' => ['nullable', 'array'],
+            'business_product_data.*' => ['nullable'],
         ]);
         $validated['tenant_id'] = auth()->user()->tenant_id;
         $validated['slug'] = $validated['slug'] ?? Str::slug($validated['name']);
@@ -114,11 +118,22 @@ class ProdutosController extends Controller
         unset($validated['image']);
         $deliverableLink = $validated['deliverable_link'] ?? null;
         unset($validated['deliverable_link']);
+        $businessType = $validated['business_type'] ?? null;
+        $businessProductData = $validated['business_product_data'] ?? null;
+        unset($validated['business_type'], $validated['business_product_data']);
         $product = Product::create($validated);
 
-        if ($request->has('deliverable_link')) {
+        if ($request->has('deliverable_link') || $product->type === Product::TYPE_PRODUTO) {
             $config = $product->checkout_config ?? [];
-            $config['deliverable_link'] = $deliverableLink ?? '';
+            if ($request->has('deliverable_link')) {
+                $config['deliverable_link'] = $deliverableLink ?? '';
+            }
+            if ($product->type === Product::TYPE_PRODUTO) {
+                $config['business_product'] = [
+                    'type' => $businessType,
+                    'data' => is_array($businessProductData) ? $businessProductData : [],
+                ];
+            }
             $product->update(['checkout_config' => $config]);
         }
 
@@ -1146,6 +1161,7 @@ class ProdutosController extends Controller
             'is_active' => $p->is_active,
             'conversion_pixels' => $p->conversion_pixels,
             'combo_product_ids' => $p->combo_product_ids ?? [],
+            'business_product' => $p->checkout_config['business_product'] ?? null,
         ];
     }
 
