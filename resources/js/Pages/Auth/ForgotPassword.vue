@@ -6,9 +6,9 @@ import Button from '@/components/ui/Button.vue';
 const page = usePage();
 const status = computed(() => page.props.flash?.status ?? null);
 const branding = computed(() => page.props.public_branding ?? {});
-const primary = computed(() => branding.value.theme_primary || '#c8fa64');
-const appName = computed(() => branding.value.app_name || 'Getfy');
-const logoLight = computed(() => branding.value.app_logo_icon || 'https://cdn.getfy.cloud/collapsed-logo.png');
+const primary = computed(() => branding.value.theme_primary || '#EF3E23');
+const appName = computed(() => branding.value.app_name || 'Hiperlink');
+const logoLight = computed(() => branding.value.app_logo_icon || '/brand/isotipo-laranja.png');
 const logoDark = computed(() => branding.value.app_logo_icon_dark || logoLight.value);
 
 const form = useForm({
@@ -35,7 +35,7 @@ function submit() {
 
             <div
                 v-if="status"
-                class="rounded-xl bg-emerald-50 px-4 py-3 text-sm text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300"
+                class="rounded-xl bg-orange-50 px-4 py-3 text-sm text-orange-700 dark:bg-orange-900/30 dark:text-orange-300"
             >
                 {{ status }}
             </div>

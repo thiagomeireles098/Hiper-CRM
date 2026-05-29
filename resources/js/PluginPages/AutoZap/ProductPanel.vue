@@ -188,7 +188,7 @@ loadFlows();
                 O AutoZap não está conectado. Para ativar os fluxos deste produto, conecte em
                 <Link href="/integracoes" class="font-medium underline">Integrações</Link>.
             </div>
-            <div v-else class="rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-900 dark:border-emerald-900/40 dark:bg-emerald-900/20 dark:text-emerald-200">
+            <div v-else class="rounded-xl border border-orange-200 bg-orange-50 p-3 text-sm text-orange-900 dark:border-orange-900/40 dark:bg-orange-900/20 dark:text-orange-200">
                 AutoZap conectado (<span class="font-medium">{{ provider }}</span>).
             </div>
 
@@ -221,7 +221,7 @@ loadFlows();
                                     class="rounded-full px-2 py-0.5 text-xs font-medium"
                                     :class="
                                         flowByEvent.get(ev.eventClass).is_active
-                                            ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300'
+                                            ? 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300'
                                             : 'bg-zinc-100 text-zinc-600 dark:bg-zinc-700 dark:text-zinc-300'
                                     "
                                 >

@@ -216,7 +216,7 @@ function selectCurrency(code) {
             </div>
             <p
                 v-if="couponDiscountAmountBrl > 0"
-                class="mt-1.5 text-sm font-medium text-emerald-600"
+                class="mt-1.5 text-sm font-medium text-orange-600"
                 data-checkout="summary-coupon-discount"
             >
                 {{ t('checkout.discount_coupon') }}: -{{ formatPrice(couponDiscountAmount, displayCurrency) }}

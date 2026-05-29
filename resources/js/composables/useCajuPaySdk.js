@@ -84,7 +84,7 @@ export async function mountCajuPayCheckout(containerSelector, opts) {
         defaultMethod: opts.defaultMethod || 'card',
         embeddedOnly: true,
         // O host controla o priming (1ª confirm) em CajuPaySdkMount — evita corrida em
-        // que o SDK monta o botão Google Pay antes de confirm-order no Getfy.
+        // que o SDK monta o botão Google Pay antes de confirm-order no Hiperlink.
         preparePaymentUIOnMount: false,
         initialPayer: opts.initialPayer || undefined,
         onStatus: typeof opts.onStatus === 'function' ? opts.onStatus : undefined,
@@ -150,7 +150,7 @@ export function setCajuPayPayer(controller, payer) {
 }
 
 /**
- * Mapeia o método do Getfy para o nome aceito pelo SDK em `defaultMethod`.
+ * Mapeia o método do Hiperlink para o nome aceito pelo SDK em `defaultMethod`.
  *
  * @param {string} method  pix|card|apple_pay|google_pay
  * @returns {string}

@@ -255,10 +255,10 @@ onUnmounted(() => {
                             :disabled="confirmChecking || status === 'completed'"
                             @click="onConfirmPayment"
                         >
-                            <Check class="h-4 w-4 text-green-600" />
+                            <Check class="h-4 w-4 text-orange-600" />
                             {{ confirmChecking ? 'Verificando...' : 'Confirmar pagamento' }}
                         </button>
-                        <p v-if="confirmFeedback" class="text-center text-xs text-gray-500" :class="status === 'completed' ? 'text-green-600' : ''">
+                        <p v-if="confirmFeedback" class="text-center text-xs text-gray-500" :class="status === 'completed' ? 'text-orange-600' : ''">
                             {{ confirmFeedback }}
                         </p>
                     </div>
@@ -347,7 +347,7 @@ onUnmounted(() => {
                         <span
                             class="inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold"
                             :class="status === 'completed'
-                                ? 'border-green-200 bg-green-100 text-green-800'
+                                ? 'border-orange-200 bg-orange-100 text-orange-800'
                                 : 'border-amber-200 bg-amber-100 text-amber-800'"
                         >
                             <Clock v-if="status === 'pending'" class="h-3.5 w-3.5" />

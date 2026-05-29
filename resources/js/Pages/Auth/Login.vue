@@ -9,11 +9,11 @@ const page = usePage();
 const flashError = computed(() => page.props.flash?.error ?? null);
 
 const branding = computed(() => page.props.public_branding ?? {});
-const primary = computed(() => branding.value.theme_primary || '#c8fa64');
-const appName = computed(() => branding.value.app_name || 'Getfy');
-const logoLight = computed(() => branding.value.app_logo_icon || 'https://cdn.getfy.cloud/collapsed-logo.png');
+const primary = computed(() => branding.value.theme_primary || '#EF3E23');
+const appName = computed(() => branding.value.app_name || 'Hiperlink');
+const logoLight = computed(() => branding.value.app_logo_icon || '/brand/isotipo-laranja.png');
 const logoDark = computed(() => branding.value.app_logo_icon_dark || logoLight.value);
-const heroImage = computed(() => branding.value.login_hero_image || 'https://cdn.getfy.cloud/login.webp');
+const heroImage = computed(() => branding.value.login_hero_image || '/brand/isologo-laranja.png');
 
 const form = useForm({
     email: '',
@@ -123,10 +123,10 @@ function submit() {
             <div
                 class="hero-gradient absolute inset-0"
                 :style="{
-                    background: `linear-gradient(to bottom right, color-mix(in srgb, ${primary} 20%, transparent), transparent, rgba(14, 165, 233, 0.1))`,
+                    background: `linear-gradient(to bottom right, color-mix(in srgb, ${primary} 20%, transparent), transparent, rgba(239, 62, 35, 0.1))`,
                 }"
             />
-            <img :src="heroImage" alt="" class="absolute inset-0 h-full w-full object-cover" />
+            <img :src="heroImage" alt="" class="absolute inset-0 h-full w-full object-contain p-16" />
             <div class="absolute inset-0 bg-gradient-to-t from-black/25 via-black/5 to-transparent" />
         </div>
     </div>
@@ -152,7 +152,7 @@ function submit() {
 }
 .wl-submit {
     background-color: var(--wl-primary) !important;
-    color: #18181b !important;
+    color: #ffffff !important;
 }
 .wl-link {
     color: var(--wl-primary);

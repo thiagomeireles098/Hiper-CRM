@@ -12,9 +12,9 @@ const props = defineProps({
 
 const page = usePage();
 const branding = computed(() => page.props.public_branding ?? {});
-const primary = computed(() => branding.value.theme_primary || '#c8fa64');
-const appName = computed(() => branding.value.app_name || 'Getfy');
-const logoLight = computed(() => branding.value.app_logo_icon || 'https://cdn.getfy.cloud/collapsed-logo.png');
+const primary = computed(() => branding.value.theme_primary || '#EF3E23');
+const appName = computed(() => branding.value.app_name || 'Hiperlink');
+const logoLight = computed(() => branding.value.app_logo_icon || '/brand/isotipo-laranja.png');
 const logoDark = computed(() => branding.value.app_logo_icon_dark || logoLight.value);
 
 const showPassword = ref(false);

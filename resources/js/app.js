@@ -77,7 +77,7 @@ const CsrfSync = {
     },
 };
 
-const appName = import.meta.env.VITE_APP_NAME || 'Infoprodutor';
+const appName = import.meta.env.VITE_APP_NAME || 'Hiperlink';
 
 const el = document.getElementById('app');
 const dataPage = el?.getAttribute('data-page');
@@ -141,6 +141,6 @@ createInertiaApp({
     },
     progress: {
         delay: 200,
-        color: '#0ea5e9',
+        color: '#EF3E23',
     },
 });

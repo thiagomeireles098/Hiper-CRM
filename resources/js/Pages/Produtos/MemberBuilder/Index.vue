@@ -50,7 +50,7 @@ const configForm = useForm({
         login: {
             title: '',
             subtitle: '',
-            primary_color: '#0ea5e9',
+            primary_color: '#EF3E23',
             background_color: '#18181b',
             logo: '',
             background_image: '',
@@ -59,7 +59,7 @@ const configForm = useForm({
             login_without_password: props.produto.member_area_config?.login?.login_without_password ?? false,
             ...props.produto.member_area_config?.login,
         },
-        pwa: { name: '', short_name: '', theme_color: '#0ea5e9', push_enabled: false, ...props.produto.member_area_config?.pwa },
+        pwa: { name: '', short_name: '', theme_color: '#EF3E23', push_enabled: false, ...props.produto.member_area_config?.pwa },
         certificate: { ...props.produto.member_area_config?.certificate },
         community_enabled: props.produto.member_area_config?.community_enabled ?? false,
         gamification: { enabled: false, achievements: [], ...props.produto.member_area_config?.gamification },
@@ -543,7 +543,7 @@ const inputClass = 'block w-full rounded-lg border border-zinc-300 bg-white px-3
                             </div>
                             <div class="rounded-xl border border-zinc-200 bg-white p-5 shadow-sm dark:border-zinc-700 dark:bg-zinc-800/50">
                                 <h3 class="mb-4 flex items-center gap-2 text-sm font-semibold text-zinc-800 dark:text-zinc-200">
-                                    <Smartphone class="h-4 w-4 text-emerald-500" />
+                                    <Smartphone class="h-4 w-4 text-orange-500" />
                                     Aparência do app
                                 </h3>
                                 <div class="space-y-4">
@@ -560,7 +560,7 @@ const inputClass = 'block w-full rounded-lg border border-zinc-300 bg-white px-3
                                         <label class="mb-1.5 block text-xs font-medium text-zinc-600 dark:text-zinc-400">Cor do tema</label>
                                         <div class="flex items-center gap-3">
                                             <input v-model="configForm.member_area_config.pwa.theme_color" type="color" class="h-10 w-14 cursor-pointer rounded-lg border border-zinc-300 dark:border-zinc-600" />
-                                            <input v-model="configForm.member_area_config.pwa.theme_color" type="text" :class="inputClass" class="flex-1 font-mono text-sm" placeholder="#0ea5e9" maxlength="20" />
+                                            <input v-model="configForm.member_area_config.pwa.theme_color" type="text" :class="inputClass" class="flex-1 font-mono text-sm" placeholder="#EF3E23" maxlength="20" />
                                         </div>
                                     </div>
                                 </div>
@@ -610,7 +610,7 @@ const inputClass = 'block w-full rounded-lg border border-zinc-300 bg-white px-3
                                                 {{ pushSending ? 'Enviando…' : 'Enviar notificação' }}
                                             </button>
                                         </div>
-                                        <p v-if="pushSendResult" class="text-xs" :class="pushSendResult.success ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'">
+                                        <p v-if="pushSendResult" class="text-xs" :class="pushSendResult.success ? 'text-orange-600 dark:text-orange-400' : 'text-red-600 dark:text-red-400'">
                                             {{ pushSendResult.message }}
                                         </p>
                                     </div>

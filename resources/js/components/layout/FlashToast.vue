@@ -65,7 +65,7 @@ onUnmounted(() => {
                 <span
                     :class="[
                         'shrink-0 rounded-full p-0.5',
-                        isError ? 'bg-red-100 text-red-600 dark:bg-red-900/40 dark:text-red-400' : 'bg-emerald-100 text-emerald-600 dark:bg-emerald-900/40 dark:text-emerald-400',
+                        isError ? 'bg-red-100 text-red-600 dark:bg-red-900/40 dark:text-red-400' : 'bg-orange-100 text-orange-600 dark:bg-orange-900/40 dark:text-orange-400',
                     ]"
                 >
                     <XCircle v-if="isError" class="h-5 w-5" aria-hidden="true" />

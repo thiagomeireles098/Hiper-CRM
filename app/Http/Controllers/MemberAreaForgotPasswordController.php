@@ -32,7 +32,7 @@ class MemberAreaForgotPasswordController extends Controller
                 'name' => $product->name,
                 'logo_light' => $loginConfig['logo'] ?? ($config['logos']['logo_light'] ?? ''),
                 'title' => $loginConfig['title'] ?? 'Área de Membros',
-                'primary_color' => $loginConfig['primary_color'] ?? '#0ea5e9',
+                'primary_color' => $loginConfig['primary_color'] ?? '#EF3E23',
                 'background_image' => $loginConfig['background_image'] ?? '',
                 'background_color' => $loginConfig['background_color'] ?? '#18181b',
             ],

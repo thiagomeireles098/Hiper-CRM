@@ -19,7 +19,7 @@ const props = defineProps({
     conversion_pixels: { type: Object, default: () => ({}) },
 });
 
-const primaryColor = computed(() => props.appearance.primary_color || '#0ea5e9');
+const primaryColor = computed(() => props.appearance.primary_color || '#EF3E23');
 const title = computed(() => props.page?.headline || props.appearance.title || 'Quer levar isso também?');
 const subtitle = computed(() => props.page?.subheadline || props.appearance.subtitle || 'Uma oferta exclusiva preparada para você');
 const buttonAccept = computed(() => props.appearance.button_accept || 'Sim, quero aproveitar');
@@ -159,8 +159,8 @@ async function decline() {
                     class="p-6 sm:p-8"
                     :class="{ 'pt-8 sm:pt-10': page?.hero_image || (page?.hero_video_url && youtubeEmbedUrl(page.hero_video_url)) }"
                 >
-                    <div v-if="showProductJustBought" class="mb-6 flex items-center gap-3 rounded-xl bg-emerald-50 px-4 py-3">
-                        <CheckCircle2 class="h-8 w-8 shrink-0 text-emerald-600" />
+                    <div v-if="showProductJustBought" class="mb-6 flex items-center gap-3 rounded-xl bg-orange-50 px-4 py-3">
+                        <CheckCircle2 class="h-8 w-8 shrink-0 text-orange-600" />
                         <div>
                             <h1 class="text-lg font-bold text-gray-900">Compra aprovada!</h1>
                             <p v-if="product_just_bought" class="text-sm text-gray-600">

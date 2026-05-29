@@ -199,7 +199,7 @@ const fixedValueClass =
             <Loader2 v-if="connectionTesting" class="h-4 w-4 animate-spin shrink-0" />
             {{ connectionTesting ? 'Testando...' : 'Testar conexão' }}
           </button>
-          <p v-if="connectionResult.status === 'success'" class="rounded-lg bg-green-50 px-3 py-2 text-sm text-green-700 dark:bg-green-900/30 dark:text-green-400">
+          <p v-if="connectionResult.status === 'success'" class="rounded-lg bg-orange-50 px-3 py-2 text-sm text-orange-700 dark:bg-orange-900/30 dark:text-orange-400">
             {{ connectionResult.message || 'Conexão estabelecida com sucesso.' }}
           </p>
           <p v-if="connectionResult.status === 'error'" class="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700 dark:bg-red-900/30 dark:text-red-400">
@@ -223,7 +223,7 @@ const fixedValueClass =
               <Loader2 v-if="sendTestSending" class="h-4 w-4 animate-spin shrink-0" />
               {{ sendTestSending ? 'Enviando...' : 'Enviar e-mail de teste' }}
             </button>
-            <p v-if="sendResult.status === 'success'" class="rounded-lg bg-green-50 px-3 py-2 text-sm text-green-700 dark:bg-green-900/30 dark:text-green-400">
+            <p v-if="sendResult.status === 'success'" class="rounded-lg bg-orange-50 px-3 py-2 text-sm text-orange-700 dark:bg-orange-900/30 dark:text-orange-400">
               {{ sendResult.message || 'E-mail de teste enviado com sucesso.' }}
             </p>
             <p v-if="sendResult.status === 'error'" class="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700 dark:bg-red-900/30 dark:text-red-400">

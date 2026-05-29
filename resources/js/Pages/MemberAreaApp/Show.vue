@@ -238,7 +238,7 @@ function productSectionUnlocked(mod) {
                                 class="pointer-events-none absolute right-2 top-2 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-black/55 text-white shadow-md ring-1 ring-white/10 backdrop-blur-sm"
                                 aria-hidden="true"
                             >
-                                <LockOpen v-if="productSectionUnlocked(mod)" class="h-4 w-4 text-emerald-300" />
+                                <LockOpen v-if="productSectionUnlocked(mod)" class="h-4 w-4 text-orange-300" />
                                 <Lock v-else class="h-4 w-4 text-amber-300" />
                             </div>
                             <img v-if="mod.related_product?.image_url || mod.thumbnail" :src="mod.related_product?.image_url || mod.thumbnail" :alt="mod.title" class="absolute inset-0 h-full w-full object-cover" />
@@ -248,8 +248,8 @@ function productSectionUnlocked(mod) {
                                 <p v-if="mod.related_product?.name" class="truncate text-sm text-white/80">{{ mod.related_product.name }}</p>
                                 <span v-if="productSectionNeedsCheckout(mod)" class="mt-1 inline-block text-xs font-medium text-amber-300">Comprar para acessar</span>
                                 <span v-else-if="!isPaidProductSection(mod)" class="mt-1 inline-block text-xs font-medium text-white/80">Liberado</span>
-                                <span v-else-if="mod.related_product?.type === 'link'" class="mt-1 inline-block text-xs font-medium text-emerald-300">Abrir link</span>
-                                <span v-else class="mt-1 inline-block text-xs font-medium text-emerald-300">Acessar</span>
+                                <span v-else-if="mod.related_product?.type === 'link'" class="mt-1 inline-block text-xs font-medium text-orange-300">Abrir link</span>
+                                <span v-else class="mt-1 inline-block text-xs font-medium text-orange-300">Acessar</span>
                             </div>
                         </div>
                     </component>

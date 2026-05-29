@@ -59,7 +59,7 @@ const previewBodyHtml = computed(() => replacePlaceholders(props.bodyHtml));
 
 <style scoped>
 .email-preview-body :deep(table) { width: 100%; max-width: 100%; }
-.email-preview-body :deep(a) { color: #0ea5e9; text-decoration: none; }
+.email-preview-body :deep(a) { color: #EF3E23; text-decoration: none; }
 .email-preview-body :deep(p) { margin: 0 0 0.75em; line-height: 1.5; }
 .email-preview-body :deep(strong) { font-weight: 600; }
 </style>

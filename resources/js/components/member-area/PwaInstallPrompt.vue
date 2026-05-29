@@ -109,7 +109,7 @@ onUnmounted(() => {
             class="fixed bottom-4 left-4 right-4 z-50 max-w-sm rounded-2xl border border-zinc-200 bg-white p-5 shadow-2xl dark:border-zinc-700 dark:bg-zinc-800"
         >
             <div class="flex items-start gap-3">
-                <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-500/20 text-emerald-500">
+                <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-orange-500/20 text-orange-500">
                     <Share class="h-5 w-5" />
                 </div>
                 <div class="min-w-0 flex-1">
@@ -119,7 +119,7 @@ onUnmounted(() => {
                     </p>
                     <button
                         type="button"
-                        class="mt-4 w-full rounded-xl bg-emerald-500 px-4 py-2.5 font-medium text-white transition hover:bg-emerald-600"
+                        class="mt-4 w-full rounded-xl bg-orange-500 px-4 py-2.5 font-medium text-white transition hover:bg-orange-600"
                         @click="dismiss"
                     >
                         Entendi

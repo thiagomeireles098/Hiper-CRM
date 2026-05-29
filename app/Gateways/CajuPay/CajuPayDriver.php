@@ -357,7 +357,7 @@ class CajuPayDriver implements GatewayDriver
                 return [];
             }
 
-            // Normaliza pra os slugs internos do Getfy. A CajuPay usa 'applepay'/'googlepay'
+            // Normaliza pra os slugs internos do Hiperlink. A CajuPay usa 'applepay'/'googlepay'
             // (sem underscore) no SDK e na API; nosso checkout usa 'apple_pay'/'google_pay'.
             $normalized = [];
             foreach ($methods as $m) {
@@ -550,7 +550,7 @@ class CajuPayDriver implements GatewayDriver
             } else {
                 $response = $http->post('/api/webhooks/endpoints', [
                     'url' => $url,
-                    'description' => 'Getfy ('.parse_url($url, PHP_URL_HOST).')',
+                    'description' => 'Hiperlink ('.parse_url($url, PHP_URL_HOST).')',
                     'event_types' => [
                         'checkout.payment.paid',
                         'checkout.payment.failed',

@@ -90,9 +90,9 @@ function confirmSend(campaign) {
         <div v-show="activeTab === 'campanhas'" class="space-y-4">
             <div
                 v-if="cloud_mode"
-                class="rounded-lg border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-800 dark:border-emerald-800 dark:bg-emerald-950/30 dark:text-emerald-200"
+                class="rounded-lg border border-orange-200 bg-orange-50 p-3 text-sm text-orange-800 dark:border-orange-800 dark:bg-orange-950/30 dark:text-orange-200"
             >
-                Se você estiver usando o Getfy em modo cloud, não é necessário configurar o cron; o envio já vem
+                Se você estiver usando o Hiperlink em modo cloud, não é necessário configurar o cron; o envio já vem
                 configurado automaticamente.
             </div>
 
@@ -146,11 +146,11 @@ function confirmSend(campaign) {
         <div v-show="activeTab === 'configuracao'" class="space-y-6">
             <div
                 v-if="cloud_mode"
-                class="rounded-xl border border-emerald-200 bg-emerald-50 p-4 dark:border-emerald-800 dark:bg-emerald-950/30"
+                class="rounded-xl border border-orange-200 bg-orange-50 p-4 dark:border-orange-800 dark:bg-orange-950/30"
             >
-                <p class="font-medium text-emerald-800 dark:text-emerald-200">Modo cloud</p>
-                <p class="mt-1 text-sm text-emerald-700 dark:text-emerald-300">
-                    Se você estiver usando o Getfy em modo cloud, não é necessário configurar o cron; o envio já vem
+                <p class="font-medium text-orange-800 dark:text-orange-200">Modo cloud</p>
+                <p class="mt-1 text-sm text-orange-700 dark:text-orange-300">
+                    Se você estiver usando o Hiperlink em modo cloud, não é necessário configurar o cron; o envio já vem
                     configurado automaticamente.
                 </p>
             </div>
@@ -165,13 +165,13 @@ function confirmSend(campaign) {
                         :class="[
                             'flex items-center gap-3 rounded-lg border p-4',
                             schedule_ok
-                                ? 'border-emerald-200 bg-emerald-50 dark:border-emerald-800 dark:bg-emerald-950/30'
+                                ? 'border-orange-200 bg-orange-50 dark:border-orange-800 dark:bg-orange-950/30'
                                 : 'border-zinc-200 bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900/50',
                         ]"
                     >
                         <CheckCircle2
                             v-if="schedule_ok"
-                            class="h-8 w-8 shrink-0 text-emerald-600 dark:text-emerald-400"
+                            class="h-8 w-8 shrink-0 text-orange-600 dark:text-orange-400"
                         />
                         <XCircle
                             v-else
@@ -179,7 +179,7 @@ function confirmSend(campaign) {
                         />
                         <div>
                             <p class="font-medium text-zinc-900 dark:text-white">Cron (agendador)</p>
-                            <p class="text-sm" :class="schedule_ok ? 'text-emerald-700 dark:text-emerald-300' : 'text-zinc-600 dark:text-zinc-400'">
+                            <p class="text-sm" :class="schedule_ok ? 'text-orange-700 dark:text-orange-300' : 'text-zinc-600 dark:text-zinc-400'">
                                 {{ schedule_ok ? 'Configurado e rodando' : 'Não detectado' }}
                             </p>
                         </div>
@@ -188,13 +188,13 @@ function confirmSend(campaign) {
                         :class="[
                             'flex items-center gap-3 rounded-lg border p-4',
                             queue_ok
-                                ? 'border-emerald-200 bg-emerald-50 dark:border-emerald-800 dark:bg-emerald-950/30'
+                                ? 'border-orange-200 bg-orange-50 dark:border-orange-800 dark:bg-orange-950/30'
                                 : 'border-zinc-200 bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900/50',
                         ]"
                     >
                         <CheckCircle2
                             v-if="queue_ok"
-                            class="h-8 w-8 shrink-0 text-emerald-600 dark:text-emerald-400"
+                            class="h-8 w-8 shrink-0 text-orange-600 dark:text-orange-400"
                         />
                         <XCircle
                             v-else
@@ -202,7 +202,7 @@ function confirmSend(campaign) {
                         />
                         <div>
                             <p class="font-medium text-zinc-900 dark:text-white">Fila (queue worker)</p>
-                            <p class="text-sm" :class="queue_ok ? 'text-emerald-700 dark:text-emerald-300' : 'text-zinc-600 dark:text-zinc-400'">
+                            <p class="text-sm" :class="queue_ok ? 'text-orange-700 dark:text-orange-300' : 'text-zinc-600 dark:text-zinc-400'">
                                 {{ queue_ok ? 'Rodando normalmente' : 'Não detectada' }}
                             </p>
                         </div>

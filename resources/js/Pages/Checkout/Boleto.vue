@@ -271,7 +271,7 @@ onUnmounted(() => {
                         <span
                             class="inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold"
                             :class="status === 'completed'
-                                ? 'border-green-200 bg-green-100 text-green-800'
+                                ? 'border-orange-200 bg-orange-100 text-orange-800'
                                 : 'border-amber-200 bg-amber-100 text-amber-800'"
                         >
                             <Check v-if="status === 'completed'" class="h-3.5 w-3.5" />

@@ -811,19 +811,19 @@ const selectClass =
                             <div v-if="form.storage_provider !== 'local'" class="space-y-4 rounded-xl border border-zinc-200 bg-zinc-50/50 p-5 dark:border-zinc-600 dark:bg-zinc-800/50">
                                 <div
                                     v-if="isCloudManagedR2"
-                                    class="flex items-start justify-between gap-4 rounded-xl border border-emerald-200 bg-emerald-50 p-4 dark:border-emerald-800/50 dark:bg-emerald-900/20"
+                                    class="flex items-start justify-between gap-4 rounded-xl border border-orange-200 bg-orange-50 p-4 dark:border-orange-800/50 dark:bg-orange-900/20"
                                 >
                                     <div class="min-w-0">
-                                        <p class="text-sm font-medium text-emerald-900 dark:text-emerald-100">
-                                            Parabéns, você está usando o Getfy Cloud com Cloudflare R2.
+                                        <p class="text-sm font-medium text-orange-900 dark:text-orange-100">
+                                            Parabéns, você está usando o Hiperlink Cloud com Cloudflare R2.
                                         </p>
-                                        <p class="mt-1 text-sm text-emerald-800 dark:text-emerald-200">
+                                        <p class="mt-1 text-sm text-orange-800 dark:text-orange-200">
                                             As credenciais foram provisionadas automaticamente.
                                         </p>
                                     </div>
                                     <button
                                         type="button"
-                                        class="shrink-0 inline-flex items-center gap-2 rounded-xl border border-emerald-300 bg-white px-4 py-2.5 text-sm font-medium text-emerald-700 transition hover:border-emerald-400 hover:text-emerald-800 dark:border-emerald-700 dark:bg-zinc-800 dark:text-emerald-200 dark:hover:border-emerald-600"
+                                        class="shrink-0 inline-flex items-center gap-2 rounded-xl border border-orange-300 bg-white px-4 py-2.5 text-sm font-medium text-orange-700 transition hover:border-orange-400 hover:text-orange-800 dark:border-orange-700 dark:bg-zinc-800 dark:text-orange-200 dark:hover:border-orange-600"
                                         @click="showCloudR2Override = true"
                                     >
                                         Usar minhas credenciais
@@ -918,7 +918,7 @@ const selectClass =
                                         :class="[
                                             'text-sm sm:ml-2',
                                             storageTestResult.status === 'success'
-                                                ? 'text-emerald-600 dark:text-emerald-400'
+                                                ? 'text-orange-600 dark:text-orange-400'
                                                 : 'text-red-600 dark:text-red-400',
                                         ]"
                                     >
@@ -1050,7 +1050,7 @@ const selectClass =
                                     Atualizar todas as taxas
                                 </button>
                             </div>
-                            <p v-if="catalogActionMessage" class="mt-3 text-sm text-emerald-700 dark:text-emerald-400">{{ catalogActionMessage }}</p>
+                            <p v-if="catalogActionMessage" class="mt-3 text-sm text-orange-700 dark:text-orange-400">{{ catalogActionMessage }}</p>
                             <p v-if="catalogActionError" class="mt-3 text-sm text-red-600 dark:text-red-400">{{ catalogActionError }}</p>
                         </div>
                         <div v-if="rateFetchError" class="mx-6 rounded-lg border border-amber-200 bg-amber-50 px-4 py-2 text-sm text-amber-800 dark:border-amber-800/50 dark:bg-amber-900/20 dark:text-amber-200">
@@ -1231,12 +1231,12 @@ const selectClass =
                         </div>
                         <div
                             v-if="cloud_mode || docker_mode"
-                            class="rounded-xl border border-emerald-200 bg-emerald-50 p-4 dark:border-emerald-800/50 dark:bg-emerald-950/30"
+                            class="rounded-xl border border-orange-200 bg-orange-50 p-4 dark:border-orange-800/50 dark:bg-orange-950/30"
                         >
-                            <p class="text-sm font-medium text-emerald-800 dark:text-emerald-200">
+                            <p class="text-sm font-medium text-orange-800 dark:text-orange-200">
                                 Modo Cloud / Docker
                             </p>
-                            <p class="mt-1 text-sm text-emerald-700 dark:text-emerald-300">
+                            <p class="mt-1 text-sm text-orange-700 dark:text-orange-300">
                                 Se você estiver usando o modo Cloud ou instalou via Docker, o agendador normalmente já fica configurado automaticamente. Só configure manualmente se estiver em hospedagem compartilhada.
                             </p>
                         </div>
@@ -1354,7 +1354,7 @@ const selectClass =
                         </div>
                         <div v-if="updateCheckResult" class="rounded-xl border border-zinc-200 bg-zinc-50/50 p-4 dark:border-zinc-600 dark:bg-zinc-800/50">
                             <p v-if="updateCheckResult.error" class="text-sm text-amber-600 dark:text-amber-400">{{ updateCheckResult.error }}</p>
-                            <p v-else-if="updateCheckResult.available" class="text-sm font-medium text-emerald-600 dark:text-emerald-400">
+                            <p v-else-if="updateCheckResult.available" class="text-sm font-medium text-orange-600 dark:text-orange-400">
                                 Nova versão disponível: {{ updateCheckResult.latest }}
                             </p>
                             <p v-else-if="updateCheckResult.latest" class="text-sm text-zinc-600 dark:text-zinc-400">
@@ -1390,7 +1390,7 @@ const selectClass =
                                     <p v-if="integrityResult.pending_count > 0" class="text-amber-700 dark:text-amber-300">
                                         Existem {{ integrityResult.pending_count }} migrations pendentes para rodar.
                                     </p>
-                                    <p v-else class="text-emerald-700 dark:text-emerald-400">
+                                    <p v-else class="text-orange-700 dark:text-orange-400">
                                         Nenhuma migration pendente.
                                     </p>
                                     <div v-if="(integrityResult.pending ?? []).length" class="mt-2 rounded-lg border border-zinc-200 bg-white p-3 dark:border-zinc-700 dark:bg-zinc-900/30">
@@ -1417,7 +1417,7 @@ const selectClass =
                                 </button>
                             </div>
                             <div v-if="migrateResult" class="mt-3 text-sm">
-                                <p v-if="migrateResult.success" class="text-emerald-700 dark:text-emerald-400">{{ migrateResult.message }}</p>
+                                <p v-if="migrateResult.success" class="text-orange-700 dark:text-orange-400">{{ migrateResult.message }}</p>
                                 <p v-else class="text-amber-700 dark:text-amber-300">{{ migrateResult.message }}</p>
                                 <div v-if="(migrateResult.output ?? '').trim() !== ''" class="mt-2 rounded-lg border border-zinc-200 bg-white p-3 dark:border-zinc-700 dark:bg-zinc-900/30">
                                     <pre class="whitespace-pre-wrap font-mono text-xs text-zinc-700 dark:text-zinc-300">{{ migrateResult.output }}</pre>

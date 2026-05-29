@@ -605,7 +605,7 @@ class UpdateController extends Controller
         $hasGitRepo = is_dir($basePath . DIRECTORY_SEPARATOR . '.git');
 
         if ($hasGitRepo && self::canRunProcess()) {
-            $runStep($git . ' config user.email "getfy-update@localhost" && ' . $git . ' config user.name "Getfy Update"', 'Git config');
+            $runStep($git . ' config user.email "getfy-update@localhost" && ' . $git . ' config user.name "Hiperlink Update"', 'Git config');
             $runStep($git . ' stash push -m "getfy-update"', 'Git stash');
 
             if (! $runStep($git . " fetch origin && " . $git . " pull origin {$branch}", 'Git pull')) {

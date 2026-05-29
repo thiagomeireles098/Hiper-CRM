@@ -173,7 +173,7 @@ function displayNumber(value) {
 
 function statusBadgeClass(status) {
     const map = {
-        completed: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300',
+        completed: 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300',
         pending: 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300',
         disputed: 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300',
         cancelled: 'bg-zinc-100 text-zinc-700 dark:bg-zinc-700/50 dark:text-zinc-300',
@@ -926,7 +926,7 @@ function openProofExport() {
                 <button
                     v-if="menuVenda.status === 'pending'"
                     type="button"
-                    class="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-emerald-700 hover:bg-emerald-50 dark:text-emerald-300 dark:hover:bg-emerald-900/20 disabled:opacity-50"
+                    class="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-orange-700 hover:bg-orange-50 dark:text-orange-300 dark:hover:bg-orange-900/20 disabled:opacity-50"
                     :disabled="approvingId === openMenuId"
                     @click="approveManually(menuVenda)"
                 >
@@ -1034,7 +1034,7 @@ function openProofExport() {
                         'fixed bottom-4 right-4 z-[100001] max-w-sm rounded-xl border px-4 py-3 shadow-lg',
                         toast.type === 'error'
                             ? 'border-red-200 bg-red-50 text-red-800 dark:border-red-900/50 dark:bg-red-900/20 dark:text-red-200'
-                            : 'border-emerald-200 bg-emerald-50 text-emerald-800 dark:border-emerald-900/50 dark:bg-emerald-900/20 dark:text-emerald-200',
+                            : 'border-orange-200 bg-orange-50 text-orange-800 dark:border-orange-900/50 dark:bg-orange-900/20 dark:text-orange-200',
                     ]"
                 >
                     <p class="text-sm font-medium">{{ toast.message }}</p>

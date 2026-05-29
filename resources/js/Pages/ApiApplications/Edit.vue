@@ -628,7 +628,7 @@ function regenerateKey() {
             <div>
                 <label class="block text-sm font-medium text-zinc-700 dark:text-zinc-300">Webhook secret (opcional)</label>
                 <input v-model="form.webhook_secret" type="password" autocomplete="off" class="mt-1 block w-full rounded-lg border border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-900 px-3 py-2" placeholder="Secret para validar assinatura HMAC" />
-                <p class="mt-1 text-xs text-zinc-500 dark:text-zinc-400">Usado para assinar o body do webhook (X-Getfy-Signature). Deixe em branco para não alterar.</p>
+                <p class="mt-1 text-xs text-zinc-500 dark:text-zinc-400">Usado para assinar o body do webhook (X-Hiperlink-Signature). Deixe em branco para não alterar.</p>
                 <p v-if="form.errors.webhook_secret" class="mt-1 text-sm text-red-600">{{ form.errors.webhook_secret }}</p>
             </div>
 
@@ -682,7 +682,7 @@ function regenerateKey() {
                 <div class="mt-4 flex items-center gap-2 rounded-xl border border-zinc-200 bg-zinc-50 p-3 dark:border-zinc-700 dark:bg-zinc-800">
                     <code class="min-w-0 flex-1 truncate text-sm font-mono text-zinc-800 dark:text-zinc-200">{{ revealedKey }}</code>
                     <Button type="button" size="sm" variant="outline" class="shrink-0" @click="copyKey">
-                        <Check v-if="copyKeyFeedback" class="h-4 w-4 text-emerald-600" />
+                        <Check v-if="copyKeyFeedback" class="h-4 w-4 text-orange-600" />
                         <Copy v-else class="h-4 w-4" />
                         {{ copyKeyFeedback ? 'Copiado!' : 'Copiar' }}
                     </Button>

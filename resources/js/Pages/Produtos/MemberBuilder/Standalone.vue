@@ -132,7 +132,7 @@ const memberAreaFullLink = computed(() => {
 });
 
 const defaultConfig = () => ({
-    theme: { primary: '#0ea5e9', background: '#18181b', text: '#f8fafc', sidebar_bg: '#27272a', ...props.produto.member_area_config?.theme },
+    theme: { primary: '#EF3E23', background: '#18181b', text: '#f8fafc', sidebar_bg: '#27272a', ...props.produto.member_area_config?.theme },
     hero: { title: '', subtitle: '', image_url: '', image_url_desktop: '', image_url_mobile: '', overlay: false, ...props.produto.member_area_config?.hero },
     header: { logo_url: '', ...props.produto.member_area_config?.header },
     logos: props.produto.member_area_config?.logos ?? {},
@@ -140,7 +140,7 @@ const defaultConfig = () => ({
     login: {
         title: '',
         subtitle: '',
-        primary_color: '#0ea5e9',
+        primary_color: '#EF3E23',
         background_color: '#18181b',
         logo: '',
         background_image: '',
@@ -149,7 +149,7 @@ const defaultConfig = () => ({
         login_without_password: props.produto.member_area_config?.login?.login_without_password ?? false,
         ...props.produto.member_area_config?.login,
     },
-    pwa: { name: '', short_name: '', theme_color: '#0ea5e9', push_enabled: false, ...props.produto.member_area_config?.pwa },
+    pwa: { name: '', short_name: '', theme_color: '#EF3E23', push_enabled: false, ...props.produto.member_area_config?.pwa },
     certificate: { enabled: false, title: '', completion_percent: 100, signature_text: '', font_family: 'sans-serif', duration_text: '', platform_name: '', primary_color: '', background_image_url: '', background_overlay_enabled: false, background_overlay_color: '#000000', background_overlay_opacity: 50, text_color: '', title_color: '', signature_font_family: 'Dancing Script', print_format: 'A4', ...props.produto.member_area_config?.certificate },
     community_enabled: props.produto.member_area_config?.community_enabled ?? false,
     community_users_can_delete_own_posts: props.produto.member_area_config?.community_users_can_delete_own_posts ?? true,
@@ -2185,7 +2185,7 @@ const inputClass = 'block w-full rounded-lg border border-zinc-300 bg-white px-3
                                                         <template v-else>
                                                             <span class="min-w-0 flex-1 truncate text-xs font-medium text-zinc-700 dark:text-zinc-300">{{ mod.title }}</span>
                                                             <span class="shrink-0 truncate text-xs text-zinc-500 dark:text-zinc-400" :title="mod.related_product?.name">{{ mod.related_product?.name ?? '#' + mod.related_product_id }}</span>
-                                                            <span class="shrink-0 rounded px-1.5 py-0.5 text-[10px] font-medium" :class="mod.access_type === 'free' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300' : 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300'">{{ mod.access_type === 'free' ? 'Liberado' : 'Pago' }}</span>
+                                                            <span class="shrink-0 rounded px-1.5 py-0.5 text-[10px] font-medium" :class="mod.access_type === 'free' ? 'bg-orange-100 text-orange-700 dark:bg-orange-900/40 dark:text-orange-300' : 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300'">{{ mod.access_type === 'free' ? 'Liberado' : 'Pago' }}</span>
                                                             <div class="flex shrink-0 items-center gap-0.5">
                                                                 <button type="button" class="rounded p-1 text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-700" title="Editar" @click.stop="openModuleEdit(mod)"><Pencil class="h-3 w-3" /></button>
                                                                 <button type="button" class="rounded p-1 text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30" title="Remover" @click.stop="deleteModule(mod.id)"><Trash2 class="h-3 w-3" /></button>
@@ -2648,7 +2648,7 @@ const inputClass = 'block w-full rounded-lg border border-zinc-300 bg-white px-3
                                                         :class="[
                                                             'inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium capitalize',
                                                             c.status === 'pending' && 'bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300',
-                                                            c.status === 'approved' && 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300',
+                                                            c.status === 'approved' && 'bg-orange-100 text-orange-800 dark:bg-orange-900/40 dark:text-orange-300',
                                                             c.status === 'rejected' && 'bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-300',
                                                         ]"
                                                     >
@@ -2969,7 +2969,7 @@ const inputClass = 'block w-full rounded-lg border border-zinc-300 bg-white px-3
                                 <!-- Card: Aparência do app (PWA) -->
                                 <div class="rounded-xl border border-zinc-200 bg-white p-5 shadow-sm dark:border-zinc-700 dark:bg-zinc-800/50">
                                     <h3 class="mb-4 flex items-center gap-2 text-sm font-semibold text-zinc-800 dark:text-zinc-200">
-                                        <Smartphone class="h-4 w-4 text-emerald-500" />
+                                        <Smartphone class="h-4 w-4 text-orange-500" />
                                         Aparência do app
                                     </h3>
                                     <div class="space-y-4">
@@ -2996,7 +2996,7 @@ const inputClass = 'block w-full rounded-lg border border-zinc-300 bg-white px-3
                                                     type="text"
                                                     :class="inputClass"
                                                     class="flex-1 font-mono text-sm"
-                                                    placeholder="#0ea5e9"
+                                                    placeholder="#EF3E23"
                                                     maxlength="20"
                                                 />
                                             </div>
@@ -3050,7 +3050,7 @@ const inputClass = 'block w-full rounded-lg border border-zinc-300 bg-white px-3
                                                     {{ pushSending ? 'Enviando…' : 'Enviar notificação' }}
                                                 </Button>
                                             </div>
-                                            <p v-if="pushSendResult" class="text-xs" :class="pushSendResult.success ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'">
+                                            <p v-if="pushSendResult" class="text-xs" :class="pushSendResult.success ? 'text-orange-600 dark:text-orange-400' : 'text-red-600 dark:text-red-400'">
                                                 {{ pushSendResult.message }}
                                             </p>
                                         </div>

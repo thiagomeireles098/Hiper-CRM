@@ -66,7 +66,7 @@ class PluginRegistry
                 }
             }
         } catch (\Throwable $e) {
-            Log::warning('Getfy: migração de pasta legacy de plugins falhou.', [
+            Log::warning('Hiperlink: migração de pasta legacy de plugins falhou.', [
                 'message' => $e->getMessage(),
             ]);
         }

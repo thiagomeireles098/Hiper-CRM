@@ -895,7 +895,7 @@ function getInitialUpsellDownsell() {
             appearance: {
                 title: u.appearance?.title ?? 'Quer levar isso também?',
                 subtitle: u.appearance?.subtitle ?? 'Oferta especial só para você',
-                primary_color: u.appearance?.primary_color ?? '#0ea5e9',
+                primary_color: u.appearance?.primary_color ?? '#EF3E23',
                 button_accept: u.appearance?.button_accept ?? 'Sim, quero aproveitar',
                 button_decline: u.appearance?.button_decline ?? 'Não, obrigado',
             },
@@ -912,7 +912,7 @@ function getInitialUpsellDownsell() {
             appearance: {
                 title: d.appearance?.title ?? 'Última chance com desconto',
                 subtitle: d.appearance?.subtitle ?? 'Uma oferta que não pode ficar de fora',
-                primary_color: d.appearance?.primary_color ?? '#0ea5e9',
+                primary_color: d.appearance?.primary_color ?? '#EF3E23',
                 button_accept: d.appearance?.button_accept ?? 'Aceitar oferta',
                 button_decline: d.appearance?.button_decline ?? 'Não, obrigado',
             },
@@ -3305,7 +3305,7 @@ function submit() {
                             <div class="flex items-center gap-2">
                                 <span
                                     class="inline-flex rounded-md px-2 py-0.5 text-xs font-medium"
-                                    :class="item.type === 'main' ? 'bg-[var(--color-primary)]/20 text-[var(--color-primary)]' : item.type === 'offer' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300' : 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300'"
+                                    :class="item.type === 'main' ? 'bg-[var(--color-primary)]/20 text-[var(--color-primary)]' : item.type === 'offer' ? 'bg-orange-100 text-orange-700 dark:bg-orange-900/40 dark:text-orange-300' : 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300'"
                                 >
                                     {{ item.type === 'main' ? 'Principal' : item.type === 'offer' ? 'Oferta' : 'Plano' }}
                                 </span>
@@ -3317,7 +3317,7 @@ function submit() {
                                     <button
                                         type="button"
                                         class="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium transition"
-                                        :class="copiedSlug === item.slug ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300' : 'bg-zinc-100 text-zinc-700 hover:bg-zinc-200 dark:bg-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-600'"
+                                        :class="copiedSlug === item.slug ? 'bg-orange-100 text-orange-700 dark:bg-orange-900/40 dark:text-orange-300' : 'bg-zinc-100 text-zinc-700 hover:bg-zinc-200 dark:bg-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-600'"
                                         @click="copyLink(item.slug)"
                                     >
                                         <Check v-if="copiedSlug === item.slug" class="h-3.5 w-3.5" />
@@ -3495,7 +3495,7 @@ function submit() {
                                     <button
                                         type="button"
                                         class="inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-medium transition"
-                                        :class="copiedSlug === item.id ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300' : 'bg-[var(--color-primary)]/10 text-[var(--color-primary)] hover:bg-[var(--color-primary)]/20 dark:bg-[var(--color-primary)]/20 dark:hover:bg-[var(--color-primary)]/30'"
+                                        :class="copiedSlug === item.id ? 'bg-orange-100 text-orange-700 dark:bg-orange-900/40 dark:text-orange-300' : 'bg-[var(--color-primary)]/10 text-[var(--color-primary)] hover:bg-[var(--color-primary)]/20 dark:bg-[var(--color-primary)]/20 dark:hover:bg-[var(--color-primary)]/30'"
                                         @click="copyLinkForItem(item)"
                                     >
                                         <Check v-if="copiedSlug === item.id" class="h-3.5 w-3.5" />

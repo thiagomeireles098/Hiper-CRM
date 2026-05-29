@@ -22,7 +22,7 @@ Route::post('/docker-setup', [\App\Http\Controllers\DockerSetupController::class
 
 // Favicon: evita 404 no console quando o navegador solicita /favicon.ico
 Route::get('/favicon.ico', function () {
-    return redirect('https://cdn.getfy.cloud/collapsed-logo.png', 302);
+    return redirect('/brand/isotipo-laranja.png', 302);
 });
 
 // PWA Painel: manifest e service worker
@@ -267,7 +267,7 @@ Route::middleware(['auth', 'admin.tenant', 'role:admin|infoprodutor|team', 'audi
                 }
 
                 $payload = ['enabled' => true] + $json;
-                $payload['portalUrl'] = 'http://getfy.cloud/login';
+                $payload['portalUrl'] = 'https://app.hiperlinksolutions.com.br/login';
                 Cache::put($lastGoodKey, $payload, now()->addMinutes(60));
 
                 return $payload;

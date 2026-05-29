@@ -80,7 +80,7 @@ function submit() {
                     <AlertCircle class="h-5 w-5 shrink-0" />
                     {{ flash.error }}
                 </div>
-                <div v-if="flash?.success" class="mt-4 flex items-center gap-3 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800 dark:border-emerald-800 dark:bg-emerald-950/30 dark:text-emerald-200" role="status">
+                <div v-if="flash?.success" class="mt-4 flex items-center gap-3 rounded-xl border border-orange-200 bg-orange-50 px-4 py-3 text-sm text-orange-800 dark:border-orange-800 dark:bg-orange-950/30 dark:text-orange-200" role="status">
                     <CheckCircle2 class="h-5 w-5 shrink-0" />
                     {{ flash.success }}
                 </div>

@@ -1887,7 +1887,7 @@ async function getEfiPaymentToken() {
 }
 
 /**
- * Cria a Order pendente no Getfy (draft → pedido). Idempotente se já materializado com o mesmo polling_token.
+ * Cria a Order pendente no Hiperlink (draft → pedido). Idempotente se já materializado com o mesmo polling_token.
  */
 async function postCajuPayConfirmOrder() {
     const pollingToken = cajupayPollingToken.value;
@@ -2462,8 +2462,8 @@ function submit() {
                     role="document"
                 >
                     <div class="flex flex-col items-center text-center">
-                        <div class="flex h-16 w-16 items-center justify-center rounded-full bg-green-100">
-                            <Check class="h-9 w-9 text-green-600" stroke-width="2.5" />
+                        <div class="flex h-16 w-16 items-center justify-center rounded-full bg-orange-100">
+                            <Check class="h-9 w-9 text-orange-600" stroke-width="2.5" />
                         </div>
                         <h2 id="approved-title" class="mt-5 text-lg font-semibold text-gray-900">Pagamento aprovado!</h2>
                         <p class="mt-1.5 text-sm text-gray-600">Redirecionando...</p>

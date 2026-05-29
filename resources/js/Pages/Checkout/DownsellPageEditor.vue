@@ -41,7 +41,7 @@ const defaultPage = {
 const defaultAppearance = {
     title: 'Última chance com desconto',
     subtitle: 'Uma oferta que não pode ficar de fora',
-    primary_color: '#0ea5e9',
+    primary_color: '#EF3E23',
     button_accept: 'Aceitar oferta',
     button_decline: 'Não, obrigado',
 };

@@ -226,7 +226,7 @@ load();
             <p v-if="error" class="rounded-lg bg-red-100 px-3 py-2 text-sm text-red-700 dark:bg-red-900/30 dark:text-red-300">
                 {{ error }}
             </p>
-            <p v-else-if="ok" class="rounded-lg bg-emerald-100 px-3 py-2 text-sm text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-200">
+            <p v-else-if="ok" class="rounded-lg bg-orange-100 px-3 py-2 text-sm text-orange-800 dark:bg-orange-900/30 dark:text-orange-200">
                 {{ ok }}
             </p>
         </div>

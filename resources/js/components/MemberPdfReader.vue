@@ -500,7 +500,7 @@ const colorBtn = (c) =>
     <div class="member-pdf-reader flex flex-col gap-3">
         <div
             v-if="toastMessage"
-            class="rounded-lg border border-emerald-500/40 bg-emerald-500/15 px-4 py-2 text-center text-sm text-emerald-100"
+            class="rounded-lg border border-orange-500/40 bg-orange-500/15 px-4 py-2 text-center text-sm text-orange-100"
         >
             {{ toastMessage }}
         </div>
@@ -597,7 +597,7 @@ const colorBtn = (c) =>
                     />
                     <button
                         type="button"
-                        class="h-7 w-10 rounded border border-zinc-600 bg-green-400/90"
+                        class="h-7 w-10 rounded border border-zinc-600 bg-orange-400/90"
                         :class="colorBtn('green')"
                         title="Verde"
                         @click="highlightColor = highlightColor === 'green' ? null : 'green'"
@@ -635,7 +635,7 @@ const colorBtn = (c) =>
                                 class="pointer-events-auto absolute cursor-pointer mix-blend-multiply"
                                 :class="{
                                     'bg-yellow-400/45': h.color === 'yellow',
-                                    'bg-green-400/45': h.color === 'green',
+                                    'bg-orange-400/45': h.color === 'green',
                                     'bg-pink-400/45': h.color === 'pink',
                                 }"
                                 :style="{
@@ -685,7 +685,7 @@ const colorBtn = (c) =>
                         class="mb-2 w-full rounded-md border p-1 transition"
                         :class="
                             pg === globalPage
-                                ? 'border-[var(--ma-primary,#0ea5e9)] ring-1 ring-[var(--ma-primary,#0ea5e9)]'
+                                ? 'border-[var(--ma-primary,#EF3E23)] ring-1 ring-[var(--ma-primary,#EF3E23)]'
                                 : 'border-zinc-700 hover:border-zinc-500'
                         "
                         @click="goToGlobalPage(pg)"

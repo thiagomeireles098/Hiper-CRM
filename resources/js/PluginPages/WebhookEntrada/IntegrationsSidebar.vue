@@ -95,7 +95,7 @@ function buildAiPrompt(payloadText) {
     }
     const referenceJson = JSON.stringify(EXAMPLE_FIELD_MAP, null, 2);
 
-    return `Você é um assistente que mapeia webhooks de checkout (JSON) para o formato \`field_map\` do plugin **Webhook de entrada** do Getfy.
+    return `Você é um assistente que mapeia webhooks de checkout (JSON) para o formato \`field_map\` do plugin **Webhook de entrada** do Hiperlink.
 
 ## Regras do field_map
 - Chaves permitidas (e só estas): \`email\`, \`name\`, \`cpf\`, \`phone\`, \`external_id\`, e opcionalmente \`_strict\` (boolean).
@@ -353,7 +353,7 @@ loadAll();
         <div v-if="error" class="rounded-lg bg-red-100 px-3 py-2 text-sm text-red-800 dark:bg-red-900/30 dark:text-red-300">
             {{ error }}
         </div>
-        <div v-if="ok" class="rounded-lg bg-emerald-100 px-3 py-2 text-sm text-emerald-900 dark:bg-emerald-900/30 dark:text-emerald-200">
+        <div v-if="ok" class="rounded-lg bg-orange-100 px-3 py-2 text-sm text-orange-900 dark:bg-orange-900/30 dark:text-orange-200">
             {{ ok }}
         </div>
 
@@ -424,15 +424,15 @@ loadAll();
 
             <div
                 v-if="showHelper"
-                class="space-y-3 rounded-xl border border-emerald-200 bg-emerald-50/40 p-3 dark:border-emerald-900/50 dark:bg-emerald-950/20"
+                class="space-y-3 rounded-xl border border-orange-200 bg-orange-50/40 p-3 dark:border-orange-900/50 dark:bg-orange-950/20"
             >
-                <div class="flex flex-wrap gap-1 border-b border-emerald-200/80 pb-2 dark:border-emerald-800/60">
+                <div class="flex flex-wrap gap-1 border-b border-orange-200/80 pb-2 dark:border-orange-800/60">
                     <button
                         type="button"
                         class="rounded-t px-3 py-1.5 text-xs font-medium transition-colors"
                         :class="
                             helperTab === 'example'
-                                ? 'bg-white text-emerald-900 shadow-sm dark:bg-zinc-900 dark:text-emerald-200'
+                                ? 'bg-white text-orange-900 shadow-sm dark:bg-zinc-900 dark:text-orange-200'
                                 : 'text-zinc-600 hover:bg-white/60 dark:text-zinc-400 dark:hover:bg-zinc-900/40'
                         "
                         @click="helperTab = 'example'"
@@ -444,7 +444,7 @@ loadAll();
                         class="rounded-t px-3 py-1.5 text-xs font-medium transition-colors"
                         :class="
                             helperTab === 'ai'
-                                ? 'bg-white text-emerald-900 shadow-sm dark:bg-zinc-900 dark:text-emerald-200'
+                                ? 'bg-white text-orange-900 shadow-sm dark:bg-zinc-900 dark:text-orange-200'
                                 : 'text-zinc-600 hover:bg-white/60 dark:text-zinc-400 dark:hover:bg-zinc-900/40'
                         "
                         @click="helperTab = 'ai'"

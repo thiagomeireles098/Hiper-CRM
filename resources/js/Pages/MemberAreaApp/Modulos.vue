@@ -37,7 +37,7 @@ const props = defineProps({
                             <ul class="mt-2 space-y-1">
                                 <li v-for="lesson in mod.lessons" :key="lesson.id" class="flex items-center justify-between gap-2 text-sm">
                                     <span class="flex min-w-0 items-center gap-2 truncate">
-                                        <span v-if="lesson.is_completed" class="text-emerald-400">✓</span>
+                                        <span v-if="lesson.is_completed" class="text-orange-400">✓</span>
                                         <Link
                                             v-if="!mod.is_locked && !lesson.is_locked"
                                             :href="`/m/${slug}/modulo/${mod.id}?aula=${lesson.id}`"

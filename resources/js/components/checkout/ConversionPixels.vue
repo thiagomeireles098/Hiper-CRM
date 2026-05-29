@@ -163,7 +163,7 @@ function injectMetaLibAndInit(metaEntries) {
     s.onerror = () => {
         if (import.meta.env.DEV) {
             console.warn(
-                '[Getfy][Meta Pixel] Falha ao carregar fbevents.js. Causas comuns: extensão bloqueando connect.facebook.net (ERR_BLOCKED_BY_CLIENT), rede ou firewall.'
+                '[Hiperlink][Meta Pixel] Falha ao carregar fbevents.js. Causas comuns: extensão bloqueando connect.facebook.net (ERR_BLOCKED_BY_CLIENT), rede ou firewall.'
             );
         }
     };

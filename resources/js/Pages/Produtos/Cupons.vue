@@ -134,7 +134,7 @@ function usosText(c) {
                                     :class="[
                                         'inline-block rounded px-2 py-0.5 text-xs font-medium',
                                         c.is_active
-                                            ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300'
+                                            ? 'bg-orange-100 text-orange-700 dark:bg-orange-900/40 dark:text-orange-300'
                                             : 'bg-zinc-100 text-zinc-500 dark:bg-zinc-700 dark:text-zinc-400',
                                     ]"
                                 >

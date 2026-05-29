@@ -42,14 +42,14 @@ function copyLink() {
 </script>
 
 <template>
-    <div class="relative min-h-screen overflow-hidden bg-gradient-to-br from-emerald-950/20 via-zinc-50 to-amber-50/30 dark:from-zinc-950 dark:via-zinc-900 dark:to-emerald-950/20">
+    <div class="relative min-h-screen overflow-hidden bg-gradient-to-br from-orange-950/20 via-zinc-50 to-amber-50/30 dark:from-zinc-950 dark:via-zinc-900 dark:to-orange-950/20">
         <!-- Background pattern -->
         <div
             class="pointer-events-none absolute inset-0 opacity-[0.03] dark:opacity-[0.04]"
             style="background-image: radial-gradient(circle at 1px 1px, currentColor 1px, transparent 0); background-size: 40px 40px;"
             aria-hidden
         />
-        <div class="absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,var(--tw-gradient-stops))] from-emerald-400/15 to-transparent dark:from-emerald-500/10" aria-hidden />
+        <div class="absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,var(--tw-gradient-stops))] from-orange-400/15 to-transparent dark:from-orange-500/10" aria-hidden />
 
         <div class="relative mx-auto flex min-h-screen max-w-md flex-col items-center justify-center px-6 py-16">
             <!-- Card principal -->
@@ -60,7 +60,7 @@ function copyLink() {
                     <!-- Badge com glow -->
                     <div class="relative mx-auto flex h-36 w-36 items-center justify-center">
                         <div
-                            class="absolute inset-0 rounded-full bg-gradient-to-br from-emerald-400/30 to-amber-500/20 blur-2xl dark:from-emerald-500/20 dark:to-amber-600/15"
+                            class="absolute inset-0 rounded-full bg-gradient-to-br from-orange-400/30 to-amber-500/20 blur-2xl dark:from-orange-500/20 dark:to-amber-600/15"
                             aria-hidden
                         />
                         <div
@@ -76,7 +76,7 @@ function copyLink() {
                     </div>
 
                     <!-- Valor -->
-                    <p class="mt-6 text-center text-sm font-medium uppercase tracking-widest text-emerald-600 dark:text-emerald-400">
+                    <p class="mt-6 text-center text-sm font-medium uppercase tracking-widest text-orange-600 dark:text-orange-400">
                         R$ {{ formatCompactCurrency(achievement.threshold ?? 0) }} em vendas
                     </p>
 
@@ -95,7 +95,7 @@ function copyLink() {
 
                     <!-- Brand -->
                     <p class="mt-8 text-center text-xs font-medium tracking-wider text-zinc-400 dark:text-zinc-500">
-                        Getfy
+                        Hiperlink
                     </p>
                 </div>
             </div>

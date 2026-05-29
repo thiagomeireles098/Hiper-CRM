@@ -13,13 +13,13 @@
         (function(){try{var s=localStorage.getItem('theme');var t=s||'dark';document.documentElement.classList.toggle('dark',t==='dark');}catch(_){}})();
     </script>
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>{{ config('getfy.app_name', config('app.name', 'Getfy')) }}</title>
+    <title>{{ config('getfy.app_name', config('app.name', 'Hiperlink')) }}</title>
     @unless($skipPanelPwa)
     @php
         $wlFavicon = config('getfy.favicon_url');
-        $wlFavicon = ($wlFavicon !== null && $wlFavicon !== '') ? $wlFavicon : 'https://cdn.getfy.cloud/collapsed-logo.png';
+        $wlFavicon = ($wlFavicon !== null && $wlFavicon !== '') ? $wlFavicon : '/brand/isotipo-laranja.png';
         $wlThemeColor = config('getfy.pwa_theme_color');
-        $wlThemeColor = ($wlThemeColor !== null && $wlThemeColor !== '') ? $wlThemeColor : config('getfy.theme_primary', '#0ea5e9');
+        $wlThemeColor = ($wlThemeColor !== null && $wlThemeColor !== '') ? $wlThemeColor : config('getfy.theme_primary', '#EF3E23');
         $wlAppleIcon = config('getfy.pwa_icon_192');
     @endphp
     <link rel="icon" href="{{ $wlFavicon }}" type="image/png">

@@ -42,7 +42,7 @@ const defaultPage = {
 const defaultAppearance = {
     title: 'Quer levar isso também?',
     subtitle: 'Uma oferta exclusiva preparada para você',
-    primary_color: '#0ea5e9',
+    primary_color: '#EF3E23',
     button_accept: 'Sim, quero aproveitar',
     button_decline: 'Não, obrigado',
 };

@@ -200,16 +200,16 @@ class HandleInertiaRequests extends Middleware
      */
     private function buildPublicBranding(): array
     {
-        $themePrimary = (string) config('getfy.theme_primary', '#00cc00');
+        $themePrimary = (string) config('getfy.theme_primary', '#EF3E23');
         $pwaTheme = config('getfy.pwa_theme_color');
         $pwaTheme = ($pwaTheme !== null && $pwaTheme !== '') ? (string) $pwaTheme : $themePrimary;
         $favicon = config('getfy.favicon_url');
-        $favicon = ($favicon !== null && $favicon !== '') ? (string) $favicon : 'https://cdn.getfy.cloud/collapsed-logo.png';
+        $favicon = ($favicon !== null && $favicon !== '') ? (string) $favicon : '/brand/isotipo-laranja.png';
         $loginHero = config('getfy.login_hero_image');
-        $loginHero = ($loginHero !== null && $loginHero !== '') ? (string) $loginHero : 'https://cdn.getfy.cloud/login.webp';
+        $loginHero = ($loginHero !== null && $loginHero !== '') ? (string) $loginHero : '/brand/isologo-laranja.png';
 
         return [
-            'app_name' => (string) config('getfy.app_name', 'Getfy'),
+            'app_name' => (string) config('getfy.app_name', 'Hiperlink'),
             'theme_primary' => $themePrimary,
             'pwa_theme_color' => $pwaTheme,
             'app_logo' => (string) config('getfy.app_logo'),

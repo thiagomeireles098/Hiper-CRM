@@ -479,7 +479,7 @@ async function submitCard(ev) {
                             type="button"
                             class="inline-flex items-center gap-1.5 rounded-lg border px-3 py-2 text-sm font-medium transition focus:outline-none focus:ring-2 focus:ring-white/40"
                             :class="displayCurrency === c.code
-                                ? 'border-white/30 bg-white/10 text-emerald-400'
+                                ? 'border-white/30 bg-white/10 text-orange-400'
                                 : 'border-zinc-600 text-zinc-400 hover:border-zinc-500 hover:text-zinc-300'"
                             @click="setDisplayCurrency(c.code)"
                         >
@@ -503,7 +503,7 @@ async function submitCard(ev) {
                 </div>
                 <div class="mt-8 flex justify-end">
                     <div class="flex items-center gap-2 rounded-lg bg-zinc-800/60 px-4 py-3 text-sm text-zinc-300 max-w-max">
-                        <ShieldCheck class="h-5 w-5 shrink-0 text-emerald-500" aria-hidden="true" />
+                        <ShieldCheck class="h-5 w-5 shrink-0 text-orange-500" aria-hidden="true" />
                         Pagamento processado de forma segura.
                     </div>
                 </div>
@@ -524,10 +524,10 @@ async function submitCard(ev) {
                 </div>
                 <div
                     v-if="flashSuccess && !error && !flashError"
-                    class="mb-6 flex items-center gap-3 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-800"
+                    class="mb-6 flex items-center gap-3 rounded-xl border border-orange-200 bg-orange-50 px-4 py-3 text-sm font-medium text-orange-800"
                     role="status"
                 >
-                    <ShieldCheck class="h-5 w-5 shrink-0 text-emerald-600" />
+                    <ShieldCheck class="h-5 w-5 shrink-0 text-orange-600" />
                     {{ flashSuccess }}
                 </div>
 
@@ -546,7 +546,7 @@ async function submitCard(ev) {
                             <button
                                 v-if="available_methods.includes('pix')"
                                 type="button"
-                                class="flex w-full items-center justify-center gap-3 rounded-xl border-2 border-zinc-200 bg-white px-4 py-3.5 font-medium text-zinc-900 transition hover:border-emerald-500 hover:bg-emerald-50/50"
+                                class="flex w-full items-center justify-center gap-3 rounded-xl border-2 border-zinc-200 bg-white px-4 py-3.5 font-medium text-zinc-900 transition hover:border-orange-500 hover:bg-orange-50/50"
                                 @click="selectMethod('pix')"
                             >
                                 <QrCode class="h-5 w-5 shrink-0" />
@@ -555,7 +555,7 @@ async function submitCard(ev) {
                             <button
                                 v-if="available_methods.includes('pix_auto')"
                                 type="button"
-                                class="flex w-full items-center justify-center gap-3 rounded-xl border-2 border-zinc-200 bg-white px-4 py-3.5 font-medium text-zinc-900 transition hover:border-emerald-500 hover:bg-emerald-50/50"
+                                class="flex w-full items-center justify-center gap-3 rounded-xl border-2 border-zinc-200 bg-white px-4 py-3.5 font-medium text-zinc-900 transition hover:border-orange-500 hover:bg-orange-50/50"
                                 @click="selectMethod('pix_auto')"
                             >
                                 <QrCode class="h-5 w-5 shrink-0" />
@@ -564,7 +564,7 @@ async function submitCard(ev) {
                             <button
                                 v-if="available_methods.includes('boleto')"
                                 type="button"
-                                class="flex w-full items-center justify-center gap-3 rounded-xl border-2 border-zinc-200 bg-white px-4 py-3.5 font-medium text-zinc-900 transition hover:border-emerald-500 hover:bg-emerald-50/50"
+                                class="flex w-full items-center justify-center gap-3 rounded-xl border-2 border-zinc-200 bg-white px-4 py-3.5 font-medium text-zinc-900 transition hover:border-orange-500 hover:bg-orange-50/50"
                                 @click="selectMethod('boleto')"
                             >
                                 <Barcode class="h-5 w-5 shrink-0" />
@@ -573,7 +573,7 @@ async function submitCard(ev) {
                             <button
                                 v-if="available_methods.includes('card')"
                                 type="button"
-                                class="flex w-full items-center justify-center gap-3 rounded-xl border-2 border-zinc-200 bg-white px-4 py-3.5 font-medium text-zinc-900 transition hover:border-emerald-500 hover:bg-emerald-50/50"
+                                class="flex w-full items-center justify-center gap-3 rounded-xl border-2 border-zinc-200 bg-white px-4 py-3.5 font-medium text-zinc-900 transition hover:border-orange-500 hover:bg-orange-50/50"
                                 @click="selectMethod('card')"
                             >
                                 <CreditCard class="h-5 w-5 shrink-0" />
@@ -596,7 +596,7 @@ async function submitCard(ev) {
                                         </button>
                                         <button
                                             type="submit"
-                                            class="flex-1 rounded-lg bg-emerald-600 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-emerald-700 disabled:opacity-50 flex items-center justify-center gap-2"
+                                            class="flex-1 rounded-lg bg-orange-600 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-orange-700 disabled:opacity-50 flex items-center justify-center gap-2"
                                             :disabled="pixForm.processing"
                                         >
                                             <QrCode class="h-5 w-5 shrink-0" />
@@ -618,7 +618,7 @@ async function submitCard(ev) {
                                         type="text"
                                         inputmode="numeric"
                                         autocomplete="off"
-                                        class="w-full rounded-lg border border-zinc-300 bg-white px-4 py-3 text-base text-zinc-900 shadow-sm focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
+                                        class="w-full rounded-lg border border-zinc-300 bg-white px-4 py-3 text-base text-zinc-900 shadow-sm focus:border-orange-500 focus:ring-1 focus:ring-orange-500"
                                         placeholder="000.000.000-00"
                                     />
                                 </div>
@@ -633,7 +633,7 @@ async function submitCard(ev) {
                                         </button>
                                         <button
                                             type="submit"
-                                            class="flex-1 rounded-lg bg-emerald-600 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-emerald-700 disabled:opacity-50 flex items-center justify-center gap-2"
+                                            class="flex-1 rounded-lg bg-orange-600 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-orange-700 disabled:opacity-50 flex items-center justify-center gap-2"
                                             :disabled="pixAutoForm.processing"
                                         >
                                             <QrCode class="h-5 w-5 shrink-0" />
@@ -659,7 +659,7 @@ async function submitCard(ev) {
                                         </button>
                                         <button
                                             type="submit"
-                                            class="flex-1 rounded-lg bg-emerald-600 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-emerald-700 disabled:opacity-50 flex items-center justify-center gap-2"
+                                            class="flex-1 rounded-lg bg-orange-600 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-orange-700 disabled:opacity-50 flex items-center justify-center gap-2"
                                             :disabled="boletoForm.processing"
                                         >
                                             <Barcode class="h-5 w-5 shrink-0" />
@@ -683,7 +683,7 @@ async function submitCard(ev) {
                                         :form="canPayWithPagarme ? pagarmeTokenizeFormId : undefined"
                                         :data-pagarmecheckout-element="canPayWithPagarme ? 'holder_name' : undefined"
                                         :name="canPayWithPagarme ? 'api_pagarme_holder_name' : undefined"
-                                        class="w-full rounded-lg border border-zinc-300 bg-white px-4 py-3 text-base text-zinc-900 shadow-sm focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
+                                        class="w-full rounded-lg border border-zinc-300 bg-white px-4 py-3 text-base text-zinc-900 shadow-sm focus:border-orange-500 focus:ring-1 focus:ring-orange-500"
                                         placeholder="Como está no cartão"
                                     />
                                 </div>
@@ -696,7 +696,7 @@ async function submitCard(ev) {
                                             type="text"
                                             inputmode="numeric"
                                             autocomplete="cc-number"
-                                            class="w-full rounded-lg border border-zinc-300 bg-white px-4 py-3 text-base text-zinc-900 shadow-sm focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
+                                            class="w-full rounded-lg border border-zinc-300 bg-white px-4 py-3 text-base text-zinc-900 shadow-sm focus:border-orange-500 focus:ring-1 focus:ring-orange-500"
                                             placeholder="0000 0000 0000 0000"
                                         />
                                         <input
@@ -745,7 +745,7 @@ async function submitCard(ev) {
                                                 type="text"
                                                 inputmode="numeric"
                                                 autocomplete="cc-exp"
-                                                class="w-full rounded-lg border border-zinc-300 bg-white px-4 py-3 text-base text-zinc-900 shadow-sm focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
+                                                class="w-full rounded-lg border border-zinc-300 bg-white px-4 py-3 text-base text-zinc-900 shadow-sm focus:border-orange-500 focus:ring-1 focus:ring-orange-500"
                                                 placeholder="MM/AAAA"
                                             />
                                         </div>
@@ -761,7 +761,7 @@ async function submitCard(ev) {
                                                 :form="pagarmeTokenizeFormId"
                                                 data-pagarmecheckout-element="cvv"
                                                 name="api_pagarme_cvv"
-                                                class="w-full rounded-lg border border-zinc-300 bg-white px-4 py-3 text-base text-zinc-900 shadow-sm focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
+                                                class="w-full rounded-lg border border-zinc-300 bg-white px-4 py-3 text-base text-zinc-900 shadow-sm focus:border-orange-500 focus:ring-1 focus:ring-orange-500"
                                                 placeholder="123"
                                             />
                                         </div>
@@ -776,7 +776,7 @@ async function submitCard(ev) {
                                             type="text"
                                             inputmode="numeric"
                                             autocomplete="cc-number"
-                                            class="w-full rounded-lg border border-zinc-300 bg-white px-4 py-3 text-base text-zinc-900 shadow-sm focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
+                                            class="w-full rounded-lg border border-zinc-300 bg-white px-4 py-3 text-base text-zinc-900 shadow-sm focus:border-orange-500 focus:ring-1 focus:ring-orange-500"
                                             placeholder="0000 0000 0000 0000"
                                         />
                                     </div>
@@ -789,7 +789,7 @@ async function submitCard(ev) {
                                                 type="text"
                                                 inputmode="numeric"
                                                 autocomplete="cc-exp"
-                                                class="w-full rounded-lg border border-zinc-300 bg-white px-4 py-3 text-base text-zinc-900 shadow-sm focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
+                                                class="w-full rounded-lg border border-zinc-300 bg-white px-4 py-3 text-base text-zinc-900 shadow-sm focus:border-orange-500 focus:ring-1 focus:ring-orange-500"
                                                 placeholder="MM/AAAA"
                                             />
                                         </div>
@@ -801,7 +801,7 @@ async function submitCard(ev) {
                                                 type="password"
                                                 inputmode="numeric"
                                                 autocomplete="cc-csc"
-                                                class="w-full rounded-lg border border-zinc-300 bg-white px-4 py-3 text-base text-zinc-900 shadow-sm focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
+                                                class="w-full rounded-lg border border-zinc-300 bg-white px-4 py-3 text-base text-zinc-900 shadow-sm focus:border-orange-500 focus:ring-1 focus:ring-orange-500"
                                                 placeholder="123"
                                             />
                                         </div>
@@ -823,7 +823,7 @@ async function submitCard(ev) {
                                     </button>
                                     <button
                                         type="submit"
-                                        class="flex-1 rounded-lg bg-emerald-600 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-emerald-700 disabled:opacity-50"
+                                        class="flex-1 rounded-lg bg-orange-600 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-orange-700 disabled:opacity-50"
                                         :disabled="cardSubmitting"
                                     >
                                         {{ cardSubmitting ? 'Processando...' : 'Pagar com cartão' }}
@@ -845,7 +845,7 @@ async function submitCard(ev) {
                 </div>
 
                 <p class="mt-8 text-center text-xs text-zinc-500">
-                    Powered by Getfy
+                    Powered by Hiperlink
                 </p>
             </div>
         </main>

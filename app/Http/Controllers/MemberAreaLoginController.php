@@ -57,7 +57,7 @@ class MemberAreaLoginController extends Controller
                 'subtitle' => $loginConfig['subtitle'] ?? 'Entre com seu e-mail e senha',
                 'background_image' => $loginConfig['background_image'] ?? '',
                 'background_color' => $loginConfig['background_color'] ?? '#18181b',
-                'primary_color' => $loginConfig['primary_color'] ?? '#0ea5e9',
+                'primary_color' => $loginConfig['primary_color'] ?? '#EF3E23',
                 'login_without_password' => (bool) ($loginConfig['login_without_password'] ?? false),
                 'login_without_password_url' => ! empty($loginConfig['login_without_password'])
                     ? ($request->route('slug') !== null ? url('/m/' . $slug . '/login-without-password') : url('/login-without-password'))

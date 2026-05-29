@@ -208,8 +208,8 @@ class AppServiceProvider extends ServiceProvider
      */
     private function resolveWhiteLabelEmailBranding(object $notifiable): array
     {
-        $defaultName = (string) config('app.name', 'Getfy');
-        $defaultLogo = 'https://cdn.getfy.cloud/logo-white.png';
+        $defaultName = (string) config('app.name', 'Hiperlink');
+        $defaultLogo = '/brand/isologo-branca.png';
 
         try {
             $enabled = collect(PluginRegistry::enabled())->contains(fn ($p) => ($p['slug'] ?? null) === 'white-label');

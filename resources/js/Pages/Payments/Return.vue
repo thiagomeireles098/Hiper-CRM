@@ -56,7 +56,7 @@ function goBack() {
             <div
                 class="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full"
                 :class="{
-                    'bg-green-100 text-green-700': isPaid,
+                    'bg-orange-100 text-orange-700': isPaid,
                     'bg-red-100 text-red-700': isFailed,
                     'bg-amber-100 text-amber-700': !isPaid && !isFailed,
                 }"

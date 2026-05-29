@@ -3,35 +3,35 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Configuração inicial (Docker) - Getfy</title>
+    <title>Configuração inicial (Docker) - Hiperlink</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
             theme: {
                 extend: {
                     colors: {
-                        primary: '#c8fa64',
+                        primary: '#EF3E23',
                     }
                 }
             }
         }
     </script>
     <style>
-        input:focus { outline: none; box-shadow: 0 0 0 2px rgba(200, 250, 100, 0.3); }
+        input:focus { outline: none; box-shadow: 0 0 0 2px rgba(239, 62, 35, 0.3); }
     </style>
 </head>
 <body class="min-h-screen bg-zinc-100 dark:bg-zinc-900 text-zinc-900 dark:text-white">
     <div class="min-h-screen flex flex-col items-center justify-center px-6 py-10">
         <div class="w-full max-w-xl">
             <div class="text-center mb-8">
-                <img src="https://cdn.getfy.cloud/collapsed-logo.png" alt="Getfy" class="mx-auto mb-6 h-14 w-auto object-contain" />
+                <img src="/brand/isotipo-laranja.png" alt="Hiperlink" class="mx-auto mb-6 h-14 w-auto object-contain" />
                 <h1 class="text-2xl font-bold text-zinc-900 dark:text-white">Configuração Docker</h1>
                 <p class="mt-1 text-sm text-zinc-600 dark:text-zinc-400">Defina o domínio público para gerar links corretos</p>
             </div>
 
             <div class="rounded-2xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900/40 shadow-sm p-6">
                 @if (session('success'))
-                    <div class="mb-4 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800 dark:border-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-200">
+                    <div class="mb-4 rounded-xl border border-orange-200 bg-orange-50 px-4 py-3 text-sm text-orange-800 dark:border-orange-800 dark:bg-orange-950/40 dark:text-orange-200">
                         {{ session('success') }}
                     </div>
                 @endif

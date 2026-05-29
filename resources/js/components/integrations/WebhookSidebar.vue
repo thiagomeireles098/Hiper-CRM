@@ -461,7 +461,7 @@ function truncateUrl(url, max = 40) {
                                             <template v-else>
                                                 <button
                                                     type="button"
-                                                    class="flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-xs font-medium text-zinc-500 hover:bg-emerald-100 hover:text-emerald-600 dark:hover:bg-emerald-900/30 dark:hover:text-emerald-400"
+                                                    class="flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-xs font-medium text-zinc-500 hover:bg-orange-100 hover:text-orange-600 dark:hover:bg-orange-900/30 dark:hover:text-orange-400"
                                                     title="Disparar evento de teste"
                                                     :disabled="testing === w.id"
                                                     @click.stop="openTestModal(w)"
@@ -536,7 +536,7 @@ function truncateUrl(url, max = 40) {
                                                     :class="[
                                                         'rounded px-1.5 py-0.5 text-[10px] font-medium',
                                                         log.success
-                                                            ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300'
+                                                            ? 'bg-orange-100 text-orange-700 dark:bg-orange-900/40 dark:text-orange-300'
                                                             : 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300',
                                                     ]"
                                                 >
@@ -576,7 +576,7 @@ function truncateUrl(url, max = 40) {
                                 :class="[
                                     'mt-3 rounded-lg px-3 py-2 text-sm',
                                     testSuccess
-                                        ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300'
+                                        ? 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300'
                                         : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300',
                                 ]"
                             >
@@ -825,7 +825,7 @@ function truncateUrl(url, max = 40) {
                                         :class="[
                                             'rounded px-2 py-0.5 text-xs font-medium',
                                             selectedLogDetail.success
-                                                ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300'
+                                                ? 'bg-orange-100 text-orange-700 dark:bg-orange-900/40 dark:text-orange-300'
                                                 : 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300',
                                         ]"
                                     >

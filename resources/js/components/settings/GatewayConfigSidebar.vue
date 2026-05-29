@@ -360,7 +360,7 @@ const canTestConnection = computed(() => {
                                 class="flex shrink-0 items-center gap-1.5 rounded-lg border border-zinc-200 bg-white px-3 py-2 text-xs font-medium text-zinc-700 transition hover:bg-zinc-50 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700"
                                 @click="copyWebhookUrl"
                             >
-                                <Check v-if="webhookCopied" class="h-4 w-4 text-emerald-600" />
+                                <Check v-if="webhookCopied" class="h-4 w-4 text-orange-600" />
                                 <Copy v-else class="h-4 w-4" />
                                 {{ webhookCopied ? 'Copiado!' : 'Copiar' }}
                             </button>
@@ -379,7 +379,7 @@ const canTestConnection = computed(() => {
                                     class="flex shrink-0 items-center gap-1.5 rounded-lg border border-zinc-200 bg-white px-3 py-2 text-xs font-medium text-zinc-700 transition hover:bg-zinc-50 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700"
                                     @click="copyWebhookUrlSecondary"
                                 >
-                                    <Check v-if="webhookCopiedSecondary" class="h-4 w-4 text-emerald-600" />
+                                    <Check v-if="webhookCopiedSecondary" class="h-4 w-4 text-orange-600" />
                                     <Copy v-else class="h-4 w-4" />
                                     {{ webhookCopiedSecondary ? 'Copiado!' : 'Copiar' }}
                                 </button>
@@ -446,19 +446,19 @@ const canTestConnection = computed(() => {
                             />
                             <p
                                 v-if="field.key === 'webhook_signing_secret' && gateway.slug === 'cajupay' && gateway.webhook_signing_secret_set"
-                                class="mt-1.5 text-xs text-emerald-700 dark:text-emerald-300"
+                                class="mt-1.5 text-xs text-orange-700 dark:text-orange-300"
                             >
                                 Token já salvo neste servidor. Deixe o campo em branco para manter; cole um novo valor apenas se tiver rotacionado o secret no painel CajuPay.
                             </p>
                             <p
                                 v-if="field.key === 'secret_key' && gateway.slug === 'spacepag' && gateway.spacepag_secret_key_set"
-                                class="mt-1.5 text-xs text-emerald-700 dark:text-emerald-300"
+                                class="mt-1.5 text-xs text-orange-700 dark:text-orange-300"
                             >
                                 Chave privada já salva. Deixe em branco para manter.
                             </p>
                             <p
                                 v-if="field.key === 'webhook_secret' && gateway.slug === 'spacepag' && gateway.webhook_secret_set"
-                                class="mt-1.5 text-xs text-emerald-700 dark:text-emerald-300"
+                                class="mt-1.5 text-xs text-orange-700 dark:text-orange-300"
                             >
                                 Secret do webhook já salvo. Deixe em branco para manter.
                             </p>
@@ -487,7 +487,7 @@ const canTestConnection = computed(() => {
                                 v-if="gateway.oauth_start_url && !gateway.oauth_connected"
                                 class="text-center text-[11px] text-zinc-500 dark:text-zinc-400"
                             >
-                                Abre o fluxo de autorização do gateway e, após o consentimento, salva o token no Getfy.
+                                Abre o fluxo de autorização do gateway e, após o consentimento, salva o token no Hiperlink.
                             </p>
                             <Button
                                 v-if="gateway.oauth_disconnect_url && gateway.oauth_connected"
@@ -528,7 +528,7 @@ const canTestConnection = computed(() => {
                         </template>
                         <p
                             v-if="gateway.oauth_connected"
-                            class="text-xs text-emerald-700 dark:text-emerald-300"
+                            class="text-xs text-orange-700 dark:text-orange-300"
                         >
                             Conta autorizada. Teste a conexão abaixo ou desconecte.
                         </p>
@@ -539,7 +539,7 @@ const canTestConnection = computed(() => {
                         :class="[
                             'mt-4 rounded-lg px-3 py-2 text-sm',
                             testSuccess
-                                ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300'
+                                ? 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300'
                                 : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300',
                         ]"
                     >

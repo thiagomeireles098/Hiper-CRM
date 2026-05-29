@@ -328,7 +328,7 @@ const manifestUrl = computed(() => {
     return `${base.endsWith('/') ? base.slice(0, -1) : base}/manifest.json`;
 });
 
-const themeColor = computed(() => config.value?.pwa?.theme_color || '#0ea5e9');
+const themeColor = computed(() => config.value?.pwa?.theme_color || '#EF3E23');
 const appName = computed(() => config.value?.pwa?.name || product.value?.name || 'App');
 const pageTitle = computed(() => product.value?.name || config.value?.pwa?.name || 'Área de Membros');
 
@@ -522,7 +522,7 @@ watch(
     <div
         class="min-h-screen transition-colors"
         :style="{
-            '--ma-primary': theme.primary || '#0ea5e9',
+            '--ma-primary': theme.primary || '#EF3E23',
             '--ma-bg': theme.background || '#18181b',
             '--ma-sidebar-bg': theme.sidebar_bg || '#27272a',
             '--ma-text': theme.text || '#f8fafc',
@@ -631,7 +631,7 @@ watch(
                                     <p v-if="ach.unlocked" class="text-xs text-zinc-500 dark:text-zinc-400">{{ ach.description }}</p>
                                     <p v-else-if="ach.requirement_text" class="text-xs text-amber-600 dark:text-amber-400">Para desbloquear: {{ ach.requirement_text }}</p>
                                 </div>
-                                <CheckCircle v-if="ach.unlocked" class="h-5 w-5 shrink-0 text-emerald-500" />
+                                <CheckCircle v-if="ach.unlocked" class="h-5 w-5 shrink-0 text-orange-500" />
                             </div>
                         </div>
                     </div>
@@ -981,7 +981,7 @@ watch(
                                 <AlertCircle class="h-4 w-4 shrink-0" />
                                 {{ profileError }}
                             </div>
-                            <div v-if="profileSuccess" class="mt-4 flex items-center gap-2 rounded-xl bg-emerald-950/50 px-4 py-3 text-sm text-emerald-300">
+                            <div v-if="profileSuccess" class="mt-4 flex items-center gap-2 rounded-xl bg-orange-950/50 px-4 py-3 text-sm text-orange-300">
                                 <CheckCircle class="h-4 w-4 shrink-0" />
                                 {{ profileSuccess }}
                             </div>
@@ -1040,7 +1040,7 @@ watch(
                                 <AlertCircle class="h-4 w-4 shrink-0" />
                                 {{ passwordError }}
                             </div>
-                            <div v-if="passwordSuccess" class="mt-4 flex items-center gap-2 rounded-xl bg-emerald-950/50 px-4 py-3 text-sm text-emerald-300">
+                            <div v-if="passwordSuccess" class="mt-4 flex items-center gap-2 rounded-xl bg-orange-950/50 px-4 py-3 text-sm text-orange-300">
                                 <CheckCircle class="h-4 w-4 shrink-0" />
                                 {{ passwordSuccess }}
                             </div>
@@ -1091,7 +1091,7 @@ watch(
                             <AlertCircle class="h-4 w-4 shrink-0" />
                             {{ refundError }}
                         </div>
-                        <div v-if="refundSuccess" class="mt-3 flex items-center gap-2 rounded-lg bg-emerald-50 px-3 py-2 text-sm text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300">
+                        <div v-if="refundSuccess" class="mt-3 flex items-center gap-2 rounded-lg bg-orange-50 px-3 py-2 text-sm text-orange-700 dark:bg-orange-950/40 dark:text-orange-300">
                             <CheckCircle class="h-4 w-4 shrink-0" />
                             {{ refundSuccess }}
                         </div>

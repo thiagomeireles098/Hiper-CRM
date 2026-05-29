@@ -67,7 +67,7 @@ const configForm = reactive({
     },
     appearance: {
         background_color: props.config?.appearance?.background_color ?? '#E3E3E3',
-        primary_color: props.config?.appearance?.primary_color ?? '#0ea5e9',
+        primary_color: props.config?.appearance?.primary_color ?? '#EF3E23',
         order_bump_color: props.config?.appearance?.order_bump_color ?? '#F59E0B',
         banners: Array.isArray(props.config?.appearance?.banners)
             ? [...props.config.appearance.banners]
@@ -998,7 +998,7 @@ const inputClass =
                                 <span v-if="tpl.description" class="text-xs text-zinc-500 dark:text-zinc-400">{{ tpl.description }}</span>
                                 <span
                                     v-if="configForm.template === tpl.id"
-                                    class="mt-1 text-xs font-medium text-emerald-600 dark:text-emerald-400"
+                                    class="mt-1 text-xs font-medium text-orange-600 dark:text-orange-400"
                                 >
                                     Em uso
                                 </span>

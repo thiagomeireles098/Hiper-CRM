@@ -122,7 +122,7 @@ const {
 const localeLabels = { pt_BR: 'PT', en: 'EN', es: 'ES' };
 const appearance = computed(() => effectiveConfig.value?.appearance ?? {});
 const backgroundColor = computed(() => appearance.value.background_color || '#E3E3E3');
-const primaryColor = computed(() => appearance.value.primary_color || '#0ea5e9');
+const primaryColor = computed(() => appearance.value.primary_color || '#EF3E23');
 const banners = computed(() => appearance.value.banners ?? []);
 const sideBannersFiltered = computed(() => (appearance.value.side_banners ?? []).filter(Boolean));
 const timerConfig = computed(() => effectiveConfig.value?.timer ?? {});
@@ -450,11 +450,11 @@ const hasCustomBodyEnd = computed(() => String(customBodyEndHtml.value).trim() !
             </div>
             <div
                 v-if="flash?.success"
-                class="mb-6 flex items-center gap-3 rounded-2xl border border-emerald-200/80 bg-emerald-50/95 px-4 py-3.5 text-sm font-medium text-emerald-800 shadow-sm backdrop-blur sm:px-5"
+                class="mb-6 flex items-center gap-3 rounded-2xl border border-orange-200/80 bg-orange-50/95 px-4 py-3.5 text-sm font-medium text-orange-800 shadow-sm backdrop-blur sm:px-5"
                 data-checkout="flash-success"
                 role="status"
             >
-                <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-emerald-600">
+                <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-orange-100 text-orange-600">
                     <CheckCircle2 class="h-4 w-4" />
                 </span>
                 {{ flash.success }}

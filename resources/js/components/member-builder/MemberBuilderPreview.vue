@@ -33,7 +33,7 @@ const sidebarItems = computed(() => sidebar.value?.items ?? [
 ]);
 
 const cssVars = computed(() => ({
-    '--ma-primary': theme.value.primary || '#0ea5e9',
+    '--ma-primary': theme.value.primary || '#EF3E23',
     '--ma-bg': theme.value.background || '#18181b',
     '--ma-sidebar-bg': theme.value.sidebar_bg || '#27272a',
     '--ma-text': theme.value.text || '#f8fafc',
@@ -331,7 +331,7 @@ const certOverlayOpacity = computed(() => {
             <div
                 class="relative flex min-h-full h-full w-full flex-col items-center justify-center bg-cover bg-center px-4 py-12"
                 :style="{
-                    '--ma-primary': login.primary_color || '#0ea5e9',
+                    '--ma-primary': login.primary_color || '#EF3E23',
                     backgroundColor: login.background_color || '#18181b',
                     backgroundImage: login.background_image ? `url(${login.background_image})` : 'none',
                 }"
@@ -372,7 +372,7 @@ const certOverlayOpacity = computed(() => {
                             type="button"
                             disabled
                             class="flex h-12 w-full items-center justify-center rounded-xl font-semibold text-white"
-                            :style="{ backgroundColor: login.primary_color || '#0ea5e9' }"
+                            :style="{ backgroundColor: login.primary_color || '#EF3E23' }"
                         >
                             Entrar
                         </button>

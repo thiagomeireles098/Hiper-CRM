@@ -13,7 +13,7 @@ const loading = ref(false);
 
 const CACHE_KEY = 'getfy:cloud:billing:status:v1';
 const DAY_MS = 24 * 60 * 60 * 1000;
-const BILLING_PORTAL_URL = 'http://getfy.cloud/login';
+const BILLING_PORTAL_URL = 'https://app.hiperlinksolutions.com.br/login';
 
 function parseDate(v) {
     if (!v) return null;

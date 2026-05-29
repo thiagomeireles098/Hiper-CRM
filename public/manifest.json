@@ -1,12 +1,12 @@
 {
   "id": "/",
-  "name": "Getfy",
-  "short_name": "Getfy",
+  "name": "Hiperlink",
+  "short_name": "Hiperlink",
   "start_url": "/login",
   "scope": "/",
   "display": "standalone",
   "background_color": "#18181b",
-  "theme_color": "#00cc00",
+  "theme_color": "#EF3E23",
   "prefer_related_applications": false,
   "icons": [
     {

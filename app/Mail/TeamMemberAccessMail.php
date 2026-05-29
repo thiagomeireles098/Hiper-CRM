@@ -31,7 +31,7 @@ class TeamMemberAccessMail extends Mailable
             .'<p style="margin:0 0 16px;font-size:16px;line-height:1.6;color:#334155;">Sua conta de acesso ao painel foi criada.</p>'
             .'<p style="margin:0 0 24px;font-size:16px;line-height:1.6;color:#334155;">Use os dados abaixo para entrar:</p>'
             .'<div style="margin:0 0 24px;padding:18px;background:#f1f5f9;border:1px solid #e2e8f0;border-radius:10px;">'
-            .'<p style="margin:0 0 10px;font-size:14px;color:#0f172a;"><strong>Link:</strong> <a href="'.e($this->loginUrl).'" style="color:#0ea5e9;word-break:break-all;">'.e($this->loginUrl).'</a></p>'
+            .'<p style="margin:0 0 10px;font-size:14px;color:#0f172a;"><strong>Link:</strong> <a href="'.e($this->loginUrl).'" style="color:#EF3E23;word-break:break-all;">'.e($this->loginUrl).'</a></p>'
             .'<p style="margin:0 0 10px;font-size:14px;color:#0f172a;"><strong>E-mail:</strong> '.e($this->email).'</p>'
             .'<p style="margin:0;font-size:15px;color:#0f172a;font-family:Consolas,\'Courier New\',monospace;font-weight:600;letter-spacing:0.02em;word-break:break-all;"><strong>Senha:</strong> '.e($this->password).'</p>'
             .'</div>'

@@ -23,9 +23,9 @@ class PanelPwaController extends Controller
             ]);
         }
 
-        $appName = config('getfy.app_name', 'Getfy');
+        $appName = config('getfy.app_name', 'Hiperlink');
         $themeColor = config('getfy.pwa_theme_color');
-        $themeColor = ($themeColor !== null && $themeColor !== '') ? (string) $themeColor : (string) config('getfy.theme_primary', '#0ea5e9');
+        $themeColor = ($themeColor !== null && $themeColor !== '') ? (string) $themeColor : (string) config('getfy.theme_primary', '#EF3E23');
 
         $icons = [];
         $addIconVariants = function (string $src, string $sizes) use (&$icons): void {
@@ -52,7 +52,7 @@ class PanelPwaController extends Controller
                 $addIconVariants($icon512Url, '512x512');
             }
             if (empty($icons)) {
-                $fallbackIcon = (string) config('getfy.app_logo_icon', 'https://cdn.getfy.cloud/collapsed-logo.png');
+                $fallbackIcon = (string) config('getfy.app_logo_icon', '/brand/isotipo-laranja.png');
                 $addIconVariants($fallbackIcon, '192x192');
                 $addIconVariants($fallbackIcon, '512x512');
             } elseif ($has512 && ! $has192) {

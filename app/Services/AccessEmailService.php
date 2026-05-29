@@ -520,8 +520,8 @@ class AccessEmailService
 
         return '<table width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:600px;margin:0 auto;font-family:\'Segoe UI\',Tahoma,sans-serif;background:#f8fafc;padding:32px 24px;"><tr><td style="background:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,0.08);"><table width="100%" cellpadding="0" cellspacing="0"><tr><td style="padding:28px 32px;">'
             . $htmlParagraphs
-            . '<p style="margin:0 0 22px;text-align:center;"><a href="' . $urlSafe . '" style="display:inline-block;padding:14px 32px;background:#0ea5e9;color:#ffffff;text-decoration:none;font-weight:700;font-size:16px;border-radius:10px;">' . htmlspecialchars($buttonLabel, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . '</a></p>'
-            . '<p style="margin:0 0 18px;font-size:13px;line-height:1.5;color:#64748b;">Se o botão não abrir, copie e cole no navegador:<br/><a href="' . $urlSafe . '" style="color:#0ea5e9;word-break:break-all;">' . $urlSafe . '</a></p>'
+            . '<p style="margin:0 0 22px;text-align:center;"><a href="' . $urlSafe . '" style="display:inline-block;padding:14px 32px;background:#EF3E23;color:#ffffff;text-decoration:none;font-weight:700;font-size:16px;border-radius:10px;">' . htmlspecialchars($buttonLabel, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . '</a></p>'
+            . '<p style="margin:0 0 18px;font-size:13px;line-height:1.5;color:#64748b;">Se o botão não abrir, copie e cole no navegador:<br/><a href="' . $urlSafe . '" style="color:#EF3E23;word-break:break-all;">' . $urlSafe . '</a></p>'
             . '<p style="margin:0;font-size:13px;line-height:1.6;color:#64748b;">Qualquer dúvida, responda este e-mail.</p>'
             . '</td></tr></table></td></tr></table>';
     }

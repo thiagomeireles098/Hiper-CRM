@@ -7,7 +7,7 @@ const props = defineProps({
     sessionToken: { type: String, default: '' },
     initialPayer: { type: Object, default: () => ({}) },
     containerId: { type: String, default: 'cajupay-method' },
-    /** Apple/Google Pay: chamado imediatamente antes do 1º `confirm()` do SDK (materializar Order no Getfy). */
+    /** Apple/Google Pay: chamado imediatamente antes do 1º `confirm()` do SDK (materializar Order no Hiperlink). */
     beforeWalletPrime: { type: Function, default: null },
     /** Espelha validateCajuPayCustomerFields no host — bloqueia priming da wallet sem pedido. */
     payerReadyForPrime: { type: Boolean, default: false },

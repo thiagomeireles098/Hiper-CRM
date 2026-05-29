@@ -47,7 +47,7 @@ class SendSubscriptionRemindersJob implements ShouldQueue
             $body = '<p>Olá' . ($user->name ? ', ' . e($user->name) : '') . '!</p>';
             $body .= '<p>Sua assinatura de <strong>' . e($subscription->product->name) . '</strong> (plano ' . e($subscription->subscriptionPlan->name) . ') renova em <strong>' . $daysLeft . ' dia(s)</strong>.</p>';
             $body .= '<p>Para renovar e manter seu acesso, use o link abaixo:</p>';
-            $body .= '<p><a href="' . e($renewalUrl) . '" style="display:inline-block;padding:12px 24px;background:#0ea5e9;color:#fff;text-decoration:none;border-radius:8px;">Renovar agora</a></p>';
+            $body .= '<p><a href="' . e($renewalUrl) . '" style="display:inline-block;padding:12px 24px;background:#EF3E23;color:#fff;text-decoration:none;border-radius:8px;">Renovar agora</a></p>';
             $body .= '<p>Ou copie e cole no navegador: ' . e($renewalUrl) . '</p>';
 
             try {

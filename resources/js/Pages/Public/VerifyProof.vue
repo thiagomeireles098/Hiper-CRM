@@ -20,7 +20,7 @@ const isRevoked = props.status === 'revoked';
             <div class="flex items-start gap-3">
                 <div
                     class="mt-0.5 inline-flex h-10 w-10 items-center justify-center rounded-xl"
-                    :class="isValid ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300' : 'bg-rose-100 text-rose-700 dark:bg-rose-950 dark:text-rose-300'"
+                    :class="isValid ? 'bg-orange-100 text-orange-700 dark:bg-orange-950 dark:text-orange-300' : 'bg-rose-100 text-rose-700 dark:bg-rose-950 dark:text-rose-300'"
                 >
                     <ShieldCheck v-if="isValid" class="h-5 w-5" />
                     <ShieldX v-else class="h-5 w-5" />
@@ -35,11 +35,11 @@ const isRevoked = props.status === 'revoked';
                 </div>
             </div>
 
-            <div v-if="isValid" class="rounded-2xl border border-emerald-200 bg-emerald-50 p-5 dark:border-emerald-900 dark:bg-emerald-950/40">
-                <p class="text-sm font-semibold text-emerald-800 dark:text-emerald-200">
+            <div v-if="isValid" class="rounded-2xl border border-orange-200 bg-orange-50 p-5 dark:border-orange-900 dark:bg-orange-950/40">
+                <p class="text-sm font-semibold text-orange-800 dark:text-orange-200">
                     Documento válido
                 </p>
-                <p v-if="generated_at" class="mt-1 text-xs text-emerald-800/80 dark:text-emerald-200/80">
+                <p v-if="generated_at" class="mt-1 text-xs text-orange-800/80 dark:text-orange-200/80">
                     Gerado em: {{ generated_at }}
                 </p>
             </div>

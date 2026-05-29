@@ -17,7 +17,7 @@ const props = defineProps({
     conversion_pixels: { type: Object, default: () => ({}) },
 });
 
-const primaryColor = computed(() => props.appearance.primary_color || '#0ea5e9');
+const primaryColor = computed(() => props.appearance.primary_color || '#EF3E23');
 const title = computed(() => props.page?.headline || props.appearance.title || 'Última chance com desconto');
 const subtitle = computed(() => props.page?.subheadline || props.appearance.subtitle || 'Uma oferta que não pode ficar de fora');
 const buttonAccept = computed(() => props.appearance.button_accept || 'Aceitar oferta');

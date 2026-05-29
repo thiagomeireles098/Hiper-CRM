@@ -271,14 +271,14 @@ onUnmounted(() => {
                 >
                     <button
                         type="button"
-                        class="pointer-events-auto h-full w-1/2 cursor-w-resize border-0 bg-transparent transition-colors hover:bg-white/[0.06] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ma-primary,#0ea5e9)] focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950 disabled:pointer-events-none disabled:opacity-0"
+                        class="pointer-events-auto h-full w-1/2 cursor-w-resize border-0 bg-transparent transition-colors hover:bg-white/[0.06] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ma-primary,#EF3E23)] focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950 disabled:pointer-events-none disabled:opacity-0"
                         :disabled="globalPage <= 1"
                         aria-label="Página anterior — clique na metade esquerda da área da apresentação"
                         @click.stop="prevPage"
                     />
                     <button
                         type="button"
-                        class="pointer-events-auto h-full w-1/2 cursor-e-resize border-0 bg-transparent transition-colors hover:bg-white/[0.06] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ma-primary,#0ea5e9)] focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950 disabled:pointer-events-none disabled:opacity-0"
+                        class="pointer-events-auto h-full w-1/2 cursor-e-resize border-0 bg-transparent transition-colors hover:bg-white/[0.06] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ma-primary,#EF3E23)] focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950 disabled:pointer-events-none disabled:opacity-0"
                         :disabled="globalPage >= totalPages"
                         aria-label="Próxima página — clique na metade direita da área da apresentação"
                         @click.stop="nextPage"

@@ -368,7 +368,7 @@ function onPdfReaderLastPage() {
                                     ? 'bg-[var(--ma-primary)]/20 text-[var(--ma-primary)]'
                                     : 'text-zinc-300 hover:bg-zinc-700/50 hover:text-white'"
                             >
-                                <CheckCircle v-if="isLessonCompleted(lesson)" class="h-4 w-4 shrink-0 text-emerald-500" />
+                                <CheckCircle v-if="isLessonCompleted(lesson)" class="h-4 w-4 shrink-0 text-orange-500" />
                                 <span v-else class="flex h-4 w-4 shrink-0 items-center justify-center rounded-full border border-zinc-500 text-xs">{{ idx + 1 }}</span>
                                 <span class="min-w-0 flex-1 truncate">{{ lesson.title || 'Sem título' }}</span>
                             </Link>

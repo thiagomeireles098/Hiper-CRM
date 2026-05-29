@@ -23,7 +23,7 @@
 
 @layer base {
     :root {
-        --color-primary: #0ea5e9;
+        --color-primary: #EF3E23;
     }
     body {
         @apply bg-zinc-50 text-zinc-900 antialiased;

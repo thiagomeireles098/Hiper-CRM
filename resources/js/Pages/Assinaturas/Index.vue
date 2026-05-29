@@ -20,7 +20,7 @@ function formatBRL(value) {
 
 function statusBadgeClass(status) {
     const map = {
-        active: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300',
+        active: 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300',
         past_due: 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300',
         cancelled: 'bg-zinc-100 text-zinc-700 dark:bg-zinc-700/50 dark:text-zinc-300',
     };
@@ -54,7 +54,7 @@ function statusBadgeLabel(status) {
             </div>
             <div class="rounded-xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-700 dark:bg-zinc-800">
                 <div class="flex items-center gap-3">
-                    <span class="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+                    <span class="flex h-10 w-10 items-center justify-center rounded-lg bg-orange-500/10 text-orange-600 dark:text-orange-400">
                         <Users class="h-5 w-5" />
                     </span>
                     <div>

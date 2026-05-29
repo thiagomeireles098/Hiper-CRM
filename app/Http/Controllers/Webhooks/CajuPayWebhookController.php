@@ -29,7 +29,7 @@ class CajuPayWebhookController extends Controller
      *
      * Multi-tenant: testamos a assinatura contra cada credencial CajuPay com
      * webhook_signing_secret salvo até casar — assim o mesmo endpoint público
-     * serve todos os tenants do Getfy.
+     * serve todos os tenants do Hiperlink.
      */
     public function handle(Request $request): JsonResponse
     {
@@ -99,7 +99,7 @@ class CajuPayWebhookController extends Controller
                 $pollingToken = \Illuminate\Support\Facades\Cache::get('cajupay_session_by_checkout.' . $sessionId);
                 $hasDraft = is_string($pollingToken) && $pollingToken !== ''
                     && \Illuminate\Support\Facades\Cache::has('cajupay_draft.' . $pollingToken);
-                Log::warning('CajuPayWebhook: pagamento aprovado sem pedido no Getfy', [
+                Log::warning('CajuPayWebhook: pagamento aprovado sem pedido no Hiperlink', [
                     'event' => $eventType,
                     'session_id' => $sessionId,
                     'charge_id' => $chargeId,

@@ -1,4 +1,4 @@
-# Getfy (Open Source)
+# Hiperlink
 
 Plataforma Laravel + Vue para checkout, área de membros e estrutura completa de pagamentos.
 
@@ -181,4 +181,3 @@ Se você deseja apoiar o desenvolvimento diretamente:
 | Pix | Chave |
 |---|---|
 | Aleatória | `ce05f7d1-27db-4d46-bca5-0a80c621349a` |
-

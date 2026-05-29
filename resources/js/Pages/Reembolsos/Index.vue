@@ -87,7 +87,7 @@ function formatMoney(amount, currency) {
             <p class="mt-1 text-sm text-zinc-600 dark:text-zinc-400">Solicitações de reembolso feitas pelos alunos na área de membros.</p>
         </div>
 
-        <div v-if="page.props.flash?.success" class="rounded-lg bg-emerald-50 px-4 py-3 text-sm text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300">
+        <div v-if="page.props.flash?.success" class="rounded-lg bg-orange-50 px-4 py-3 text-sm text-orange-800 dark:bg-orange-950/40 dark:text-orange-300">
             {{ page.props.flash.success }}
         </div>
 
@@ -145,7 +145,7 @@ function formatMoney(amount, currency) {
                                     :class="{
                                         'bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300': row.status === 'pending',
                                         'bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300': row.status === 'processing',
-                                        'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300': row.status === 'completed',
+                                        'bg-orange-100 text-orange-800 dark:bg-orange-900/40 dark:text-orange-300': row.status === 'completed',
                                         'bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-300': row.status === 'rejected' || row.status === 'failed',
                                     }"
                                 >

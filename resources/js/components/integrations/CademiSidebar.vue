@@ -232,7 +232,7 @@ function productSummary(integration) {
                                         </span>
                                         <span
                                             v-if="i.is_active"
-                                            class="rounded bg-emerald-100 px-1.5 py-0.5 text-xs font-medium text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-300"
+                                            class="rounded bg-orange-100 px-1.5 py-0.5 text-xs font-medium text-orange-700 dark:bg-orange-900/50 dark:text-orange-300"
                                         >
                                             Ativo
                                         </span>

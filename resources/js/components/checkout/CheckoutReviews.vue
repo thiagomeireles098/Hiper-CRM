@@ -32,7 +32,7 @@ const props = defineProps({
                             <span class="font-semibold text-gray-900">{{ r.author || 'Cliente' }}</span>
                             <span
                                 v-if="r.verified_badge"
-                                class="inline-flex items-center gap-0.5 text-xs text-emerald-600"
+                                class="inline-flex items-center gap-0.5 text-xs text-orange-600"
                             >
                                 <BadgeCheck class="h-3.5 w-3.5" />
                                 Verificado

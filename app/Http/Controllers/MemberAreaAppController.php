@@ -1613,7 +1613,7 @@ class MemberAreaAppController extends Controller
         $logos = $config['logos'] ?? [];
         $name = $pwa['name'] ?: $product->name;
         $shortName = $pwa['short_name'] ?: $name;
-        $themeColor = $pwa['theme_color'] ?? '#0ea5e9';
+        $themeColor = $pwa['theme_color'] ?? '#EF3E23';
 
         $icons = [];
         $faviconUrl = $logos['favicon'] ?? $pwa['favicon'] ?? null;

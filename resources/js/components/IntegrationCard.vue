@@ -31,7 +31,7 @@ const ariaPressed = computed(() => (props.selected ? 'true' : 'false'));
       <div v-if="description" class="text-xs text-zinc-500 dark:text-zinc-400">{{ description }}</div>
       <div
         v-if="configured"
-        class="mt-1 inline-flex items-center gap-1 rounded-full bg-green-100 dark:bg-green-900/30 px-2 py-0.5 text-xs font-medium text-green-700 dark:text-green-400"
+        class="mt-1 inline-flex items-center gap-1 rounded-full bg-orange-100 dark:bg-orange-900/30 px-2 py-0.5 text-xs font-medium text-orange-700 dark:text-orange-400"
         title="Configurado"
       >
         <svg class="h-3 w-3" fill="currentColor" viewBox="0 0 20 20">

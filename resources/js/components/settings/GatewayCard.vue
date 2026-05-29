@@ -149,7 +149,7 @@ const hasMultipleCountries = computed(() => countries.value != null);
             <div class="mt-1.5 flex items-center gap-2 text-xs">
                 <span
                     v-if="gateway.is_connected"
-                    class="text-emerald-600 dark:text-emerald-400"
+                    class="text-orange-600 dark:text-orange-400"
                 >
                     Conectado
                 </span>

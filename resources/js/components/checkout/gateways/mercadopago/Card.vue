@@ -2,7 +2,7 @@
 defineProps({
     method: { type: Object, required: true },
     selected: { type: Boolean, default: false },
-    primaryColor: { type: String, default: '#0ea5e9' },
+    primaryColor: { type: String, default: '#EF3E23' },
 });
 </script>
 

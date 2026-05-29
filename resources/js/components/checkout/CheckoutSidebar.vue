@@ -91,7 +91,7 @@ const productPriceDisplay = computed(() => props.priceInCurrency(productPriceBrl
                         <span class="shrink-0 font-semibold text-gray-900">{{ formatPrice(priceInCurrency(bump.amount_brl), displayCurrency) }}</span>
                     </div>
                 </template>
-                <div v-if="discountAmountBrl > 0" class="flex justify-between gap-3 text-sm text-emerald-600">
+                <div v-if="discountAmountBrl > 0" class="flex justify-between gap-3 text-sm text-orange-600">
                     <span class="font-medium">{{ t('checkout.discount_coupon') }}</span>
                     <span class="font-semibold">-{{ formatPrice(discountAmount, displayCurrency) }}</span>
                 </div>
@@ -107,7 +107,7 @@ const productPriceDisplay = computed(() => props.priceInCurrency(productPriceBrl
                 class="mt-5 flex items-center justify-center gap-2 rounded-xl bg-gray-50 py-3 text-sm font-medium text-gray-600"
                 data-checkout="sidebar-trust-badge"
             >
-                <ShieldCheck class="h-4 w-4 text-emerald-500" aria-hidden="true" />
+                <ShieldCheck class="h-4 w-4 text-orange-500" aria-hidden="true" />
                 {{ t('checkout.secure_purchase') }}
             </div>
             <!-- Mobile: reCAPTCHA e copyright (no desktop já aparecem no rodapé do formulário) -->
