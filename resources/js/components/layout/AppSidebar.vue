@@ -81,8 +81,8 @@ const navItems = computed(() => {
     if (canView('integracoes.view')) items.push({ name: 'Integrações', href: '/integracoes', icon: Cable });
     if (canView('email_marketing.view')) items.push({ name: 'E-mail Marketing', href: '/email-marketing', icon: Mail });
 
-    // Plugins: apenas admin/infoprodutor (backend reforça)
-    if ((page.props.auth?.user?.role === 'admin' || page.props.auth?.user?.role === 'infoprodutor') && pluginNavItems.value.length) {
+    // Plugins: apenas admin.
+    if (page.props.auth?.user?.role === 'admin' && pluginNavItems.value.length) {
         items.push(...pluginNavItems.value);
     }
 
@@ -97,7 +97,7 @@ const navItems = computed(() => {
     items.push({ separator: true });
     if (canView('configuracoes.view')) items.push({ name: 'Configurações', href: '/configuracoes', icon: Settings });
 
-    if (page.props.auth?.user?.role === 'admin' || page.props.auth?.user?.role === 'infoprodutor') {
+    if (page.props.auth?.user?.role === 'admin') {
         items.push({ name: 'Plugins', href: '/gerenciar-plugins', icon: Plug });
     }
     return items;

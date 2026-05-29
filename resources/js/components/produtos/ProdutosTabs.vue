@@ -10,6 +10,7 @@ const isProdutos = computed(() => {
 });
 const isCupons = computed(() => page.url.startsWith('/produtos/cupons'));
 const isAlunos = computed(() => page.url.startsWith('/produtos/alunos'));
+const hasMemberAreaProducts = computed(() => Boolean(page.props.hasMemberAreaProducts));
 </script>
 
 <template>
@@ -42,6 +43,7 @@ const isAlunos = computed(() => page.url.startsWith('/produtos/alunos'));
             Cupons
         </Link>
         <Link
+            v-if="hasMemberAreaProducts"
             href="/produtos/alunos"
             :class="[
                 'flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition-all duration-200',

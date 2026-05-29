@@ -5,6 +5,7 @@ namespace App\Http\Middleware;
 use App\Models\MemberNotification;
 use App\Models\MemberPushSubscription;
 use App\Models\PanelNotification;
+use App\Models\Product;
 use App\Plugins\PluginRegistry;
 use App\Services\RefundService;
 use App\Services\SalesAchievementsService;
@@ -65,9 +66,12 @@ class HandleInertiaRequests extends Middleware
         $pushEnabled = false;
         $vapidPublic = null;
         $settingsPluginTabs = [];
+        $hasMemberAreaProducts = false;
         if ($user && $user->canAccessPanel()) {
-            $settingsPluginTabs = PluginRegistry::getSettingsTabs();
-            $pluginNavItems = PluginRegistry::getMenuItems();
+            if ($user->isAdmin()) {
+                $settingsPluginTabs = PluginRegistry::getSettingsTabs();
+                $pluginNavItems = PluginRegistry::getMenuItems();
+            }
             $vapidPublic = config('getfy.pwa.vapid_public');
             $pushEnabled = ! empty($vapidPublic) && ! empty(config('getfy.pwa.vapid_private'));
             $installed = PluginRegistry::installed();
@@ -78,6 +82,12 @@ class HandleInertiaRequests extends Middleware
                 'is_enabled' => $p['is_enabled'],
             ], $installed);
             $achievementsProgress = app(SalesAchievementsService::class)->getProgressForTenant($user->tenant_id);
+            $memberAreaQuery = Product::forTenant($user->tenant_id)->where('type', Product::TYPE_AREA_MEMBROS);
+            if ($user->isTeam()) {
+                $allowed = app(TeamAccessService::class)->allowedProductIdsFor($user);
+                $memberAreaQuery->whereIn('id', $allowed ?: ['__none__']);
+            }
+            $hasMemberAreaProducts = $memberAreaQuery->exists();
         }
 
         $notificationsUnreadCount = 0;
@@ -146,6 +156,7 @@ class HandleInertiaRequests extends Middleware
             'settings_plugin_tabs' => $settingsPluginTabs,
             'pluginNavItems' => $pluginNavItems,
             'plugins' => $plugins,
+            'hasMemberAreaProducts' => $hasMemberAreaProducts,
             'achievementsProgress' => $achievementsProgress,
             'push_enabled' => $pushEnabled,
             'vapid_public' => $pushEnabled ? $vapidPublic : null,
