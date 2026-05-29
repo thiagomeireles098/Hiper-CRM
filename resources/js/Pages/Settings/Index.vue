@@ -1,6 +1,7 @@
 <script setup>
-import { ref, computed, defineAsyncComponent } from 'vue';
+import { ref, computed, defineAsyncComponent, onMounted, onUnmounted } from 'vue';
 import { useForm } from '@inertiajs/vue3';
+import QrcodeVue from 'qrcode.vue';
 import LayoutInfoprodutor from '@/Layouts/LayoutInfoprodutor.vue';
 import Button from '@/components/ui/Button.vue';
 import {
@@ -15,6 +16,12 @@ import {
     Upload,
     Download,
     Palette,
+    Bot,
+    MessageCircle,
+    Settings as SettingsIcon,
+    Plus,
+    CheckCircle2,
+    XCircle,
 } from 'lucide-vue-next';
 import IntegrationCard from '@/components/IntegrationCard.vue';
 import EmailProviderSidebar from '@/components/EmailProviderSidebar.vue';
@@ -69,7 +76,7 @@ const props = defineProps({
 });
 
 function allAllowedTabIds() {
-    const core = ['email', 'storage', 'traducoes', 'moedas', 'cron', 'update'];
+    const core = ['email', 'storage', 'traducoes', 'moedas', 'cron', 'update', 'agente-bot'];
     const extra = (props.settings_plugin_tabs || []).map((t) => t.id).filter(Boolean);
     return [...core, ...extra];
 }
@@ -145,6 +152,20 @@ const form = useForm({
     storage_s3_region: props.settings.storage_provider === 'r2' ? 'auto' : (props.settings.storage_s3_region ?? 'us-east-1'),
     storage_s3_endpoint: props.settings.storage_s3_endpoint ?? '',
     storage_s3_url: props.settings.storage_s3_url ?? '',
+    agent_bot_enabled: !!props.settings.agent_bot_enabled,
+    agent_bot_response_delay_min: props.settings.agent_bot_response_delay_min ?? 10,
+    agent_bot_response_delay_max: props.settings.agent_bot_response_delay_max ?? 30,
+    agent_bot_flows: (props.settings.agent_bot_flows?.length ? props.settings.agent_bot_flows : [
+        { type: 'qa', question: '', answer: '', alternatives: [] },
+    ]).map((flow) => ({
+        type: flow.type === 'choice' ? 'choice' : 'qa',
+        question: flow.question ?? '',
+        answer: flow.answer ?? '',
+        alternatives: Array.isArray(flow.alternatives) ? flow.alternatives.map((alt) => ({
+            label: alt.label ?? '',
+            answer: alt.answer ?? '',
+        })) : [],
+    })),
 });
 
 const showCloudR2Override = ref(false);
@@ -166,6 +187,7 @@ const coreTabsStatic = [
     { id: 'moedas', label: 'Moedas', icon: Banknote },
     { id: 'cron', label: 'Cron', icon: Clock },
     { id: 'update', label: 'Update', icon: Download },
+    { id: 'agente-bot', label: 'Agente Bot', icon: Bot },
 ];
 
 const tabs = computed(() => {
@@ -277,6 +299,120 @@ async function runMigrations() {
         migrateLoading.value = false;
     }
 }
+
+const agentBotStatus = ref({
+    connected: false,
+    session_id: '',
+    qr_payload: '',
+});
+const agentBotStatusLoading = ref(false);
+const agentBotQrLoading = ref(false);
+const agentBotConnectionLoading = ref(false);
+const agentBotConfigOpen = ref(false);
+let agentBotPoll = null;
+
+const agentBotDelayPreview = computed(() => {
+    const min = Math.max(10, Math.min(30, Number(form.agent_bot_response_delay_min) || 10));
+    const max = Math.max(min, Math.min(30, Number(form.agent_bot_response_delay_max) || 30));
+    return Array.from({ length: 6 }, () => Math.floor(Math.random() * (max - min + 1)) + min);
+});
+
+function clampAgentBotDelay() {
+    let min = Math.max(10, Math.min(30, Number(form.agent_bot_response_delay_min) || 10));
+    let max = Math.max(10, Math.min(30, Number(form.agent_bot_response_delay_max) || 30));
+    if (max < min) max = min;
+    form.agent_bot_response_delay_min = min;
+    form.agent_bot_response_delay_max = max;
+}
+
+async function loadAgentBotStatus() {
+    agentBotStatusLoading.value = true;
+    try {
+        const { data } = await window.axios.get('/configuracoes/agente-bot/status');
+        agentBotStatus.value = {
+            connected: !!data.connected,
+            session_id: data.session_id ?? '',
+            qr_payload: data.qr_payload ?? '',
+        };
+    } finally {
+        agentBotStatusLoading.value = false;
+    }
+}
+
+async function refreshAgentBotQr() {
+    agentBotQrLoading.value = true;
+    try {
+        const { data } = await window.axios.post('/configuracoes/agente-bot/qr');
+        agentBotStatus.value = {
+            connected: !!data.connected,
+            session_id: data.session_id ?? '',
+            qr_payload: data.qr_payload ?? '',
+        };
+    } finally {
+        agentBotQrLoading.value = false;
+    }
+}
+
+async function setAgentBotConnected(connected) {
+    agentBotConnectionLoading.value = true;
+    try {
+        const { data } = await window.axios.post('/configuracoes/agente-bot/connected', { connected });
+        agentBotStatus.value = {
+            ...agentBotStatus.value,
+            connected: !!data.connected,
+            session_id: data.session_id ?? agentBotStatus.value.session_id,
+        };
+    } finally {
+        agentBotConnectionLoading.value = false;
+    }
+}
+
+function addAgentBotFlow(type = 'qa') {
+    form.agent_bot_flows.push({
+        type,
+        question: '',
+        answer: '',
+        alternatives: type === 'choice' ? [{ label: '', answer: '' }, { label: '', answer: '' }] : [],
+    });
+}
+
+function removeAgentBotFlow(index) {
+    form.agent_bot_flows.splice(index, 1);
+    if (form.agent_bot_flows.length === 0) {
+        addAgentBotFlow('qa');
+    }
+}
+
+function onAgentBotFlowTypeChange(flow) {
+    if (flow.type === 'choice' && (!Array.isArray(flow.alternatives) || flow.alternatives.length === 0)) {
+        flow.alternatives = [{ label: '', answer: '' }, { label: '', answer: '' }];
+    }
+    if (flow.type !== 'choice') {
+        flow.alternatives = [];
+    }
+}
+
+function addAgentBotAlternative(flow) {
+    if (!Array.isArray(flow.alternatives)) flow.alternatives = [];
+    flow.alternatives.push({ label: '', answer: '' });
+}
+
+function removeAgentBotAlternative(flow, index) {
+    flow.alternatives.splice(index, 1);
+}
+
+onMounted(() => {
+    loadAgentBotStatus();
+    agentBotPoll = window.setInterval(() => {
+        if (activeTab.value === 'agente-bot' && !agentBotStatus.value.connected) {
+            loadAgentBotStatus();
+        }
+    }, 8000);
+});
+
+onUnmounted(() => {
+    if (agentBotPoll) window.clearInterval(agentBotPoll);
+});
 
 const translationKeys = computed(() => {
     const t = form.checkout_translations ?? {};
@@ -1183,6 +1319,231 @@ const selectClass =
                                 <Banknote class="h-4 w-4" />
                                 + Adicionar moeda
                             </button>
+                        </div>
+                    </section>
+                </div>
+            </Transition>
+
+            <!-- Aba Agente Bot -->
+            <Transition
+                enter-active-class="transition duration-200 ease-out"
+                enter-from-class="opacity-0"
+                enter-to-class="opacity-100"
+                leave-active-class="transition duration-150 ease-in"
+                leave-from-class="opacity-100"
+                leave-to-class="opacity-0"
+            >
+                <div v-show="activeTab === 'agente-bot'" class="space-y-6">
+                    <section class="overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-sm dark:border-zinc-700 dark:bg-zinc-800/50">
+                        <div class="border-b border-zinc-200 bg-zinc-50 px-6 py-5 dark:border-zinc-700 dark:bg-zinc-800">
+                            <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+                                <div>
+                                    <h2 class="text-base font-semibold text-zinc-900 dark:text-white">Agente Bot</h2>
+                                    <p class="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
+                                        Conecte o WhatsApp e configure respostas automáticas com tempo humano entre 10 e 30 segundos.
+                                    </p>
+                                </div>
+                                <label class="inline-flex items-center gap-3 rounded-xl border border-zinc-200 bg-white px-4 py-2.5 text-sm font-medium text-zinc-700 dark:border-zinc-600 dark:bg-zinc-900 dark:text-zinc-200">
+                                    <input v-model="form.agent_bot_enabled" type="checkbox" class="h-4 w-4 rounded border-zinc-300 accent-[var(--color-primary)]" />
+                                    Ativar agente
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="grid gap-6 p-6 xl:grid-cols-[360px_minmax(0,1fr)]">
+                            <div class="space-y-4">
+                                <div class="rounded-xl border border-zinc-200 bg-zinc-50 p-5 dark:border-zinc-700 dark:bg-zinc-900/40">
+                                    <div class="flex items-center justify-between gap-3">
+                                        <div>
+                                            <p class="text-sm font-semibold text-zinc-900 dark:text-white">WhatsApp</p>
+                                            <p class="mt-1 text-xs text-zinc-500 dark:text-zinc-400">Leia o QR para parear o aparelho.</p>
+                                        </div>
+                                        <span
+                                            :class="[
+                                                'inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold',
+                                                agentBotStatus.connected
+                                                    ? 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-200'
+                                                    : 'bg-zinc-200 text-zinc-700 dark:bg-zinc-700 dark:text-zinc-200',
+                                            ]"
+                                        >
+                                            <CheckCircle2 v-if="agentBotStatus.connected" class="h-3.5 w-3.5" />
+                                            <XCircle v-else class="h-3.5 w-3.5" />
+                                            {{ agentBotStatus.connected ? 'WhatsApp conectado' : 'Aguardando conexão' }}
+                                        </span>
+                                    </div>
+
+                                    <div class="mt-5 rounded-xl border border-zinc-200 bg-white p-4 dark:border-zinc-700 dark:bg-white">
+                                        <div v-if="agentBotStatus.qr_payload" class="flex justify-center">
+                                            <QrcodeVue :value="agentBotStatus.qr_payload" :size="220" level="M" />
+                                        </div>
+                                        <div v-else class="flex h-[220px] items-center justify-center text-sm text-zinc-500">
+                                            Gerando QR...
+                                        </div>
+                                    </div>
+
+                                    <div class="mt-4 grid gap-2 sm:grid-cols-2 xl:grid-cols-1">
+                                        <button
+                                            type="button"
+                                            :disabled="agentBotQrLoading"
+                                            class="inline-flex items-center justify-center gap-2 rounded-xl border border-zinc-200 bg-white px-4 py-2.5 text-sm font-medium text-zinc-700 transition hover:border-[var(--color-primary)] hover:text-[var(--color-primary)] disabled:opacity-60 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-200"
+                                            @click="refreshAgentBotQr"
+                                        >
+                                            <RefreshCw class="h-4 w-4" :class="{ 'animate-spin': agentBotQrLoading }" />
+                                            Novo QR
+                                        </button>
+                                        <button
+                                            type="button"
+                                            :disabled="agentBotConnectionLoading"
+                                            class="inline-flex items-center justify-center gap-2 rounded-xl bg-[var(--color-primary)] px-4 py-2.5 text-sm font-medium text-white transition hover:opacity-90 disabled:opacity-60"
+                                            @click="setAgentBotConnected(!agentBotStatus.connected)"
+                                        >
+                                            <MessageCircle class="h-4 w-4" />
+                                            {{ agentBotStatus.connected ? 'Desconectar' : 'Confirmar conexão' }}
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div v-if="agentBotStatus.connected" class="rounded-xl border border-orange-200 bg-orange-50 p-4 dark:border-orange-800/50 dark:bg-orange-900/20">
+                                    <div class="flex items-center justify-between gap-3">
+                                        <div>
+                                            <p class="text-sm font-semibold text-orange-900 dark:text-orange-100">WhatsApp conectado</p>
+                                            <p class="mt-1 text-xs text-orange-800 dark:text-orange-200">Configure o comportamento do agente.</p>
+                                        </div>
+                                        <button
+                                            type="button"
+                                            class="inline-flex items-center gap-2 rounded-xl border border-orange-300 bg-white px-3 py-2 text-sm font-medium text-orange-700 transition hover:border-orange-400 hover:text-orange-800 dark:border-orange-700 dark:bg-zinc-900 dark:text-orange-200"
+                                            @click="agentBotConfigOpen = !agentBotConfigOpen"
+                                        >
+                                            <SettingsIcon class="h-4 w-4" />
+                                            Configuração
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div v-show="agentBotConfigOpen || agentBotStatus.connected" class="space-y-5">
+                                <div class="rounded-xl border border-zinc-200 bg-zinc-50/70 p-5 dark:border-zinc-700 dark:bg-zinc-900/40">
+                                    <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+                                        <div>
+                                            <h3 class="text-sm font-semibold text-zinc-900 dark:text-white">Tempo de resposta</h3>
+                                            <p class="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
+                                                O agente sorteia um tempo dentro desse intervalo para responder cada mensagem.
+                                            </p>
+                                        </div>
+                                        <div class="grid gap-3 sm:grid-cols-2 lg:w-80">
+                                            <div>
+                                                <label class="mb-1 block text-xs font-medium text-zinc-600 dark:text-zinc-400">Mínimo</label>
+                                                <input
+                                                    v-model.number="form.agent_bot_response_delay_min"
+                                                    type="number"
+                                                    min="10"
+                                                    max="30"
+                                                    :class="inputClass"
+                                                    @blur="clampAgentBotDelay"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label class="mb-1 block text-xs font-medium text-zinc-600 dark:text-zinc-400">Máximo</label>
+                                                <input
+                                                    v-model.number="form.agent_bot_response_delay_max"
+                                                    type="number"
+                                                    min="10"
+                                                    max="30"
+                                                    :class="inputClass"
+                                                    @blur="clampAgentBotDelay"
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="mt-4 flex flex-wrap gap-2">
+                                        <span
+                                            v-for="sample in agentBotDelayPreview"
+                                            :key="sample"
+                                            class="rounded-full bg-white px-3 py-1 text-xs font-medium text-zinc-600 ring-1 ring-zinc-200 dark:bg-zinc-800 dark:text-zinc-300 dark:ring-zinc-700"
+                                        >
+                                            {{ sample }}s
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <div class="space-y-4">
+                                    <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                                        <div>
+                                            <h3 class="text-sm font-semibold text-zinc-900 dark:text-white">Perguntas e respostas</h3>
+                                            <p class="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
+                                                Configure respostas prontas ou perguntas com alternativas.
+                                            </p>
+                                        </div>
+                                        <div class="flex gap-2">
+                                            <button type="button" class="inline-flex items-center gap-2 rounded-xl border border-zinc-200 bg-white px-3 py-2 text-sm font-medium text-zinc-700 transition hover:border-[var(--color-primary)] hover:text-[var(--color-primary)] dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-200" @click="addAgentBotFlow('qa')">
+                                                <Plus class="h-4 w-4" />
+                                                Resposta
+                                            </button>
+                                            <button type="button" class="inline-flex items-center gap-2 rounded-xl border border-zinc-200 bg-white px-3 py-2 text-sm font-medium text-zinc-700 transition hover:border-[var(--color-primary)] hover:text-[var(--color-primary)] dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-200" @click="addAgentBotFlow('choice')">
+                                                <Plus class="h-4 w-4" />
+                                                Alternativas
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <div
+                                        v-for="(flow, index) in form.agent_bot_flows"
+                                        :key="index"
+                                        class="rounded-xl border border-zinc-200 bg-white p-5 dark:border-zinc-700 dark:bg-zinc-900/40"
+                                    >
+                                        <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                                            <div class="grid flex-1 gap-3 sm:grid-cols-[180px_minmax(0,1fr)]">
+                                                <div>
+                                                    <label class="mb-1 block text-xs font-medium text-zinc-600 dark:text-zinc-400">Tipo</label>
+                                                    <select v-model="flow.type" :class="selectClass" @change="onAgentBotFlowTypeChange(flow)">
+                                                        <option value="qa">Pergunta e resposta</option>
+                                                        <option value="choice">Pergunta com alternativas</option>
+                                                    </select>
+                                                </div>
+                                                <div>
+                                                    <label class="mb-1 block text-xs font-medium text-zinc-600 dark:text-zinc-400">Quando receber</label>
+                                                    <input v-model="flow.question" type="text" :class="inputClass" placeholder="Ex.: preço, suporte, entrega" />
+                                                </div>
+                                            </div>
+                                            <button
+                                                type="button"
+                                                class="rounded-lg p-2 text-zinc-500 transition hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-900/20 dark:hover:text-red-400"
+                                                @click="removeAgentBotFlow(index)"
+                                            >
+                                                <Trash2 class="h-4 w-4" />
+                                            </button>
+                                        </div>
+
+                                        <div class="mt-4">
+                                            <label class="mb-1 block text-xs font-medium text-zinc-600 dark:text-zinc-400">
+                                                {{ flow.type === 'choice' ? 'Mensagem antes das alternativas' : 'Resposta pronta' }}
+                                            </label>
+                                            <textarea v-model="flow.answer" rows="3" :class="inputClass" placeholder="Digite a resposta que o agente deve enviar."></textarea>
+                                        </div>
+
+                                        <div v-if="flow.type === 'choice'" class="mt-4 space-y-3 rounded-xl border border-zinc-200 bg-zinc-50 p-4 dark:border-zinc-700 dark:bg-zinc-800/50">
+                                            <div class="flex items-center justify-between gap-3">
+                                                <p class="text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">Alternativas</p>
+                                                <button type="button" class="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium text-[var(--color-primary)] hover:bg-[var(--color-primary)]/10" @click="addAgentBotAlternative(flow)">
+                                                    <Plus class="h-3.5 w-3.5" />
+                                                    Adicionar
+                                                </button>
+                                            </div>
+                                            <div
+                                                v-for="(alt, altIndex) in flow.alternatives"
+                                                :key="altIndex"
+                                                class="grid gap-3 sm:grid-cols-[160px_minmax(0,1fr)_auto]"
+                                            >
+                                                <input v-model="alt.label" type="text" :class="inputClass" :placeholder="`Opção ${altIndex + 1}`" />
+                                                <input v-model="alt.answer" type="text" :class="inputClass" placeholder="Resposta para essa alternativa" />
+                                                <button type="button" class="rounded-lg p-2 text-zinc-500 transition hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-900/20 dark:hover:text-red-400" @click="removeAgentBotAlternative(flow, altIndex)">
+                                                    <Trash2 class="h-4 w-4" />
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </section>
                 </div>

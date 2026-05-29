@@ -110,6 +110,10 @@ class SettingsController extends Controller
                 'storage_s3_endpoint' => $cloudR2Managed ? '' : $storageS3Endpoint,
                 'storage_s3_url' => $cloudR2Managed ? '' : $storageS3Url,
                 'storage_cloud_r2_managed' => $cloudR2Managed,
+                'agent_bot_enabled' => filter_var(Setting::get('agent_bot_enabled', false, $tenantId), FILTER_VALIDATE_BOOLEAN),
+                'agent_bot_response_delay_min' => (int) Setting::get('agent_bot_response_delay_min', 10, $tenantId),
+                'agent_bot_response_delay_max' => (int) Setting::get('agent_bot_response_delay_max', 30, $tenantId),
+                'agent_bot_flows' => $this->agentBotFlows($tenantId),
             ],
         ]);
     }
@@ -150,6 +154,16 @@ class SettingsController extends Controller
             'storage_s3_region' => ['nullable', 'string', 'max:64'],
             'storage_s3_endpoint' => ['nullable', 'string', 'max:512'],
             'storage_s3_url' => ['nullable', 'string', 'max:512'],
+            'agent_bot_enabled' => ['nullable', 'boolean'],
+            'agent_bot_response_delay_min' => ['nullable', 'integer', 'min:10', 'max:30'],
+            'agent_bot_response_delay_max' => ['nullable', 'integer', 'min:10', 'max:30', 'gte:agent_bot_response_delay_min'],
+            'agent_bot_flows' => ['nullable', 'array', 'max:50'],
+            'agent_bot_flows.*.type' => ['required_with:agent_bot_flows', 'string', 'in:qa,choice'],
+            'agent_bot_flows.*.question' => ['nullable', 'string', 'max:500'],
+            'agent_bot_flows.*.answer' => ['nullable', 'string', 'max:5000'],
+            'agent_bot_flows.*.alternatives' => ['nullable', 'array', 'max:20'],
+            'agent_bot_flows.*.alternatives.*.label' => ['nullable', 'string', 'max:255'],
+            'agent_bot_flows.*.alternatives.*.answer' => ['nullable', 'string', 'max:2000'],
         ]);
 
         $tenantId = auth()->user()->tenant_id;
@@ -179,6 +193,9 @@ class SettingsController extends Controller
             'storage_provider', 'storage_s3_key', 'storage_s3_bucket', 'storage_s3_region',
             'storage_s3_endpoint', 'storage_s3_url',
         ];
+        $agentBotKeys = [
+            'agent_bot_enabled', 'agent_bot_response_delay_min', 'agent_bot_response_delay_max',
+        ];
 
         foreach ($validated as $key => $value) {
             if (in_array($key, ['smtp_password', 'hostinger_smtp_password', 'sendgrid_api_key', 'storage_s3_secret'], true)) {
@@ -192,6 +209,10 @@ class SettingsController extends Controller
                 Setting::set($key, $value ?? '', $tenantId);
             } elseif (in_array($key, $storageKeys, true)) {
                 Setting::set($key, $value ?? '', $tenantId);
+            } elseif (in_array($key, $agentBotKeys, true)) {
+                Setting::set($key, $value ?? ($key === 'agent_bot_enabled' ? false : ''), $tenantId);
+            } elseif ($key === 'agent_bot_flows') {
+                Setting::set($key, $this->normalizeAgentBotFlows(is_array($value) ? $value : []), $tenantId);
             } elseif ($key === 'checkout_translations') {
                 if (is_array($value) && ! empty($value)) {
                     Setting::set($key, $value, $tenantId);
@@ -207,6 +228,48 @@ class SettingsController extends Controller
         }
 
         return back()->with('success', 'Configurações salvas.');
+    }
+
+    private function agentBotFlows(?int $tenantId): array
+    {
+        $raw = Setting::get('agent_bot_flows', null, $tenantId);
+        $flows = $raw ? (is_string($raw) ? json_decode($raw, true) : $raw) : null;
+
+        return $this->normalizeAgentBotFlows(is_array($flows) ? $flows : [
+            [
+                'type' => 'qa',
+                'question' => 'horario',
+                'answer' => 'Nosso atendimento funciona de segunda a sexta, das 9h as 18h.',
+                'alternatives' => [],
+            ],
+        ]);
+    }
+
+    private function normalizeAgentBotFlows(array $flows): array
+    {
+        return collect($flows)
+            ->map(function ($flow) {
+                $flow = is_array($flow) ? $flow : [];
+                $type = ($flow['type'] ?? 'qa') === 'choice' ? 'choice' : 'qa';
+                $alternatives = collect($flow['alternatives'] ?? [])
+                    ->map(fn ($alt) => [
+                        'label' => trim((string) ($alt['label'] ?? '')),
+                        'answer' => trim((string) ($alt['answer'] ?? '')),
+                    ])
+                    ->filter(fn ($alt) => $alt['label'] !== '' || $alt['answer'] !== '')
+                    ->values()
+                    ->all();
+
+                return [
+                    'type' => $type,
+                    'question' => trim((string) ($flow['question'] ?? '')),
+                    'answer' => trim((string) ($flow['answer'] ?? '')),
+                    'alternatives' => $type === 'choice' ? $alternatives : [],
+                ];
+            })
+            ->filter(fn ($flow) => $flow['question'] !== '' || $flow['answer'] !== '' || $flow['alternatives'] !== [])
+            ->values()
+            ->all();
     }
 
     public function importCurrencyCatalog(ExchangeRateService $exchangeRateService): JsonResponse
