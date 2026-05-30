@@ -22,6 +22,7 @@ import {
     Plus,
     CheckCircle2,
     XCircle,
+    KeyRound,
 } from 'lucide-vue-next';
 import IntegrationCard from '@/components/IntegrationCard.vue';
 import EmailProviderSidebar from '@/components/EmailProviderSidebar.vue';
@@ -76,7 +77,7 @@ const props = defineProps({
 });
 
 function allAllowedTabIds() {
-    const core = ['email', 'storage', 'traducoes', 'moedas', 'cron', 'update', 'agente-bot'];
+    const core = ['email', 'storage', 'traducoes', 'moedas', 'cron', 'update', 'agente-bot', 'caixa'];
     const extra = (props.settings_plugin_tabs || []).map((t) => t.id).filter(Boolean);
     return [...core, ...extra];
 }
@@ -188,6 +189,7 @@ const coreTabsStatic = [
     { id: 'cron', label: 'Cron', icon: Clock },
     { id: 'update', label: 'Update', icon: Download },
     { id: 'agente-bot', label: 'Agente Bot', icon: Bot },
+    { id: 'caixa', label: 'Caixa', icon: KeyRound },
 ];
 
 const tabs = computed(() => {
@@ -1319,6 +1321,50 @@ const selectClass =
                                 <Banknote class="h-4 w-4" />
                                 + Adicionar moeda
                             </button>
+                        </div>
+                    </section>
+                </div>
+            </Transition>
+
+            <!-- Aba Caixa -->
+            <Transition
+                enter-active-class="transition duration-200 ease-out"
+                enter-from-class="opacity-0"
+                enter-to-class="opacity-100"
+                leave-active-class="transition duration-150 ease-in"
+                leave-from-class="opacity-100"
+                leave-to-class="opacity-0"
+            >
+                <div v-show="activeTab === 'caixa'" class="space-y-6">
+                    <section class="overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-sm dark:border-zinc-700 dark:bg-zinc-800/50">
+                        <div class="border-b border-zinc-200 bg-zinc-50 px-6 py-5 dark:border-zinc-700 dark:bg-zinc-800">
+                            <h2 class="text-base font-semibold text-zinc-900 dark:text-white">Token do HiperCaixa</h2>
+                            <p class="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
+                                Use este token no aplicativo de caixa para sincronizar estoque, vendas e configuraÃ§Ãµes entre o online e o offline.
+                            </p>
+                        </div>
+                        <div class="space-y-5 p-6">
+                            <div class="rounded-xl border border-zinc-200 bg-zinc-50 p-5 dark:border-zinc-700 dark:bg-zinc-900/40">
+                                <label class="mb-2 block text-sm font-medium text-zinc-700 dark:text-zinc-300">Token de sincronizaÃ§Ã£o</label>
+                                <div class="flex flex-col gap-3 sm:flex-row">
+                                    <input
+                                        :value="settings.cashier_sync_token || 'Token indisponÃ­vel para este usuÃ¡rio'"
+                                        readonly
+                                        class="block w-full rounded-xl border-2 border-zinc-200 bg-white px-4 py-2.5 font-mono text-sm text-zinc-900 dark:border-zinc-600 dark:bg-zinc-800 dark:text-white"
+                                    />
+                                    <button
+                                        type="button"
+                                        class="inline-flex items-center justify-center rounded-xl border border-zinc-200 bg-white px-4 py-2.5 text-sm font-medium text-zinc-700 transition hover:border-[var(--color-primary)] hover:text-[var(--color-primary)] dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-200"
+                                        :disabled="!settings.cashier_sync_token"
+                                        @click="copyToClipboard(settings.cashier_sync_token)"
+                                    >
+                                        Copiar
+                                    </button>
+                                </div>
+                                <p class="mt-3 text-sm text-zinc-500 dark:text-zinc-400">
+                                    Cada infoprodutor recebe um token prÃ³prio de 26 caracteres. Ele Ã© a chave para o caixa baixar o backup inicial e enviar vendas quando voltar a ter internet.
+                                </p>
+                            </div>
                         </div>
                     </section>
                 </div>

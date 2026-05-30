@@ -69,6 +69,11 @@ function closeEditModal() {
     editUser.value = null;
 }
 
+function copyToClipboard(text) {
+    if (!text) return;
+    navigator.clipboard?.writeText(text);
+}
+
 function submitCreate() {
     createForm.post('/usuarios', {
         preserveScroll: true,
@@ -354,6 +359,23 @@ function confirmDelete(u) {
                             class="mt-1 block w-full rounded-lg border border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-900 px-3 py-2 text-zinc-900 dark:text-zinc-100"
                         />
                         <p v-if="editForm.errors.email" class="mt-1 text-sm text-red-600 dark:text-red-400">{{ editForm.errors.email }}</p>
+                    </div>
+                    <div v-if="editUser?.cashier_sync_token" class="rounded-lg border border-zinc-200 bg-zinc-50 p-3 dark:border-zinc-700 dark:bg-zinc-900/40">
+                        <label class="block text-sm font-medium text-zinc-700 dark:text-zinc-300">Token HiperCaixa</label>
+                        <div class="mt-1 flex gap-2">
+                            <input
+                                :value="editUser.cashier_sync_token"
+                                readonly
+                                class="block w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 font-mono text-sm text-zinc-900 dark:border-zinc-600 dark:bg-zinc-900 dark:text-zinc-100"
+                            />
+                            <button
+                                type="button"
+                                class="rounded-lg border border-zinc-300 px-3 py-2 text-sm font-medium text-zinc-700 hover:border-[var(--color-primary)] hover:text-[var(--color-primary)] dark:border-zinc-600 dark:text-zinc-200"
+                                @click="copyToClipboard(editUser.cashier_sync_token)"
+                            >
+                                Copiar
+                            </button>
+                        </div>
                     </div>
                     <div>
                         <label for="edit-password" class="block text-sm font-medium text-zinc-700 dark:text-zinc-300">Nova senha (deixe em branco para não alterar)</label>

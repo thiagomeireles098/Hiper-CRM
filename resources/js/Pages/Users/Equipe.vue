@@ -3,7 +3,7 @@ import { computed, ref } from 'vue';
 import { Link, router, useForm, usePage } from '@inertiajs/vue3';
 import LayoutInfoprodutor from '@/Layouts/LayoutInfoprodutor.vue';
 import Button from '@/components/ui/Button.vue';
-import { Banknote, Users, Shield, UserPlus, Plus, Pencil, Trash2, X, ScrollText, Trash } from 'lucide-vue-next';
+import { Banknote, Users, Shield, UserPlus, Plus, Pencil, Trash2, X, ScrollText, Trash, Download, ExternalLink, Image as ImageIcon } from 'lucide-vue-next';
 
 defineOptions({ layout: LayoutInfoprodutor });
 
@@ -58,6 +58,7 @@ const permissionDefs = [
     { key: 'api_pagamentos.view', label: 'API de Pagamentos' },
     { key: 'configuracoes.view', label: 'Configurações' },
     { key: 'equipe.manage', label: 'Gerenciar equipe' },
+    { key: 'caixa.manage', label: 'Gerente de caixa' },
 ];
 
 const showRoleModal = ref(false);
@@ -187,6 +188,9 @@ const cashierForm = useForm({
     username: '',
     password: '',
 });
+const cashierLogoForm = useForm({
+    logo: null,
+});
 
 function openCreateCashier() {
     editingCashier.value = null;
@@ -220,6 +224,19 @@ function submitCashier() {
     cashierForm.post('/usuarios/equipe/caixas', {
         preserveScroll: true,
         onSuccess: () => closeCashierModal(),
+    });
+}
+
+function onCashierLogoChange(event) {
+    cashierLogoForm.logo = event.target.files?.[0] ?? null;
+}
+
+function submitCashierLogo() {
+    if (!editingCashier.value || !cashierLogoForm.logo) return;
+    cashierLogoForm.post(`/usuarios/equipe/caixas/${editingCashier.value.id}/logo`, {
+        preserveScroll: true,
+        forceFormData: true,
+        onSuccess: () => cashierLogoForm.reset(),
     });
 }
 
@@ -274,10 +291,20 @@ function confirmClearLogs() {
                     <UserPlus class="h-4 w-4" />
                     Novo membro
                 </Button>
-                <Button v-else-if="activeTab === 'caixa'" class="inline-flex items-center gap-2" @click="openCreateCashier">
-                    <Plus class="h-4 w-4" />
-                    Novo caixa
-                </Button>
+                <template v-else-if="activeTab === 'caixa'">
+                    <a
+                        v-if="cashiers.length"
+                        href="/usuarios/equipe/caixa/download"
+                        class="inline-flex items-center gap-2 rounded-lg border border-zinc-300 bg-white px-4 py-2 text-sm font-medium text-zinc-700 transition hover:border-[var(--color-primary)] hover:text-[var(--color-primary)] dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-200"
+                    >
+                        <Download class="h-4 w-4" />
+                        Baixar caixa
+                    </a>
+                    <Button class="inline-flex items-center gap-2" @click="openCreateCashier">
+                        <Plus class="h-4 w-4" />
+                        Novo caixa
+                    </Button>
+                </template>
                 <Button
                     v-else-if="activeTab === 'logs' && role === 'admin'"
                     variant="outline"
@@ -437,8 +464,9 @@ function confirmClearLogs() {
             <ul class="divide-y divide-zinc-200 dark:divide-zinc-700">
                 <li v-for="cashier in cashiers" :key="cashier.id" class="flex flex-col gap-2 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
                     <div class="flex min-w-0 flex-1 items-center gap-3">
-                        <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-zinc-200 text-zinc-700 dark:bg-zinc-700 dark:text-zinc-200">
-                            <Banknote class="h-5 w-5" />
+                        <span class="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-zinc-200 text-zinc-700 dark:bg-zinc-700 dark:text-zinc-200">
+                            <img v-if="cashier.logo_url" :src="cashier.logo_url" :alt="cashier.name" class="h-full w-full object-cover" />
+                            <Banknote v-else class="h-5 w-5" />
                         </span>
                         <div class="min-w-0 flex-1">
                             <div class="flex flex-wrap items-center gap-2">
@@ -687,7 +715,7 @@ function confirmClearLogs() {
             aria-modal="true"
         >
             <div class="fixed inset-0 bg-zinc-900/60 dark:bg-zinc-950/70" aria-hidden="true" @click="closeCashierModal" />
-            <div class="relative w-full max-w-md rounded-xl border border-zinc-200 bg-white shadow-xl dark:border-zinc-700 dark:bg-zinc-800">
+            <div class="relative w-full max-w-lg rounded-xl border border-zinc-200 bg-white shadow-xl dark:border-zinc-700 dark:bg-zinc-800">
                 <div class="flex items-center justify-between border-b border-zinc-200 px-5 py-4 dark:border-zinc-700">
                     <h2 class="text-lg font-semibold text-zinc-900 dark:text-white">
                         {{ editingCashier ? 'Editar caixa' : 'Novo caixa' }}
@@ -719,6 +747,22 @@ function confirmClearLogs() {
                         <input v-model="cashierForm.password" type="password" :required="!editingCashier" minlength="4" autocomplete="new-password" class="mt-1 block w-full rounded-lg border border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-900 px-3 py-2 text-zinc-900 dark:text-zinc-100" />
                         <p v-if="cashierForm.errors.password" class="mt-1 text-sm text-red-600 dark:text-red-400">{{ cashierForm.errors.password }}</p>
                     </div>
+                    <div v-if="editingCashier" class="rounded-lg border border-zinc-200 bg-zinc-50 p-4 dark:border-zinc-700 dark:bg-zinc-900/40">
+                        <div class="flex items-center gap-3">
+                            <span class="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-white text-zinc-500 dark:bg-zinc-800">
+                                <img v-if="editingCashier.logo_url" :src="editingCashier.logo_url" :alt="editingCashier.name" class="h-full w-full object-contain" />
+                                <ImageIcon v-else class="h-6 w-6" />
+                            </span>
+                            <div class="min-w-0 flex-1">
+                                <label class="block text-sm font-medium text-zinc-700 dark:text-zinc-300">Logo do caixa</label>
+                                <input type="file" accept="image/*" class="mt-1 block w-full text-sm text-zinc-600 file:mr-3 file:rounded-lg file:border-0 file:bg-zinc-200 file:px-3 file:py-2 file:text-sm file:font-medium file:text-zinc-800 dark:text-zinc-300 dark:file:bg-zinc-700 dark:file:text-zinc-100" @change="onCashierLogoChange" />
+                                <p v-if="cashierLogoForm.errors.logo" class="mt-1 text-sm text-red-600 dark:text-red-400">{{ cashierLogoForm.errors.logo }}</p>
+                            </div>
+                        </div>
+                        <Button type="button" variant="outline" class="mt-3 w-full justify-center" :disabled="cashierLogoForm.processing || !cashierLogoForm.logo" @click="submitCashierLogo">
+                            Salvar logo
+                        </Button>
+                    </div>
                     <div class="flex gap-3 pt-2">
                         <Button type="submit" :disabled="cashierForm.processing">
                             Salvar
@@ -727,6 +771,16 @@ function confirmClearLogs() {
                             Cancelar
                         </Button>
                     </div>
+                    <a
+                        v-if="editingCashier"
+                        :href="editingCashier.access_url"
+                        target="_blank"
+                        rel="noopener"
+                        class="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-[var(--color-primary)] px-4 py-2.5 text-sm font-medium text-white transition hover:opacity-90"
+                    >
+                        <ExternalLink class="h-4 w-4" />
+                        Acessar caixa
+                    </a>
                 </form>
             </div>
         </div>

@@ -7,6 +7,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -22,7 +23,7 @@ class UsersController extends Controller
         $users = User::whereIn('role', [User::ROLE_ADMIN, User::ROLE_INFOPRODUTOR])
             ->orderByRaw("role = ? DESC", [User::ROLE_ADMIN])
             ->orderBy('name')
-            ->get(['id', 'name', 'email', 'avatar', 'role', 'created_at'])
+            ->get(['id', 'name', 'email', 'avatar', 'role', 'cashier_sync_token', 'created_at'])
             ->map(fn (User $u) => [
                 'id' => $u->id,
                 'name' => $u->name,
@@ -30,6 +31,9 @@ class UsersController extends Controller
                 'avatar_url' => $u->avatar ? app(\App\Services\StorageService::class)->url($u->avatar) : null,
                 'role' => $u->role,
                 'is_master' => $u->role === User::ROLE_ADMIN,
+                'cashier_sync_token' => $u->role === User::ROLE_INFOPRODUTOR || $u->role === User::ROLE_ADMIN
+                    ? $this->ensureCashierSyncToken($u)
+                    : null,
                 'created_at' => $u->created_at?->toIso8601String(),
             ]);
 
@@ -54,6 +58,7 @@ class UsersController extends Controller
             'email' => $validated['email'],
             'password' => Hash::make($validated['password']),
             'role' => User::ROLE_INFOPRODUTOR,
+            'cashier_sync_token' => $this->newCashierSyncToken(),
         ]);
 
         $user->update(['tenant_id' => $user->id]);
@@ -95,5 +100,26 @@ class UsersController extends Controller
         $user->save();
 
         return redirect()->route('usuarios.index')->with('success', 'Usuário atualizado.');
+    }
+
+    private function ensureCashierSyncToken(User $user): string
+    {
+        if (is_string($user->cashier_sync_token) && strlen($user->cashier_sync_token) === 26) {
+            return $user->cashier_sync_token;
+        }
+
+        $token = $this->newCashierSyncToken();
+        $user->forceFill(['cashier_sync_token' => $token])->save();
+
+        return $token;
+    }
+
+    private function newCashierSyncToken(): string
+    {
+        do {
+            $token = Str::upper(Str::random(26));
+        } while (User::query()->where('cashier_sync_token', $token)->exists());
+
+        return $token;
     }
 }

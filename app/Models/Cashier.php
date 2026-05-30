@@ -11,6 +11,7 @@ class Cashier extends Model
         'name',
         'username',
         'password',
+        'logo_path',
     ];
 
     protected function casts(): array

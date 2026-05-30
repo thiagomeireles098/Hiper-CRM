@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Setting;
+use App\Models\User;
 use App\Services\ExchangeRateService;
 use App\Support\CheckoutCurrencyCatalog;
 use App\Support\CheckoutTranslations;
@@ -10,6 +11,7 @@ use Illuminate\Http\JsonResponse;
 use App\Support\DockerSetupState;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Crypt;
+use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -18,6 +20,7 @@ class SettingsController extends Controller
     public function index(): Response
     {
         $tenantId = auth()->user()->tenant_id;
+        $cashierSyncToken = $this->ensureCashierSyncToken((int) $tenantId);
         $defaultTranslations = config('checkout_translations');
         $checkoutTranslationsRaw = Setting::get('checkout_translations', null, $tenantId);
         $savedTranslations = $checkoutTranslationsRaw
@@ -114,6 +117,7 @@ class SettingsController extends Controller
                 'agent_bot_response_delay_min' => (int) Setting::get('agent_bot_response_delay_min', 10, $tenantId),
                 'agent_bot_response_delay_max' => (int) Setting::get('agent_bot_response_delay_max', 30, $tenantId),
                 'agent_bot_flows' => $this->agentBotFlows($tenantId),
+                'cashier_sync_token' => $cashierSyncToken,
             ],
         ]);
     }
@@ -243,6 +247,30 @@ class SettingsController extends Controller
                 'alternatives' => [],
             ],
         ]);
+    }
+
+    private function ensureCashierSyncToken(int $tenantId): ?string
+    {
+        $owner = User::query()
+            ->where('id', $tenantId)
+            ->whereIn('role', [User::ROLE_ADMIN, User::ROLE_INFOPRODUTOR])
+            ->first();
+
+        if (! $owner) {
+            return null;
+        }
+
+        if (is_string($owner->cashier_sync_token) && strlen($owner->cashier_sync_token) === 26) {
+            return $owner->cashier_sync_token;
+        }
+
+        do {
+            $token = Str::upper(Str::random(26));
+        } while (User::query()->where('cashier_sync_token', $token)->exists());
+
+        $owner->forceFill(['cashier_sync_token' => $token])->save();
+
+        return $token;
     }
 
     private function normalizeAgentBotFlows(array $flows): array

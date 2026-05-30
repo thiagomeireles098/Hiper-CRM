@@ -26,6 +26,7 @@ class User extends Authenticatable
         'role',
         'tenant_id',
         'team_role_id',
+        'cashier_sync_token',
     ];
 
     public const ROLE_ADMIN = 'admin';

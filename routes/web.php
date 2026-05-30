@@ -215,6 +215,9 @@ Route::middleware(['auth', 'admin.tenant', 'role:admin|infoprodutor|team', 'team
         Route::delete('/membros/{member}', [\App\Http\Controllers\EquipeController::class, 'destroyMember'])->name('usuarios.equipe.membros.destroy');
         Route::post('/caixas', [\App\Http\Controllers\EquipeController::class, 'storeCashier'])->name('usuarios.equipe.caixas.store');
         Route::put('/caixas/{cashier}', [\App\Http\Controllers\EquipeController::class, 'updateCashier'])->name('usuarios.equipe.caixas.update');
+        Route::post('/caixas/{cashier}/logo', [\App\Http\Controllers\EquipeController::class, 'updateCashierLogo'])->name('usuarios.equipe.caixas.logo');
+        Route::get('/caixas/{cashier}/acessar', [\App\Http\Controllers\EquipeController::class, 'accessCashier'])->name('usuarios.equipe.caixas.access');
+        Route::get('/caixa/download', [\App\Http\Controllers\EquipeController::class, 'downloadCashier'])->name('usuarios.equipe.caixa.download');
         Route::delete('/caixas/{cashier}', [\App\Http\Controllers\EquipeController::class, 'destroyCashier'])->name('usuarios.equipe.caixas.destroy');
 
         Route::post('/logs/clear', [\App\Http\Controllers\EquipeController::class, 'clearLogs'])->name('usuarios.equipe.logs.clear');

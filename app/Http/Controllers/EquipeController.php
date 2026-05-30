@@ -9,10 +9,12 @@ use App\Models\TeamRole;
 use App\Models\User;
 use App\Mail\TeamMemberAccessMail;
 use App\Services\TenantMailConfigService;
+use App\Services\StorageService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -79,14 +81,17 @@ class EquipeController extends Controller
                 'created_at' => $u->created_at?->toIso8601String(),
             ])->values()->all();
 
+        $storage = app(StorageService::class);
         $cashiers = Cashier::query()
             ->where('tenant_id', $tenantId)
             ->orderBy('name')
-            ->get(['id', 'name', 'username', 'created_at'])
+            ->get(['id', 'name', 'username', 'logo_path', 'created_at'])
             ->map(fn (Cashier $cashier) => [
                 'id' => $cashier->id,
                 'name' => $cashier->name,
                 'username' => $cashier->username,
+                'logo_url' => $cashier->logo_path ? $storage->url($cashier->logo_path) : null,
+                'access_url' => route('usuarios.equipe.caixas.access', $cashier),
                 'created_at' => $cashier->created_at?->toIso8601String(),
             ])->values()->all();
 
@@ -382,6 +387,71 @@ class EquipeController extends Controller
         ]);
 
         return redirect()->route('usuarios.equipe')->with('success', 'Caixa atualizado.');
+    }
+
+    public function updateCashierLogo(Request $request, Cashier $cashier): RedirectResponse
+    {
+        $tenantId = $request->user()?->tenant_id;
+        if (! $tenantId || $cashier->tenant_id !== $tenantId) {
+            abort(403, 'Caixa nÃ£o encontrado.');
+        }
+
+        $validated = $request->validate([
+            'logo' => ['required', 'image', 'max:4096'],
+        ]);
+
+        $file = $validated['logo'];
+        $extension = $file->getClientOriginalExtension() ?: $file->extension() ?: 'png';
+        $path = app(StorageService::class)->putFileAs(
+            'cashiers/'.$tenantId,
+            $file,
+            'cashier-'.$cashier->id.'-'.Str::random(10).'.'.$extension
+        );
+
+        $cashier->logo_path = $path;
+        $cashier->save();
+
+        $this->audit($request, 'team.cashier.logo.updated', Cashier::class, $cashier->id, [
+            'name' => $cashier->name,
+            'logo_path' => $path,
+        ]);
+
+        return redirect()->route('usuarios.equipe')->with('success', 'Logo do caixa atualizada.');
+    }
+
+    public function accessCashier(Request $request, Cashier $cashier): Response
+    {
+        $tenantId = $request->user()?->tenant_id;
+        if (! $tenantId || $cashier->tenant_id !== $tenantId) {
+            abort(403, 'Caixa nÃ£o encontrado.');
+        }
+
+        return Inertia::render('Cashier/Pdv', [
+            'cashier' => [
+                'id' => $cashier->id,
+                'name' => $cashier->name,
+                'username' => $cashier->username,
+                'logo_url' => $cashier->logo_path ? app(StorageService::class)->url($cashier->logo_path) : null,
+            ],
+            'manager_mode' => true,
+        ]);
+    }
+
+    public function downloadCashier(Request $request)
+    {
+        $tenantId = $request->user()?->tenant_id;
+        if (! $tenantId) {
+            abort(403, 'Tenant invÃ¡lido.');
+        }
+
+        $path = public_path('hipercaixa/HiperCaixa.html');
+        if (! is_file($path)) {
+            abort(404, 'Aplicativo HiperCaixa nÃ£o encontrado.');
+        }
+
+        return response()->download($path, 'HiperCaixa.html', [
+            'Content-Type' => 'text/html; charset=UTF-8',
+        ]);
     }
 
     public function destroyCashier(Request $request, Cashier $cashier): RedirectResponse
