@@ -3,7 +3,7 @@ import { computed, ref } from 'vue';
 import { Link, router, useForm, usePage } from '@inertiajs/vue3';
 import LayoutInfoprodutor from '@/Layouts/LayoutInfoprodutor.vue';
 import Button from '@/components/ui/Button.vue';
-import { Users, Shield, UserPlus, Plus, Pencil, Trash2, X, ScrollText, Trash } from 'lucide-vue-next';
+import { Banknote, Users, Shield, UserPlus, Plus, Pencil, Trash2, X, ScrollText, Trash } from 'lucide-vue-next';
 
 defineOptions({ layout: LayoutInfoprodutor });
 
@@ -11,6 +11,7 @@ const props = defineProps({
     products: { type: Array, default: () => [] },
     roles: { type: Array, default: () => [] },
     members: { type: Array, default: () => [] },
+    cashiers: { type: Array, default: () => [] },
     logs: { type: Array, default: () => [] },
 });
 
@@ -21,6 +22,7 @@ const tabs = computed(() => {
     const base = [
         { key: 'cargos', label: 'Cargos' },
         { key: 'membros', label: 'Membros' },
+        { key: 'caixa', label: 'Caixa' },
     ];
     if (role.value === 'admin') {
         base.push({ key: 'logs', label: 'Logs' });
@@ -178,6 +180,54 @@ function confirmDeleteMember(m) {
     router.delete(`/usuarios/equipe/membros/${m.id}`, { preserveScroll: true });
 }
 
+const showCashierModal = ref(false);
+const editingCashier = ref(null);
+const cashierForm = useForm({
+    name: '',
+    username: '',
+    password: '',
+});
+
+function openCreateCashier() {
+    editingCashier.value = null;
+    cashierForm.reset();
+    cashierForm.clearErrors();
+    showCashierModal.value = true;
+}
+
+function openEditCashier(cashier) {
+    editingCashier.value = cashier;
+    cashierForm.reset();
+    cashierForm.clearErrors();
+    cashierForm.name = cashier.name;
+    cashierForm.username = cashier.username;
+    cashierForm.password = '';
+    showCashierModal.value = true;
+}
+
+function closeCashierModal() {
+    showCashierModal.value = false;
+}
+
+function submitCashier() {
+    if (editingCashier.value) {
+        cashierForm.put(`/usuarios/equipe/caixas/${editingCashier.value.id}`, {
+            preserveScroll: true,
+            onSuccess: () => closeCashierModal(),
+        });
+        return;
+    }
+    cashierForm.post('/usuarios/equipe/caixas', {
+        preserveScroll: true,
+        onSuccess: () => closeCashierModal(),
+    });
+}
+
+function confirmDeleteCashier(cashier) {
+    if (!window.confirm(`Remover o caixa "${cashier.name}"?`)) return;
+    router.delete(`/usuarios/equipe/caixas/${cashier.id}`, { preserveScroll: true });
+}
+
 function formatDate(value) {
     if (!value) return '—';
     return new Date(value).toLocaleDateString('pt-BR', {
@@ -223,6 +273,10 @@ function confirmClearLogs() {
                 <Button v-else-if="activeTab === 'membros'" class="inline-flex items-center gap-2" @click="openCreateMember">
                     <UserPlus class="h-4 w-4" />
                     Novo membro
+                </Button>
+                <Button v-else-if="activeTab === 'caixa'" class="inline-flex items-center gap-2" @click="openCreateCashier">
+                    <Plus class="h-4 w-4" />
+                    Novo caixa
                 </Button>
                 <Button
                     v-else-if="activeTab === 'logs' && role === 'admin'"
@@ -280,6 +334,7 @@ function confirmClearLogs() {
                 >
                     <Shield v-if="t.key === 'cargos'" class="h-4 w-4 shrink-0" aria-hidden="true" />
                     <Users v-else-if="t.key === 'membros'" class="h-4 w-4 shrink-0" aria-hidden="true" />
+                    <Banknote v-else-if="t.key === 'caixa'" class="h-4 w-4 shrink-0" aria-hidden="true" />
                     <ScrollText v-else class="h-4 w-4 shrink-0" aria-hidden="true" />
                     {{ t.label }}
                 </button>
@@ -374,6 +429,52 @@ function confirmClearLogs() {
             </ul>
             <p v-if="!members.length" class="px-4 py-10 text-center text-sm text-zinc-500 dark:text-zinc-400">
                 Nenhum membro cadastrado.
+            </p>
+        </div>
+
+        <!-- Caixa -->
+        <div v-else-if="activeTab === 'caixa'" class="rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/80 overflow-hidden">
+            <ul class="divide-y divide-zinc-200 dark:divide-zinc-700">
+                <li v-for="cashier in cashiers" :key="cashier.id" class="flex flex-col gap-2 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+                    <div class="flex min-w-0 flex-1 items-center gap-3">
+                        <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-zinc-200 text-zinc-700 dark:bg-zinc-700 dark:text-zinc-200">
+                            <Banknote class="h-5 w-5" />
+                        </span>
+                        <div class="min-w-0 flex-1">
+                            <div class="flex flex-wrap items-center gap-2">
+                                <span class="font-medium text-zinc-900 dark:text-zinc-100">{{ cashier.name }}</span>
+                                <span class="text-xs text-zinc-500 dark:text-zinc-400">
+                                    Caixa
+                                </span>
+                            </div>
+                            <p class="mt-0.5 truncate text-sm text-zinc-500 dark:text-zinc-400">{{ cashier.username }}</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-sm text-zinc-500 dark:text-zinc-400 tabular-nums">
+                            {{ formatDate(cashier.created_at) }}
+                        </span>
+                        <button
+                            type="button"
+                            class="rounded-lg p-2 text-zinc-400 hover:bg-zinc-200 hover:text-zinc-700 dark:hover:bg-zinc-600 dark:hover:text-zinc-200 transition-colors"
+                            title="Editar caixa"
+                            @click="openEditCashier(cashier)"
+                        >
+                            <Pencil class="h-4 w-4" />
+                        </button>
+                        <button
+                            type="button"
+                            class="rounded-lg p-2 text-zinc-400 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-900/20 dark:hover:text-red-400 transition-colors"
+                            title="Remover caixa"
+                            @click="confirmDeleteCashier(cashier)"
+                        >
+                            <Trash2 class="h-4 w-4" />
+                        </button>
+                    </div>
+                </li>
+            </ul>
+            <p v-if="!cashiers.length" class="px-4 py-10 text-center text-sm text-zinc-500 dark:text-zinc-400">
+                Nenhum caixa cadastrado.
             </p>
         </div>
 
@@ -576,5 +677,58 @@ function confirmClearLogs() {
             </div>
         </div>
     </Teleport>
-</template>
 
+    <!-- Modal: Caixa -->
+    <Teleport to="body">
+        <div
+            v-if="showCashierModal"
+            class="fixed inset-0 z-[100002] flex items-center justify-center p-4"
+            role="dialog"
+            aria-modal="true"
+        >
+            <div class="fixed inset-0 bg-zinc-900/60 dark:bg-zinc-950/70" aria-hidden="true" @click="closeCashierModal" />
+            <div class="relative w-full max-w-md rounded-xl border border-zinc-200 bg-white shadow-xl dark:border-zinc-700 dark:bg-zinc-800">
+                <div class="flex items-center justify-between border-b border-zinc-200 px-5 py-4 dark:border-zinc-700">
+                    <h2 class="text-lg font-semibold text-zinc-900 dark:text-white">
+                        {{ editingCashier ? 'Editar caixa' : 'Novo caixa' }}
+                    </h2>
+                    <button
+                        type="button"
+                        class="rounded-lg p-2 text-zinc-500 hover:bg-zinc-100 hover:text-zinc-700 dark:hover:bg-zinc-700 dark:hover:text-zinc-200"
+                        aria-label="Fechar"
+                        @click="closeCashierModal"
+                    >
+                        <X class="h-5 w-5" />
+                    </button>
+                </div>
+                <form class="space-y-4 p-5" @submit.prevent="submitCashier">
+                    <div>
+                        <label class="block text-sm font-medium text-zinc-700 dark:text-zinc-300">Nome do caixa</label>
+                        <input v-model="cashierForm.name" type="text" required class="mt-1 block w-full rounded-lg border border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-900 px-3 py-2 text-zinc-900 dark:text-zinc-100" />
+                        <p v-if="cashierForm.errors.name" class="mt-1 text-sm text-red-600 dark:text-red-400">{{ cashierForm.errors.name }}</p>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-zinc-700 dark:text-zinc-300">Usuário</label>
+                        <input v-model="cashierForm.username" type="text" required autocomplete="username" class="mt-1 block w-full rounded-lg border border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-900 px-3 py-2 text-zinc-900 dark:text-zinc-100" />
+                        <p v-if="cashierForm.errors.username" class="mt-1 text-sm text-red-600 dark:text-red-400">{{ cashierForm.errors.username }}</p>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-zinc-700 dark:text-zinc-300">
+                            {{ editingCashier ? 'Nova senha (opcional)' : 'Senha' }}
+                        </label>
+                        <input v-model="cashierForm.password" type="password" :required="!editingCashier" minlength="4" autocomplete="new-password" class="mt-1 block w-full rounded-lg border border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-900 px-3 py-2 text-zinc-900 dark:text-zinc-100" />
+                        <p v-if="cashierForm.errors.password" class="mt-1 text-sm text-red-600 dark:text-red-400">{{ cashierForm.errors.password }}</p>
+                    </div>
+                    <div class="flex gap-3 pt-2">
+                        <Button type="submit" :disabled="cashierForm.processing">
+                            Salvar
+                        </Button>
+                        <Button type="button" variant="outline" @click="closeCashierModal">
+                            Cancelar
+                        </Button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </Teleport>
+</template>

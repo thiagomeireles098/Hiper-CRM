@@ -213,6 +213,9 @@ Route::middleware(['auth', 'admin.tenant', 'role:admin|infoprodutor|team', 'team
         Route::post('/membros', [\App\Http\Controllers\EquipeController::class, 'storeMember'])->name('usuarios.equipe.membros.store');
         Route::put('/membros/{member}', [\App\Http\Controllers\EquipeController::class, 'updateMember'])->name('usuarios.equipe.membros.update');
         Route::delete('/membros/{member}', [\App\Http\Controllers\EquipeController::class, 'destroyMember'])->name('usuarios.equipe.membros.destroy');
+        Route::post('/caixas', [\App\Http\Controllers\EquipeController::class, 'storeCashier'])->name('usuarios.equipe.caixas.store');
+        Route::put('/caixas/{cashier}', [\App\Http\Controllers\EquipeController::class, 'updateCashier'])->name('usuarios.equipe.caixas.update');
+        Route::delete('/caixas/{cashier}', [\App\Http\Controllers\EquipeController::class, 'destroyCashier'])->name('usuarios.equipe.caixas.destroy');
 
         Route::post('/logs/clear', [\App\Http\Controllers\EquipeController::class, 'clearLogs'])->name('usuarios.equipe.logs.clear');
     });

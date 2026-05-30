@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Product;
+use App\Models\Cashier;
 use App\Models\TeamAuditLog;
 use App\Models\TeamRole;
 use App\Models\User;
@@ -78,6 +79,17 @@ class EquipeController extends Controller
                 'created_at' => $u->created_at?->toIso8601String(),
             ])->values()->all();
 
+        $cashiers = Cashier::query()
+            ->where('tenant_id', $tenantId)
+            ->orderBy('name')
+            ->get(['id', 'name', 'username', 'created_at'])
+            ->map(fn (Cashier $cashier) => [
+                'id' => $cashier->id,
+                'name' => $cashier->name,
+                'username' => $cashier->username,
+                'created_at' => $cashier->created_at?->toIso8601String(),
+            ])->values()->all();
+
         $logs = [];
         if ($user && $user->isAdmin()) {
             $logs = TeamAuditLog::query()
@@ -102,6 +114,7 @@ class EquipeController extends Controller
             'products' => $products,
             'roles' => $roles,
             'members' => $members,
+            'cashiers' => $cashiers,
             'logs' => $logs,
         ]);
     }
@@ -310,6 +323,84 @@ class EquipeController extends Controller
         return redirect()->route('usuarios.equipe')->with('success', 'Usuário removido.');
     }
 
+    public function storeCashier(Request $request): RedirectResponse
+    {
+        $tenantId = $request->user()?->tenant_id;
+        if (! $tenantId) {
+            abort(403, 'Tenant inválido.');
+        }
+
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:120'],
+            'username' => ['required', 'string', 'max:120', 'unique:cashiers,username,NULL,id,tenant_id,'.$tenantId],
+            'password' => ['required', 'string', 'min:4'],
+        ], [
+            'username.unique' => 'Este usuário de caixa já está em uso.',
+        ]);
+
+        $cashier = Cashier::create([
+            'tenant_id' => $tenantId,
+            'name' => $validated['name'],
+            'username' => $validated['username'],
+            'password' => $validated['password'],
+        ]);
+
+        $this->audit($request, 'team.cashier.created', Cashier::class, $cashier->id, [
+            'name' => $cashier->name,
+            'username' => $cashier->username,
+        ]);
+
+        return redirect()->route('usuarios.equipe')->with('success', 'Caixa criado.');
+    }
+
+    public function updateCashier(Request $request, Cashier $cashier): RedirectResponse
+    {
+        $tenantId = $request->user()?->tenant_id;
+        if (! $tenantId || $cashier->tenant_id !== $tenantId) {
+            abort(403, 'Caixa não encontrado.');
+        }
+
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:120'],
+            'username' => ['required', 'string', 'max:120', 'unique:cashiers,username,'.$cashier->id.',id,tenant_id,'.$tenantId],
+            'password' => ['nullable', 'string', 'min:4'],
+        ], [
+            'username.unique' => 'Este usuário de caixa já está em uso.',
+        ]);
+
+        $cashier->name = $validated['name'];
+        $cashier->username = $validated['username'];
+        if (! empty($validated['password'])) {
+            $cashier->password = $validated['password'];
+        }
+        $cashier->save();
+
+        $this->audit($request, 'team.cashier.updated', Cashier::class, $cashier->id, [
+            'name' => $cashier->name,
+            'username' => $cashier->username,
+            'password_changed' => ! empty($validated['password']),
+        ]);
+
+        return redirect()->route('usuarios.equipe')->with('success', 'Caixa atualizado.');
+    }
+
+    public function destroyCashier(Request $request, Cashier $cashier): RedirectResponse
+    {
+        $tenantId = $request->user()?->tenant_id;
+        if (! $tenantId || $cashier->tenant_id !== $tenantId) {
+            abort(403, 'Caixa não encontrado.');
+        }
+
+        $this->audit($request, 'team.cashier.deleted', Cashier::class, $cashier->id, [
+            'name' => $cashier->name,
+            'username' => $cashier->username,
+        ]);
+
+        $cashier->delete();
+
+        return redirect()->route('usuarios.equipe')->with('success', 'Caixa removido.');
+    }
+
     public function clearLogs(Request $request): RedirectResponse
     {
         $user = $request->user();
@@ -329,4 +420,3 @@ class EquipeController extends Controller
         return redirect()->route('usuarios.equipe')->with('success', 'Logs limpos.');
     }
 }
-
