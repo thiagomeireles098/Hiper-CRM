@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>HiperCaixa</title>
+    <style>
+        :root { color-scheme: light; font-family: Arial, sans-serif; --blue: #003f6d; --green: #09c985; }
+        body { margin: 0; min-height: 100vh; background: #dff8fb; color: var(--blue); }
+        header { height: 86px; display: flex; align-items: center; padding: 0 28px; background: var(--blue); color: white; font-size: 34px; font-weight: 700; }
+        main { padding: 28px; display: grid; grid-template-columns: 420px 540px 1fr; gap: 12px; }
+        .panel { background: white; border: 2px solid var(--blue); border-radius: 8px; overflow: hidden; }
+        .title { background: var(--blue); color: white; padding: 10px 14px; font-weight: 700; }
+        .box { background: var(--blue); color: white; border-radius: 8px; padding: 14px; margin-bottom: 10px; }
+        input, button, select { font: inherit; }
+        input { width: 100%; box-sizing: border-box; padding: 12px; border: 0; border-radius: 6px; margin-top: 8px; }
+        button { border: 0; border-radius: 8px; padding: 14px; font-weight: 700; cursor: pointer; }
+        .primary { background: var(--blue); color: white; }
+        .pay { background: var(--green); color: white; }
+        table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        th, td { padding: 8px; border-bottom: 1px solid #e5e7eb; text-align: left; }
+        .big { font-size: 54px; text-align: right; font-weight: 800; }
+        .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .hint { background: rgba(255,255,255,.75); padding: 12px; border-radius: 8px; font-size: 12px; font-weight: 700; }
+        @media (max-width: 1100px) { main { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+    <header>HIPERCAIXA - PDV</header>
+    <main>
+        <section>
+            <div class="box">
+                <strong>CPF NA NOTA</strong>
+                <input id="cpf" placeholder="Opcional, Enter para seguir">
+            </div>
+            <div class="box">
+                <strong>CODIGO DE BARRAS</strong>
+                <input id="barcode" autofocus>
+            </div>
+            <div class="box"><strong>VALOR UNITARIO</strong><div id="unit" class="big">0,00</div></div>
+            <div class="box"><strong>TOTAL DO ITEM</strong><div id="itemTotal" class="big">0,00</div></div>
+            <div class="grid2">
+                <button class="primary" onclick="setQuantity()">F4 - Inserir quantidade</button>
+                <button class="primary" onclick="finish()">F12 - Finalizar venda</button>
+            </div>
+            <p class="hint">Configuracao: informe o token de 26 caracteres do painel web para baixar backup e sincronizar quando a internet voltar.</p>
+        </section>
+        <section class="panel">
+            <div class="title">LISTA DE PRODUTOS</div>
+            <table>
+                <thead><tr><th>N</th><th>Codigo</th><th>Descricao</th><th>Qtd</th><th>Total</th></tr></thead>
+                <tbody id="items"></tbody>
+            </table>
+        </section>
+        <section>
+            <div class="box"><strong>SUBTOTAL</strong><div id="subtotal" class="big">0,00</div></div>
+            <div id="payment" hidden>
+                <div class="grid2">
+                    <button class="pay" onclick="mode='dinheiro'; renderPayment()">Dinheiro</button>
+                    <button class="pay" onclick="mode='cheque'; renderPayment()">Cheque</button>
+                    <button class="pay" onclick="mode='credito'; renderPayment()">Cartao de Credito</button>
+                    <button class="pay" onclick="mode='debito'; renderPayment()">Cartao de Debito</button>
+                </div>
+                <div id="paymentFields" class="box" style="margin-top:10px"></div>
+                <button class="primary" style="width:100%" onclick="printAndClose()">Finalizar venda / Imprimir</button>
+            </div>
+        </section>
+    </main>
+    <script>
+        const catalog = {
+            '7898132951382': ['COCA COLA LATA 350ML', 2.30],
+            '7897095042014': ['SUCO AURORA UVA TINTO 1,5L', 19.99],
+            '7897216901763': ['LEITE CONDENSADO MOCA TP 395G', 5.50],
+            '84491': ['COCA COLA LATA 350ML', 2.30],
+        };
+        let qty = 1, mode = 'dinheiro';
+        const items = [];
+        const brl = v => Number(v || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+        function render() {
+            document.getElementById('items').innerHTML = items.map((i, n) => `<tr><td>${n+1}</td><td>${i.code}</td><td>${i.name}</td><td>${i.qty}</td><td>${brl(i.total)}</td></tr>`).join('');
+            const subtotal = items.reduce((s, i) => s + i.total, 0);
+            document.getElementById('subtotal').textContent = brl(subtotal);
+            const last = items.at(-1);
+            document.getElementById('unit').textContent = brl(last?.price || 0);
+            document.getElementById('itemTotal').textContent = brl(last?.total || 0);
+        }
+        function add(code) {
+            const found = catalog[code] || [`PRODUTO ${code}`, 1];
+            items.push({ code, name: found[0], price: found[1], qty, total: found[1] * qty });
+            qty = 1;
+            render();
+        }
+        function setQuantity() {
+            qty = Math.max(1, Number(prompt('Quantidade') || 1));
+            document.getElementById('barcode').focus();
+        }
+        function finish() {
+            document.getElementById('payment').hidden = false;
+            renderPayment();
+        }
+        function renderPayment() {
+            const map = {
+                dinheiro: '<input id="cash" placeholder="Valor recebido" oninput="calcChange()"> <p id="change"></p>',
+                cheque: '<input placeholder="Codigo do banco"><input placeholder="Nome do banco"><input placeholder="Agencia"><input placeholder="Digito/agencia"><input placeholder="Conta"><input placeholder="Digito/conta"><input placeholder="Numero"><input placeholder="Bom para"><input placeholder="Valor">',
+                debito: '<input placeholder="Valor"><input placeholder="Bandeira">',
+                credito: '<input placeholder="Valor exato"><input placeholder="Numero de parcelas"><input placeholder="Bandeira">',
+            };
+            document.getElementById('paymentFields').innerHTML = map[mode];
+            document.querySelector('#paymentFields input')?.focus();
+        }
+        function calcChange() {
+            const total = items.reduce((s, i) => s + i.total, 0);
+            const paid = Number((document.getElementById('cash').value || '0').replace(',', '.'));
+            document.getElementById('change').textContent = `Troco: R$ ${brl(Math.max(0, paid - total))}`;
+        }
+        function printAndClose() {
+            alert('Obrigado, volte sempre! O cupom fiscal eletronico sera conectado em atualizacao futura.');
+            items.splice(0, items.length);
+            document.getElementById('payment').hidden = true;
+            render();
+            document.getElementById('barcode').focus();
+        }
+        document.getElementById('barcode').addEventListener('keydown', e => {
+            if (e.key === 'Enter' && e.target.value.trim()) {
+                add(e.target.value.trim());
+                e.target.value = '';
+            }
+        });
+        window.addEventListener('keydown', e => {
+            if (e.key === 'F4') { e.preventDefault(); setQuantity(); }
+            if (e.key === 'F12') { e.preventDefault(); finish(); }
+            if (e.key.toLowerCase() === 'p') printAndClose();
+        });
+    </script>
+</body>
+</html>

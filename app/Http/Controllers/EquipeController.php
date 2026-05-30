@@ -444,13 +444,13 @@ class EquipeController extends Controller
             abort(403, 'Tenant invÃ¡lido.');
         }
 
-        $path = public_path('hipercaixa/HiperCaixa.html');
+        $path = public_path('hipercaixa/build/HiperCaixa.exe');
         if (! is_file($path)) {
-            abort(404, 'Aplicativo HiperCaixa nÃ£o encontrado.');
+            abort(404, 'HiperCaixa.exe ainda nÃ£o foi gerado.');
         }
 
-        return response()->download($path, 'HiperCaixa.html', [
-            'Content-Type' => 'text/html; charset=UTF-8',
+        return response()->download($path, 'HiperCaixa.exe', [
+            'Content-Type' => 'application/vnd.microsoft.portable-executable',
         ]);
     }
 
