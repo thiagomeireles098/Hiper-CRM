@@ -1,6 +1,6 @@
 {
     "name": "hipercaixa",
-    "version": "1.0.0",
+    "version": "1.0.15",
     "description": "HiperCaixa PDV offline",
     "author": "Hiperlink Solutions",
     "main": "hipercaixa-main.cjs",

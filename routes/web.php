@@ -187,6 +187,14 @@ Route::middleware('guest')->group(function () {
     Route::post('/redefinir-senha', [ResetPasswordController::class, 'reset'])->name('password.update')->middleware('throttle:6,1');
 });
 
+Route::prefix('hipercaixa')->middleware('throttle:120,1')->group(function () {
+    Route::post('/login', [\App\Http\Controllers\CashierSyncController::class, 'login'])->name('hipercaixa.login');
+    Route::post('/bootstrap', [\App\Http\Controllers\CashierSyncController::class, 'bootstrap'])->name('hipercaixa.bootstrap');
+    Route::post('/push', [\App\Http\Controllers\CashierSyncController::class, 'push'])->name('hipercaixa.push');
+    Route::get('/update', [\App\Http\Controllers\CashierSyncController::class, 'updateInfo'])->name('hipercaixa.update');
+    Route::get('/download', [\App\Http\Controllers\CashierSyncController::class, 'download'])->name('hipercaixa.download');
+});
+
 Route::middleware('auth')->group(function () {
     Route::match(['get', 'post'], '/logout', [LoginController::class, 'logout'])->name('logout');
 });
