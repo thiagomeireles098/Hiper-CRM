@@ -9,6 +9,7 @@ const isVendas = computed(() => {
     return url === '/vendas' || url.startsWith('/vendas?');
 });
 const isAssinaturas = computed(() => page.url.startsWith('/vendas/assinaturas'));
+const canViewAssinaturas = computed(() => !!page.props.auth?.permissions?.['vendas.assinaturas.view']);
 </script>
 
 <template>
@@ -29,6 +30,7 @@ const isAssinaturas = computed(() => page.url.startsWith('/vendas/assinaturas'))
             Vendas
         </Link>
         <Link
+            v-if="canViewAssinaturas"
             href="/vendas/assinaturas"
             :class="[
                 'flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition-all duration-200',

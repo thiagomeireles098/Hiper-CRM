@@ -3,10 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Services\TeamAccessService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -20,10 +20,11 @@ class UsersController extends Controller
 
     public function index(): Response
     {
+        $access = app(TeamAccessService::class);
         $users = User::whereIn('role', [User::ROLE_ADMIN, User::ROLE_INFOPRODUTOR])
             ->orderByRaw("role = ? DESC", [User::ROLE_ADMIN])
             ->orderBy('name')
-            ->get(['id', 'name', 'email', 'avatar', 'role', 'cashier_sync_token', 'created_at'])
+            ->get(['id', 'name', 'email', 'avatar', 'role', 'cashier_sync_token', 'platform_permissions', 'platform_subscription_config', 'platform_payment_due_day', 'platform_payment_paid', 'platform_payment_grace_days', 'created_at'])
             ->map(fn (User $u) => [
                 'id' => $u->id,
                 'name' => $u->name,
@@ -34,11 +35,20 @@ class UsersController extends Controller
                 'cashier_sync_token' => $u->role === User::ROLE_INFOPRODUTOR || $u->role === User::ROLE_ADMIN
                     ? $this->ensureCashierSyncToken($u)
                     : null,
+                'platform_permissions' => $u->role === User::ROLE_INFOPRODUTOR
+                    ? $access->permissionsFor($u)
+                    : $access->allPermissions(),
+                'platform_subscription_config' => $u->platform_subscription_config ?? [],
+                'platform_payment_due_day' => $u->platform_payment_due_day,
+                'platform_payment_paid' => (bool) $u->platform_payment_paid,
+                'platform_payment_grace_days' => (int) ($u->platform_payment_grace_days ?? 0),
+                'platform_payment_grace_interest_percent' => (int) ($u->platform_payment_grace_days ?? 0),
                 'created_at' => $u->created_at?->toIso8601String(),
             ]);
 
         return Inertia::render('Users/Index', [
             'users' => $users,
+            'defaultInfoprodutorPermissions' => $access->defaultInfoprodutorPermissions(),
         ]);
     }
 
@@ -59,6 +69,10 @@ class UsersController extends Controller
             'password' => Hash::make($validated['password']),
             'role' => User::ROLE_INFOPRODUTOR,
             'cashier_sync_token' => $this->newCashierSyncToken(),
+            'platform_permissions' => app(TeamAccessService::class)->defaultInfoprodutorPermissions(),
+            'platform_payment_due_day' => (int) now()->day,
+            'platform_payment_paid' => false,
+            'platform_payment_grace_days' => 0,
         ]);
 
         $user->update(['tenant_id' => $user->id]);
@@ -87,6 +101,11 @@ class UsersController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email,'.$user->id],
             'password' => ['nullable', 'string', 'min:8', 'confirmed'],
+            'platform_permissions' => ['nullable', 'array'],
+            'platform_subscription_config' => ['nullable', 'array'],
+            'platform_payment_due_day' => ['nullable', 'integer', 'min:1', 'max:31'],
+            'platform_payment_paid' => ['nullable', 'boolean'],
+            'platform_payment_grace_days' => ['nullable', 'integer', 'min:0', 'max:365'],
         ], [
             'email.unique' => 'Este e-mail já está em uso.',
             'password.confirmed' => 'A confirmação da senha não confere.',
@@ -96,6 +115,13 @@ class UsersController extends Controller
         $user->email = $validated['email'];
         if (! empty($validated['password'])) {
             $user->password = Hash::make($validated['password']);
+        }
+        if ($user->role === User::ROLE_INFOPRODUTOR) {
+            $user->platform_permissions = $validated['platform_permissions'] ?? app(TeamAccessService::class)->defaultInfoprodutorPermissions();
+            $user->platform_subscription_config = $validated['platform_subscription_config'] ?? [];
+            $user->platform_payment_due_day = $validated['platform_payment_due_day'] ?? $user->platform_payment_due_day;
+            $user->platform_payment_paid = (bool) ($validated['platform_payment_paid'] ?? false);
+            $user->platform_payment_grace_days = (int) ($validated['platform_payment_grace_days'] ?? 0);
         }
         $user->save();
 

@@ -3,12 +3,13 @@ import { ref, computed } from 'vue';
 import { Link, router, useForm, usePage } from '@inertiajs/vue3';
 import LayoutInfoprodutor from '@/Layouts/LayoutInfoprodutor.vue';
 import Button from '@/components/ui/Button.vue';
-import { UserPlus, Trash2, Shield, User, Pencil, X } from 'lucide-vue-next';
+import { UserPlus, Trash2, Shield, User, Pencil, X, CreditCard, Percent } from 'lucide-vue-next';
 
 defineOptions({ layout: LayoutInfoprodutor });
 
 const props = defineProps({
     users: { type: Array, default: () => [] },
+    defaultInfoprodutorPermissions: { type: Object, default: () => ({}) },
 });
 
 const page = usePage();
@@ -41,7 +42,81 @@ const editForm = useForm({
     email: '',
     password: '',
     password_confirmation: '',
+    platform_permissions: {},
+    platform_subscription_config: {
+        name: '',
+        price: '',
+        description: '',
+    },
+    platform_payment_due_day: '',
+    platform_payment_paid: false,
+    platform_payment_grace_days: 0,
 });
+
+const permissionGroups = [
+    {
+        title: 'Menu lateral',
+        items: [
+            { key: 'dashboard.view', label: 'Dashboard' },
+            { key: 'vendas.view', label: 'Vendas' },
+            { key: 'reembolsos.view', label: 'Reembolsos' },
+            { key: 'produtos.view', label: 'Produtos' },
+            { key: 'relatorios.view', label: 'Relatorios' },
+            { key: 'integracoes.view', label: 'Integracoes' },
+            { key: 'email_marketing.view', label: 'E-mail Marketing' },
+            { key: 'api_pagamentos.view', label: 'API de Pagamentos' },
+            { key: 'equipe.manage', label: 'Equipe' },
+            { key: 'configuracoes.view', label: 'Configuracoes' },
+            { key: 'platform_subscription.view', label: 'Assinatura' },
+        ],
+    },
+    {
+        title: 'Vendas e cobranca',
+        items: [
+            { key: 'billing.one_time', label: 'Pagamento unico' },
+            { key: 'billing.subscription', label: 'Produtos de assinatura' },
+            { key: 'vendas.assinaturas.view', label: 'Aba Assinaturas em Vendas' },
+        ],
+    },
+    {
+        title: 'Tipos de entrega',
+        items: [
+            { key: 'products.delivery.produto', label: 'Produto fisico' },
+            { key: 'products.delivery.area_membros', label: 'Area de membros' },
+            { key: 'products.delivery.area_membros_externa', label: 'Area de membros externa' },
+            { key: 'products.delivery.link', label: 'Link' },
+            { key: 'products.delivery.link_pagamento', label: 'Somente link de pagamento' },
+            { key: 'products.delivery.aplicativo', label: 'Aplicativo' },
+        ],
+    },
+    {
+        title: 'Produto fisico',
+        items: [
+            { key: 'products.business.supermercado', label: 'Supermercado' },
+            { key: 'products.business.farmacia', label: 'Farmacia' },
+            { key: 'products.business.loja_roupas', label: 'Loja de roupas' },
+            { key: 'products.business.informatica_assistencia', label: 'Informatica / Assistencia tecnica' },
+            { key: 'products.business.padaria', label: 'Padaria' },
+        ],
+    },
+    {
+        title: 'Configuracoes internas',
+        items: [
+            { key: 'settings.email', label: 'E-mail' },
+            { key: 'settings.storage', label: 'Storage' },
+            { key: 'settings.traducoes', label: 'Traducoes' },
+            { key: 'settings.moedas', label: 'Moedas' },
+            { key: 'settings.cron', label: 'Cron' },
+            { key: 'settings.update', label: 'Update' },
+            { key: 'settings.agente_bot', label: 'Agente Bot' },
+            { key: 'settings.caixa', label: 'Caixa' },
+        ],
+    },
+];
+
+function withDefaultPermissions(raw = {}) {
+    return { ...props.defaultInfoprodutorPermissions, ...(raw || {}) };
+}
 
 const isCreateModalOpen = computed(() => showCreateModal.value);
 const isEditModalOpen = computed(() => editUser.value !== null);
@@ -62,6 +137,15 @@ function openEditModal(u) {
     editForm.email = u.email;
     editForm.password = '';
     editForm.password_confirmation = '';
+    editForm.platform_permissions = withDefaultPermissions(u.platform_permissions);
+    editForm.platform_subscription_config = {
+        name: u.platform_subscription_config?.name ?? '',
+        price: u.platform_subscription_config?.price ?? '',
+        description: u.platform_subscription_config?.description ?? '',
+    };
+    editForm.platform_payment_due_day = u.platform_payment_due_day ?? '';
+    editForm.platform_payment_paid = !!u.platform_payment_paid;
+    editForm.platform_payment_grace_days = u.platform_payment_grace_days ?? 0;
     editForm.clearErrors();
 }
 
@@ -322,7 +406,7 @@ function confirmDelete(u) {
                 @click="closeEditModal"
             />
             <div
-                class="relative w-full max-w-md rounded-xl border border-zinc-200 bg-white shadow-xl dark:border-zinc-700 dark:bg-zinc-800"
+                class="relative max-h-[92vh] w-full max-w-5xl overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-xl dark:border-zinc-700 dark:bg-zinc-800"
             >
                 <div class="flex items-center justify-between border-b border-zinc-200 px-5 py-4 dark:border-zinc-700">
                     <h2 id="modal-edit-title" class="text-lg font-semibold text-zinc-900 dark:text-white">
@@ -337,28 +421,70 @@ function confirmDelete(u) {
                         <X class="h-5 w-5" />
                     </button>
                 </div>
-                <form class="space-y-4 p-5" @submit.prevent="submitEdit">
-                    <div>
-                        <label for="edit-name" class="block text-sm font-medium text-zinc-700 dark:text-zinc-300">Nome</label>
-                        <input
-                            id="edit-name"
-                            v-model="editForm.name"
-                            type="text"
-                            required
-                            class="mt-1 block w-full rounded-lg border border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-900 px-3 py-2 text-zinc-900 dark:text-zinc-100"
-                        />
-                        <p v-if="editForm.errors.name" class="mt-1 text-sm text-red-600 dark:text-red-400">{{ editForm.errors.name }}</p>
-                    </div>
-                    <div>
-                        <label for="edit-email" class="block text-sm font-medium text-zinc-700 dark:text-zinc-300">E-mail</label>
-                        <input
-                            id="edit-email"
-                            v-model="editForm.email"
-                            type="email"
-                            required
-                            class="mt-1 block w-full rounded-lg border border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-900 px-3 py-2 text-zinc-900 dark:text-zinc-100"
-                        />
-                        <p v-if="editForm.errors.email" class="mt-1 text-sm text-red-600 dark:text-red-400">{{ editForm.errors.email }}</p>
+                <form class="max-h-[calc(92vh-73px)] space-y-5 overflow-y-auto p-5" @submit.prevent="submitEdit">
+                    <div class="grid gap-5 lg:grid-cols-[1fr_1.4fr]">
+                        <section class="space-y-4">
+                            <div>
+                                <label for="edit-name" class="block text-sm font-medium text-zinc-700 dark:text-zinc-300">Nome</label>
+                                <input
+                                    id="edit-name"
+                                    v-model="editForm.name"
+                                    type="text"
+                                    required
+                                    class="mt-1 block w-full rounded-lg border border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-900 px-3 py-2 text-zinc-900 dark:text-zinc-100"
+                                />
+                                <p v-if="editForm.errors.name" class="mt-1 text-sm text-red-600 dark:text-red-400">{{ editForm.errors.name }}</p>
+                            </div>
+                            <div>
+                                <label for="edit-email" class="block text-sm font-medium text-zinc-700 dark:text-zinc-300">E-mail</label>
+                                <input
+                                    id="edit-email"
+                                    v-model="editForm.email"
+                                    type="email"
+                                    required
+                                    class="mt-1 block w-full rounded-lg border border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-900 px-3 py-2 text-zinc-900 dark:text-zinc-100"
+                                />
+                                <p v-if="editForm.errors.email" class="mt-1 text-sm text-red-600 dark:text-red-400">{{ editForm.errors.email }}</p>
+                            </div>
+                            <div class="rounded-lg border border-zinc-200 p-4 dark:border-zinc-700">
+                                <h3 class="flex items-center gap-2 text-sm font-semibold text-zinc-900 dark:text-white">
+                                    <CreditCard class="h-4 w-4" />
+                                    Pagamento da plataforma
+                                </h3>
+                                <div class="mt-3 grid gap-3 sm:grid-cols-2">
+                                    <label class="block text-sm text-zinc-700 dark:text-zinc-300">
+                                        Dia do pagamento
+                                        <input v-model="editForm.platform_payment_due_day" type="number" min="1" max="31" class="mt-1 block w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 dark:border-zinc-600 dark:bg-zinc-900" />
+                                    </label>
+                                    <label class="block text-sm text-zinc-700 dark:text-zinc-300">
+                                        Dias extras
+                                        <input v-model="editForm.platform_payment_grace_days" type="number" min="0" max="365" class="mt-1 block w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 dark:border-zinc-600 dark:bg-zinc-900" />
+                                    </label>
+                                </div>
+                                <label class="mt-3 flex items-center gap-2 text-sm text-zinc-700 dark:text-zinc-200">
+                                    <input v-model="editForm.platform_payment_paid" type="checkbox" class="rounded border-zinc-300 dark:border-zinc-600" />
+                                    Pagamento marcado como pago
+                                </label>
+                                <p class="mt-2 flex items-center gap-2 text-xs text-zinc-500 dark:text-zinc-400">
+                                    <Percent class="h-3.5 w-3.5" />
+                                    Os dias extras geram juros de {{ Number(editForm.platform_payment_grace_days || 0) }}% sem alterar o vencimento.
+                                </p>
+                            </div>
+                        </section>
+                        <section class="rounded-lg border border-zinc-200 p-4 dark:border-zinc-700">
+                            <h3 class="text-sm font-semibold text-zinc-900 dark:text-white">Permissoes do infoprodutor</h3>
+                            <div class="mt-3 grid gap-4 md:grid-cols-2">
+                                <div v-for="group in permissionGroups" :key="group.title" class="rounded-lg border border-zinc-200 p-3 dark:border-zinc-700">
+                                    <h4 class="text-xs font-semibold uppercase text-zinc-500 dark:text-zinc-400">{{ group.title }}</h4>
+                                    <div class="mt-2 space-y-2">
+                                        <label v-for="p in group.items" :key="p.key" class="flex items-center gap-2 text-sm text-zinc-700 dark:text-zinc-200">
+                                            <input v-model="editForm.platform_permissions[p.key]" type="checkbox" class="rounded border-zinc-300 dark:border-zinc-600" />
+                                            <span>{{ p.label }}</span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
                     </div>
                     <div v-if="editUser?.cashier_sync_token" class="rounded-lg border border-zinc-200 bg-zinc-50 p-3 dark:border-zinc-700 dark:bg-zinc-900/40">
                         <label class="block text-sm font-medium text-zinc-700 dark:text-zinc-300">Token HiperCaixa</label>

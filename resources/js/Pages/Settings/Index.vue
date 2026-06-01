@@ -1,6 +1,6 @@
 <script setup>
 import { ref, computed, defineAsyncComponent, onMounted, onUnmounted } from 'vue';
-import { useForm } from '@inertiajs/vue3';
+import { useForm, usePage } from '@inertiajs/vue3';
 import QrcodeVue from 'qrcode.vue';
 import LayoutInfoprodutor from '@/Layouts/LayoutInfoprodutor.vue';
 import Button from '@/components/ui/Button.vue';
@@ -28,6 +28,8 @@ import IntegrationCard from '@/components/IntegrationCard.vue';
 import EmailProviderSidebar from '@/components/EmailProviderSidebar.vue';
 
 defineOptions({ layout: LayoutInfoprodutor });
+const page = usePage();
+const settingsPerms = computed(() => page.props.auth?.permissions ?? {});
 
 const props = defineProps({
     settings: {
@@ -79,10 +81,13 @@ const props = defineProps({
 function allAllowedTabIds() {
     const core = ['email', 'storage', 'traducoes', 'moedas', 'cron', 'update', 'agente-bot', 'caixa'];
     const extra = (props.settings_plugin_tabs || []).map((t) => t.id).filter(Boolean);
-    return [...core, ...extra];
+    return [...core, ...extra].filter((id) => {
+        const key = id === 'agente-bot' ? 'settings.agente_bot' : `settings.${id}`;
+        return !!settingsPerms.value?.[key];
+    });
 }
 
-const activeTab = ref('email');
+const activeTab = ref(allAllowedTabIds()[0] ?? 'moedas');
 if (typeof window !== 'undefined') {
     const t = new URLSearchParams(window.location.search).get('tab');
     if (t && allAllowedTabIds().includes(t)) activeTab.value = t;
@@ -197,8 +202,12 @@ const tabs = computed(() => {
         id: t.id,
         label: t.label,
         icon: Palette,
+        permission: `settings.${t.id}`,
     }));
-    return [...coreTabsStatic, ...plug];
+    return [...coreTabsStatic, ...plug].filter((tab) => {
+        const key = tab.id === 'agente-bot' ? 'settings.agente_bot' : `settings.${tab.id}`;
+        return !!settingsPerms.value?.[key];
+    });
 });
 
 const updateCheckLoading = ref(false);

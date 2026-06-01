@@ -27,6 +27,11 @@ class User extends Authenticatable
         'tenant_id',
         'team_role_id',
         'cashier_sync_token',
+        'platform_permissions',
+        'platform_subscription_config',
+        'platform_payment_due_day',
+        'platform_payment_paid',
+        'platform_payment_grace_days',
     ];
 
     public const ROLE_ADMIN = 'admin';
@@ -99,6 +104,11 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'platform_permissions' => 'array',
+            'platform_subscription_config' => 'array',
+            'platform_payment_paid' => 'boolean',
+            'platform_payment_due_day' => 'integer',
+            'platform_payment_grace_days' => 'integer',
         ];
     }
 }

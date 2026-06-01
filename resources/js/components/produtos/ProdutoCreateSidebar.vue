@@ -1,6 +1,6 @@
 <script setup>
 import { computed, ref, watch } from 'vue';
-import { useForm } from '@inertiajs/vue3';
+import { useForm, usePage } from '@inertiajs/vue3';
 import {
     BookOpen,
     ChevronRight,
@@ -23,6 +23,8 @@ const props = defineProps({
 });
 
 const emit = defineEmits(['close', 'success']);
+const page = usePage();
+const perms = computed(() => page.props.auth?.permissions ?? {});
 
 const step = ref(1);
 const selectedType = ref(null);
@@ -245,6 +247,7 @@ const priceUsd = computed(() => (priceNum.value * (props.exchangeRates.brl_usd ?
 const currentBusinessConfig = computed(() => businessFieldGroups[form.business_type] ?? []);
 const selectedBusinessTypeLabel = computed(() => businessTypes.find((type) => type.value === form.business_type)?.label ?? '');
 const isBusinessProduct = computed(() => form.type === 'produto');
+const availableBusinessTypes = computed(() => businessTypes.filter((type) => !!perms.value?.[`products.business.${type.value}`]));
 
 function selectType(type) {
     if (!type.available) return;
@@ -298,6 +301,7 @@ function resetState() {
     step.value = 1;
     selectedType.value = null;
     form.reset();
+    form.billing_type = props.billingTypes[0]?.value ?? 'one_time';
     form.business_product_data = {};
 }
 
@@ -408,7 +412,7 @@ watch(
                         </p>
                         <div class="grid gap-3">
                             <button
-                                v-for="type in businessTypes"
+                                v-for="type in availableBusinessTypes"
                                 :key="type.value"
                                 type="button"
                                 class="flex items-start gap-3 rounded-xl border border-zinc-200 bg-zinc-50 p-4 text-left transition hover:border-[var(--color-primary)] hover:bg-[var(--color-primary)]/5 dark:border-zinc-700 dark:bg-zinc-800/50"

@@ -48,11 +48,14 @@ class ProdutosController extends Controller
 
     public function index(Request $request): Response
     {
-        $tenantId = auth()->user()->tenant_id;
+        $user = auth()->user();
+        $tenantId = $user->tenant_id;
         $tenantCurrencies = $this->tenantCurrenciesFor($tenantId);
         $query = Product::forTenant($tenantId)->orderBy('name');
-        if (auth()->user()->isTeam()) {
-            $allowed = app(TeamAccessService::class)->allowedProductIdsFor(auth()->user());
+        $access = app(TeamAccessService::class);
+        $permissions = $access->permissionsFor($user);
+        if ($user->isTeam()) {
+            $allowed = $access->allowedProductIdsFor($user);
             $query->whereIn('id', $allowed ?: ['__none__']);
         }
         $products = $query->paginate(20)->withQueryString()->through(fn (Product $p) => $this->productToArray($p, $tenantCurrencies));
@@ -61,10 +64,14 @@ class ProdutosController extends Controller
             'value' => $value,
             'label' => $config['label'],
             'description' => $config['description'],
-            'available' => $config['available'],
+            'available' => $config['available'] && ! empty($permissions['products.delivery.'.$value]),
         ])->values()->all();
 
-        $billingTypes = collect(Product::billingTypeLabels())->map(fn ($label, $value) => ['value' => $value, 'label' => $label])->values()->all();
+        $billingTypes = collect(Product::billingTypeLabels())
+            ->filter(fn ($label, $value) => ! empty($permissions['billing.'.$value]))
+            ->map(fn ($label, $value) => ['value' => $value, 'label' => $label])
+            ->values()
+            ->all();
 
         $data = new \ArrayObject([
             'produtos' => $products,
@@ -103,6 +110,19 @@ class ProdutosController extends Controller
             'business_product_data' => ['nullable', 'array'],
             'business_product_data.*' => ['nullable'],
         ]);
+        $permissions = app(TeamAccessService::class)->permissionsFor($request->user());
+        if (empty($permissions['products.delivery.'.$validated['type']])) {
+            throw ValidationException::withMessages(['type' => 'Tipo de entrega nao liberado para este infoprodutor.']);
+        }
+        if (empty($permissions['billing.'.$validated['billing_type']])) {
+            throw ValidationException::withMessages(['billing_type' => 'Tipo de cobranca nao liberado para este infoprodutor.']);
+        }
+        if (($validated['type'] ?? null) === Product::TYPE_PRODUTO) {
+            $businessType = $validated['business_type'] ?? '';
+            if (empty($permissions['products.business.'.$businessType])) {
+                throw ValidationException::withMessages(['business_type' => 'Tipo de negocio nao liberado para este infoprodutor.']);
+            }
+        }
         $validated['tenant_id'] = auth()->user()->tenant_id;
         $validated['slug'] = $validated['slug'] ?? Str::slug($validated['name']);
         $validated['currency'] = $validated['currency'] ?? config('products.currency_default', 'BRL');

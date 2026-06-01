@@ -308,6 +308,9 @@ Route::middleware(['auth', 'admin.tenant', 'role:admin|infoprodutor|team', 'audi
     Route::get('/dashboard', [\App\Http\Controllers\DashboardController::class, '__invoke'])
         ->middleware('team.permission:dashboard.view')
         ->name('dashboard');
+    Route::get('/assinatura', [\App\Http\Controllers\PlatformSubscriptionController::class, 'edit'])
+        ->middleware('team.permission:platform_subscription.view')
+        ->name('platform-subscription.edit');
 
     Route::middleware('team.permission:reembolsos.view')->group(function () {
         Route::get('/reembolsos', [\App\Http\Controllers\ReembolsosController::class, 'index'])->name('reembolsos.index');
@@ -420,7 +423,7 @@ Route::middleware(['auth', 'admin.tenant', 'role:admin|infoprodutor|team', 'audi
     });
 
     Route::get('/vendas/assinaturas', [\App\Http\Controllers\AssinaturasController::class, 'index'])
-        ->middleware('team.permission:vendas.view')
+        ->middleware(['team.permission:vendas.view', 'team.permission:vendas.assinaturas.view'])
         ->name('assinaturas.index');
     Route::get('/relatorios', [\App\Http\Controllers\RelatoriosController::class, 'index'])
         ->middleware('team.permission:relatorios.view')

@@ -20,6 +20,7 @@ import {
     Box,
     Mail,
     CodeXml,
+    CreditCard,
 } from 'lucide-vue-next';
 import { useSidebar } from '@/composables/useSidebar';
 import ConquistasWidget from '@/components/layout/ConquistasWidget.vue';
@@ -49,6 +50,7 @@ const iconMap = {
     BarChart3,
     Mail,
     CodeXml,
+    CreditCard,
 };
 
 const pluginNavItems = computed(() => {
@@ -65,7 +67,7 @@ const perms = computed(() => page.props.auth?.permissions ?? {});
 const canView = (key) => {
     // Admin/infoprodutor têm acesso total via backend; no front apenas para ocultar itens do menu em users de equipe.
     const role = page.props.auth?.user?.role;
-    if (role === 'admin' || role === 'infoprodutor') return true;
+    if (role === 'admin') return true;
     return !!perms.value?.[key];
 };
 
@@ -89,13 +91,21 @@ const navItems = computed(() => {
     // Usuários: admin vai para /usuarios (infoprodutores). Infoprodutor/equipe vai direto para a aba Equipe.
     if (isAdmin.value) {
         items.push({ name: 'Usuários / Equipe', href: '/usuarios', icon: Users });
-    } else if (page.props.auth?.user?.role === 'infoprodutor' || canView('equipe.manage')) {
+    } else if (canView('equipe.manage')) {
         items.push({ name: 'Equipe', href: '/usuarios/equipe', icon: Users });
     }
 
     if (canView('api_pagamentos.view')) items.push({ name: 'API Pagamentos', href: '/aplicacoes-api', icon: CodeXml });
     items.push({ separator: true });
     if (canView('configuracoes.view')) items.push({ name: 'Configurações', href: '/configuracoes', icon: Settings });
+
+    if (canView('platform_subscription.view')) {
+        items.push({
+            name: page.props.auth?.user?.role === 'admin' ? 'Editar assinatura' : 'Assinatura',
+            href: '/assinatura',
+            icon: CreditCard,
+        });
+    }
 
     if (page.props.auth?.user?.role === 'admin') {
         items.push({ name: 'Plugins', href: '/gerenciar-plugins', icon: Plug });

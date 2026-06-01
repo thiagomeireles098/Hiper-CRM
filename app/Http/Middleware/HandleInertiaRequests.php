@@ -178,6 +178,7 @@ class HandleInertiaRequests extends Middleware
     {
         $titles = [
             'dashboard' => 'Dashboard',
+            'platform-subscription.edit' => 'Assinatura',
             'vendas.index' => 'Vendas',
             'reembolsos.index' => 'Reembolsos',
             'produtos.index' => 'Produtos',
