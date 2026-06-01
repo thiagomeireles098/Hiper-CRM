@@ -423,6 +423,7 @@ const form = useForm({
     image: null,
     conversion_pixels: mergeConversionPixels(props.produto.conversion_pixels),
     deliverable_link: props.produto.checkout_config?.deliverable_link ?? '',
+    platform_permissions: props.produto.platform_subscription?.permissions ?? {},
     payment_gateways: {
         pix: pg.pix ?? '',
         pix_redundancy: Array.isArray(pg.pix_redundancy) ? pg.pix_redundancy : [],
@@ -1251,7 +1252,56 @@ const typeIcons = {
     area_membros_externa: Users,
     link: Link2,
     link_pagamento: CreditCard,
+    produto: Package,
+    assinantes: Users,
 };
+
+const platformPermissionGroups = [
+    { title: 'Menu lateral', items: [
+        ['dashboard.view', 'Dashboard'],
+        ['vendas.view', 'Vendas'],
+        ['reembolsos.view', 'Reembolsos'],
+        ['produtos.view', 'Produtos'],
+        ['relatorios.view', 'Relatorios'],
+        ['integracoes.view', 'Integracoes'],
+        ['email_marketing.view', 'E-mail Marketing'],
+        ['api_pagamentos.view', 'API de Pagamentos'],
+        ['equipe.manage', 'Equipe'],
+        ['configuracoes.view', 'Configuracoes'],
+        ['platform_subscription.view', 'Assinatura da plataforma'],
+    ] },
+    { title: 'Vendas e cobranca', items: [
+        ['billing.one_time', 'Pagamento unico'],
+        ['billing.subscription', 'Produtos de assinatura'],
+        ['vendas.assinaturas.view', 'Aba Assinaturas'],
+    ] },
+    { title: 'Produtos', items: [
+        ['products.delivery.produto', 'Produto fisico'],
+        ['products.delivery.assinantes', 'Assinantes'],
+        ['products.delivery.area_membros', 'Area de membros'],
+        ['products.delivery.area_membros_externa', 'Area de membros externa'],
+        ['products.delivery.link', 'Link'],
+        ['products.delivery.link_pagamento', 'Somente link de pagamento'],
+        ['products.delivery.aplicativo', 'Aplicativo'],
+    ] },
+    { title: 'Tipos de negocio', items: [
+        ['products.business.supermercado', 'Supermercado'],
+        ['products.business.farmacia', 'Farmacia'],
+        ['products.business.loja_roupas', 'Loja de roupas'],
+        ['products.business.informatica_assistencia', 'Informatica / Assistencia'],
+        ['products.business.padaria', 'Padaria'],
+    ] },
+    { title: 'Configuracoes', items: [
+        ['settings.email', 'E-mail'],
+        ['settings.storage', 'Storage'],
+        ['settings.traducoes', 'Traducoes'],
+        ['settings.moedas', 'Moedas'],
+        ['settings.cron', 'Cron'],
+        ['settings.update', 'Update'],
+        ['settings.agente_bot', 'Agente Bot'],
+        ['settings.caixa', 'Caixa'],
+    ] },
+];
 
 function submit() {
     const baseUrl = `/produtos/${props.produto.id}`;
@@ -1353,6 +1403,11 @@ function submit() {
             fd.append('pagarme_billing[company_address][neighborhood]', ca.neighborhood || '');
             fd.append('pagarme_billing[company_address][city]', ca.city || '');
             fd.append('pagarme_billing[company_address][state]', String(ca.state || '').slice(0, 2));
+        }
+        if (form.type === 'assinantes') {
+            for (const [key, enabled] of Object.entries(form.platform_permissions || {})) {
+                fd.append(`platform_permissions[${key}]`, enabled ? '1' : '0');
+            }
         }
         fd.append('_method', 'PUT');
         fd.append('image', form.image);
@@ -1617,6 +1672,24 @@ function submit() {
                         </div>
 
                         <!-- Ofertas (pagamento único) ou Planos (assinatura) -->
+                        <div v-if="form.type === 'assinantes'" class="rounded-xl border border-zinc-200 p-4 dark:border-zinc-700">
+                            <h3 class="text-sm font-semibold text-zinc-900 dark:text-white">Permissoes da assinatura</h3>
+                            <p class="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
+                                Estas permissoes sao aplicadas ao infoprodutor quando esta assinatura for marcada como paga.
+                            </p>
+                            <div class="mt-4 grid gap-3 md:grid-cols-2">
+                                <div v-for="group in platformPermissionGroups" :key="group.title" class="rounded-lg border border-zinc-200 p-3 dark:border-zinc-700">
+                                    <p class="text-xs font-semibold uppercase text-zinc-500 dark:text-zinc-400">{{ group.title }}</p>
+                                    <div class="mt-2 space-y-2">
+                                        <label v-for="[key, label] in group.items" :key="key" class="flex items-center gap-2 text-sm text-zinc-700 dark:text-zinc-200">
+                                            <input v-model="form.platform_permissions[key]" type="checkbox" class="rounded border-zinc-300 text-[var(--color-primary)] focus:ring-[var(--color-primary)]" />
+                                            {{ label }}
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                         <div class="border-t border-zinc-200/80 pt-6 dark:border-zinc-600/80">
                             <p class="mb-3 text-sm font-medium text-zinc-700 dark:text-zinc-300">
                                 {{ form.billing_type === 'one_time' ? 'Ofertas extras' : 'Planos de assinatura' }}

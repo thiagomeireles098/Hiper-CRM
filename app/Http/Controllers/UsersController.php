@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Product;
 use App\Models\User;
 use App\Services\TeamAccessService;
 use Illuminate\Http\RedirectResponse;
@@ -39,6 +40,7 @@ class UsersController extends Controller
                     ? $access->permissionsFor($u)
                     : $access->allPermissions(),
                 'platform_subscription_config' => $u->platform_subscription_config ?? [],
+                'platform_subscription_product_ids' => array_values($u->platform_subscription_config['product_ids'] ?? []),
                 'platform_payment_due_day' => $u->platform_payment_due_day,
                 'platform_payment_paid' => (bool) $u->platform_payment_paid,
                 'platform_payment_grace_days' => (int) ($u->platform_payment_grace_days ?? 0),
@@ -49,6 +51,18 @@ class UsersController extends Controller
         return Inertia::render('Users/Index', [
             'users' => $users,
             'defaultInfoprodutorPermissions' => $access->defaultInfoprodutorPermissions(),
+            'platformSubscriptionProducts' => Product::forTenant(auth()->user()->tenant_id)
+                ->where('type', Product::TYPE_ASSINANTES)
+                ->orderBy('name')
+                ->get(['id', 'name', 'price', 'currency', 'is_active'])
+                ->map(fn (Product $product) => [
+                    'id' => $product->id,
+                    'name' => $product->name,
+                    'price' => (float) $product->price,
+                    'currency' => $product->currency ?? 'BRL',
+                    'is_active' => (bool) $product->is_active,
+                ])
+                ->values(),
         ]);
     }
 
@@ -102,10 +116,6 @@ class UsersController extends Controller
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email,'.$user->id],
             'password' => ['nullable', 'string', 'min:8', 'confirmed'],
             'platform_permissions' => ['nullable', 'array'],
-            'platform_subscription_config' => ['nullable', 'array'],
-            'platform_payment_due_day' => ['nullable', 'integer', 'min:1', 'max:31'],
-            'platform_payment_paid' => ['nullable', 'boolean'],
-            'platform_payment_grace_days' => ['nullable', 'integer', 'min:0', 'max:365'],
         ], [
             'email.unique' => 'Este e-mail já está em uso.',
             'password.confirmed' => 'A confirmação da senha não confere.',
@@ -118,14 +128,89 @@ class UsersController extends Controller
         }
         if ($user->role === User::ROLE_INFOPRODUTOR) {
             $user->platform_permissions = $validated['platform_permissions'] ?? app(TeamAccessService::class)->defaultInfoprodutorPermissions();
-            $user->platform_subscription_config = $validated['platform_subscription_config'] ?? [];
-            $user->platform_payment_due_day = $validated['platform_payment_due_day'] ?? $user->platform_payment_due_day;
-            $user->platform_payment_paid = (bool) ($validated['platform_payment_paid'] ?? false);
-            $user->platform_payment_grace_days = (int) ($validated['platform_payment_grace_days'] ?? 0);
         }
         $user->save();
 
         return redirect()->route('usuarios.index')->with('success', 'Usuário atualizado.');
+    }
+
+    public function markPlatformPaid(User $user): RedirectResponse
+    {
+        $this->assertInfoprodutor($user);
+
+        $config = $user->platform_subscription_config ?? [];
+        $config['paid_month'] = now()->format('Y-m');
+
+        $user->forceFill([
+            'platform_subscription_config' => $config,
+            'platform_permissions' => $this->permissionsFromPlatformProducts($config['product_ids'] ?? []),
+            'platform_payment_paid' => true,
+            'platform_payment_grace_days' => 0,
+        ])->save();
+
+        return redirect()->route('usuarios.index')->with('success', 'Pagamento deste mes marcado como pago.');
+    }
+
+    public function updatePlatformBilling(Request $request, User $user): RedirectResponse
+    {
+        $this->assertInfoprodutor($user);
+
+        $validated = $request->validate([
+            'platform_payment_due_day' => ['nullable', 'integer', 'min:1', 'max:31'],
+            'platform_payment_grace_days' => ['nullable', 'integer', 'min:0', 'max:365'],
+            'platform_subscription_product_ids' => ['nullable', 'array'],
+            'platform_subscription_product_ids.*' => ['string'],
+        ]);
+
+        $config = $user->platform_subscription_config ?? [];
+        if (array_key_exists('platform_subscription_product_ids', $validated)) {
+            $allowedIds = Product::forTenant(auth()->user()->tenant_id)
+                ->where('type', Product::TYPE_ASSINANTES)
+                ->whereIn('id', $validated['platform_subscription_product_ids'] ?? [])
+                ->pluck('id')
+                ->all();
+            $config['product_ids'] = array_values($allowedIds);
+            $user->platform_payment_paid = false;
+        }
+        if (array_key_exists('platform_payment_due_day', $validated)) {
+            $user->platform_payment_due_day = $validated['platform_payment_due_day'];
+        }
+        if (array_key_exists('platform_payment_grace_days', $validated)) {
+            $user->platform_payment_grace_days = (int) $validated['platform_payment_grace_days'];
+        }
+
+        $user->platform_subscription_config = $config;
+        $user->save();
+
+        return redirect()->route('usuarios.index')->with('success', 'Pagamento da plataforma atualizado.');
+    }
+
+    private function assertInfoprodutor(User $user): void
+    {
+        if ($user->role !== User::ROLE_INFOPRODUTOR) {
+            abort(403, 'Apenas infoprodutores podem receber esta acao.');
+        }
+    }
+
+    private function permissionsFromPlatformProducts(array $productIds): array
+    {
+        $permissions = [];
+        Product::forTenant(auth()->user()->tenant_id)
+            ->where('type', Product::TYPE_ASSINANTES)
+            ->whereIn('id', $productIds)
+            ->get()
+            ->each(function (Product $product) use (&$permissions) {
+                $planPermissions = $product->checkout_config['platform_subscription']['permissions'] ?? [];
+                if (is_array($planPermissions)) {
+                    foreach ($planPermissions as $key => $enabled) {
+                        if (is_string($key) && filter_var($enabled, FILTER_VALIDATE_BOOLEAN)) {
+                            $permissions[$key] = true;
+                        }
+                    }
+                }
+            });
+
+        return $permissions ?: app(TeamAccessService::class)->defaultInfoprodutorPermissions();
     }
 
     private function ensureCashierSyncToken(User $user): string

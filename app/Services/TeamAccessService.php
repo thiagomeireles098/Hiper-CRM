@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Product;
 use App\Models\User;
+use Illuminate\Support\Carbon;
 
 class TeamAccessService
 {
@@ -17,6 +18,17 @@ class TeamAccessService
         }
 
         if ($user->isInfoprodutor()) {
+            if (! $this->hasActivePlatformSubscription($user)) {
+                return array_replace(
+                    array_fill_keys(array_keys($this->allPermissions()), false),
+                    [
+                        'vendas.view' => true,
+                        'platform_subscription.view' => true,
+                        'vendas.assinaturas.view' => true,
+                    ]
+                );
+            }
+
             return $this->normalizePermissions($user->platform_permissions, $this->defaultInfoprodutorPermissions());
         }
 
@@ -36,6 +48,12 @@ class TeamAccessService
     {
         if ($user->isAdmin()) {
             return true;
+        }
+
+        if ($user->isInfoprodutor()) {
+            $perms = $this->permissionsFor($user);
+
+            return ! empty($perms[$permission]);
         }
 
         if (! $user->isTeam()) {
@@ -87,6 +105,7 @@ class TeamAccessService
             'products.delivery.link' => true,
             'products.delivery.link_pagamento' => true,
             'products.delivery.produto' => true,
+            'products.delivery.assinantes' => true,
             'products.business.supermercado' => true,
             'products.business.farmacia' => true,
             'products.business.loja_roupas' => true,
@@ -129,6 +148,7 @@ class TeamAccessService
             'products.delivery.link' => false,
             'products.delivery.link_pagamento' => false,
             'products.delivery.produto' => true,
+            'products.delivery.assinantes' => false,
             'products.business.supermercado' => true,
             'products.business.farmacia' => false,
             'products.business.loja_roupas' => false,
@@ -152,6 +172,35 @@ class TeamAccessService
             'platform_subscription.view' => true,
             'platform_subscription.manage' => false,
         ];
+    }
+
+    public function hasActivePlatformSubscription(User $user): bool
+    {
+        if ($user->isAdmin()) {
+            return true;
+        }
+
+        if (! $user->isInfoprodutor()) {
+            return true;
+        }
+
+        $config = $user->platform_subscription_config ?? [];
+        $productIds = $config['product_ids'] ?? [];
+        if (! is_array($productIds) || $productIds === []) {
+            return true;
+        }
+
+        if ((bool) $user->platform_payment_paid) {
+            return true;
+        }
+
+        $dueDay = max(1, min(31, (int) ($user->platform_payment_due_day ?: 1)));
+        $today = Carbon::now();
+        $dueDay = min($dueDay, $today->daysInMonth);
+        $dueAt = $today->copy()->day($dueDay)->endOfDay();
+        $graceDays = max(0, (int) ($user->platform_payment_grace_days ?? 0));
+
+        return $today->lte($dueAt->addDays($graceDays));
     }
 
     private function normalizePermissions(?array $raw, array $defaults = []): array

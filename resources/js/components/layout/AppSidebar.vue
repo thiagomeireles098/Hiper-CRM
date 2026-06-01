@@ -21,6 +21,7 @@ import {
     Mail,
     CodeXml,
     CreditCard,
+    Megaphone,
 } from 'lucide-vue-next';
 import { useSidebar } from '@/composables/useSidebar';
 import ConquistasWidget from '@/components/layout/ConquistasWidget.vue';
@@ -51,6 +52,7 @@ const iconMap = {
     Mail,
     CodeXml,
     CreditCard,
+    Megaphone,
 };
 
 const pluginNavItems = computed(() => {
@@ -99,15 +101,16 @@ const navItems = computed(() => {
     items.push({ separator: true });
     if (canView('configuracoes.view')) items.push({ name: 'Configurações', href: '/configuracoes', icon: Settings });
 
-    if (canView('platform_subscription.view')) {
+    if (page.props.auth?.user?.role !== 'admin' && canView('platform_subscription.view')) {
         items.push({
-            name: page.props.auth?.user?.role === 'admin' ? 'Editar assinatura' : 'Assinatura',
+            name: 'Assinatura',
             href: '/assinatura',
             icon: CreditCard,
         });
     }
 
     if (page.props.auth?.user?.role === 'admin') {
+        items.push({ name: 'Avisos', href: '/avisos', icon: Megaphone });
         items.push({ name: 'Plugins', href: '/gerenciar-plugins', icon: Plug });
     }
     return items;
@@ -121,6 +124,10 @@ function isActive(href) {
 
 /** Prefetch hover + mousedown para navegação do painel (Inertia v2). */
 const panelNavPrefetch = ['hover', 'click'];
+
+function showPlatformNotice() {
+    window.dispatchEvent(new CustomEvent('platform-notice:show'));
+}
 </script>
 
 <template>
@@ -197,6 +204,7 @@ const panelNavPrefetch = ['hover', 'click'];
                                 showText() ? 'justify-start' : 'lg:justify-center',
                                 isActive(item.href) ? 'menu-item-active' : 'menu-item-inactive',
                             ]"
+                            @click="showPlatformNotice"
                         >
                             <span
                                 :class="[

@@ -6,6 +6,7 @@ use App\Models\MemberNotification;
 use App\Models\MemberPushSubscription;
 use App\Models\PanelNotification;
 use App\Models\Product;
+use App\Models\PlatformNotice;
 use App\Plugins\PluginRegistry;
 use App\Services\RefundService;
 use App\Services\SalesAchievementsService;
@@ -62,6 +63,7 @@ class HandleInertiaRequests extends Middleware
 
         $pluginNavItems = [];
         $plugins = [];
+        $activePlatformNotices = [];
         $achievementsProgress = null;
         $pushEnabled = false;
         $vapidPublic = null;
@@ -93,6 +95,26 @@ class HandleInertiaRequests extends Middleware
         $notificationsUnreadCount = 0;
         if ($user && $user->canAccessPanel()) {
             $notificationsUnreadCount = PanelNotification::forUser($user->id)->unread()->count();
+        }
+        if ($user && $user->isInfoprodutor()) {
+            $now = now();
+            $activePlatformNotices = PlatformNotice::query()
+                ->where('is_sent', true)
+                ->where(function ($query) use ($now) {
+                    $query->whereNull('starts_at')->orWhere('starts_at', '<=', $now);
+                })
+                ->where(function ($query) use ($now) {
+                    $query->whereNull('ends_at')->orWhere('ends_at', '>=', $now);
+                })
+                ->latest('updated_at')
+                ->limit(3)
+                ->get(['id', 'title', 'description'])
+                ->map(fn (PlatformNotice $notice) => [
+                    'id' => $notice->id,
+                    'title' => $notice->title,
+                    'description' => $notice->description,
+                ])
+                ->values();
         }
 
         $path = $request->path();
@@ -155,6 +177,7 @@ class HandleInertiaRequests extends Middleware
             'public_branding' => $publicBranding,
             'settings_plugin_tabs' => $settingsPluginTabs,
             'pluginNavItems' => $pluginNavItems,
+            'activePlatformNotices' => $activePlatformNotices,
             'plugins' => $plugins,
             'hasMemberAreaProducts' => $hasMemberAreaProducts,
             'achievementsProgress' => $achievementsProgress,

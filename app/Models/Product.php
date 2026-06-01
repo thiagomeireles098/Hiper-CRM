@@ -20,6 +20,7 @@ class Product extends Model
     public const TYPE_LINK = 'link';
     public const TYPE_LINK_PAGAMENTO = 'link_pagamento';
     public const TYPE_PRODUTO = 'produto';
+    public const TYPE_ASSINANTES = 'assinantes';
 
     public const BILLING_ONE_TIME = 'one_time';
     public const BILLING_SUBSCRIPTION = 'subscription';
@@ -672,6 +673,11 @@ class Product extends Model
             self::TYPE_PRODUTO => [
                 'label' => 'Produto',
                 'description' => 'Cadastro de produto físico por tipo de negócio.',
+                'available' => true,
+            ],
+            self::TYPE_ASSINANTES => [
+                'label' => 'Assinantes',
+                'description' => 'Assinatura mensal da plataforma com permissoes para infoprodutores.',
                 'available' => true,
             ],
         ];

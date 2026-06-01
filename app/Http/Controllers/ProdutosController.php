@@ -39,6 +39,7 @@ class ProdutosController extends Controller
         Product::TYPE_LINK,
         Product::TYPE_LINK_PAGAMENTO,
         Product::TYPE_PRODUTO,
+        Product::TYPE_ASSINANTES,
     ];
 
     private const BILLING_TYPES = [
@@ -109,7 +110,11 @@ class ProdutosController extends Controller
             'business_type' => ['nullable', 'required_if:type,'.Product::TYPE_PRODUTO, 'string', 'in:supermercado,farmacia,loja_roupas,informatica_assistencia,padaria'],
             'business_product_data' => ['nullable', 'array'],
             'business_product_data.*' => ['nullable'],
+            'platform_permissions' => ['nullable', 'array'],
         ]);
+        if (($validated['type'] ?? null) === Product::TYPE_ASSINANTES) {
+            $validated['billing_type'] = Product::BILLING_SUBSCRIPTION;
+        }
         $permissions = app(TeamAccessService::class)->permissionsFor($request->user());
         if (empty($permissions['products.delivery.'.$validated['type']])) {
             throw ValidationException::withMessages(['type' => 'Tipo de entrega nao liberado para este infoprodutor.']);
@@ -140,10 +145,11 @@ class ProdutosController extends Controller
         unset($validated['deliverable_link']);
         $businessType = $validated['business_type'] ?? null;
         $businessProductData = $validated['business_product_data'] ?? null;
-        unset($validated['business_type'], $validated['business_product_data']);
+        $platformPermissions = $validated['platform_permissions'] ?? null;
+        unset($validated['business_type'], $validated['business_product_data'], $validated['platform_permissions']);
         $product = Product::create($validated);
 
-        if ($request->has('deliverable_link') || $product->type === Product::TYPE_PRODUTO) {
+        if ($request->has('deliverable_link') || $product->type === Product::TYPE_PRODUTO || $product->type === Product::TYPE_ASSINANTES) {
             $config = $product->checkout_config ?? [];
             if ($request->has('deliverable_link')) {
                 $config['deliverable_link'] = $deliverableLink ?? '';
@@ -152,6 +158,11 @@ class ProdutosController extends Controller
                 $config['business_product'] = [
                     'type' => $businessType,
                     'data' => is_array($businessProductData) ? $businessProductData : [],
+                ];
+            }
+            if ($product->type === Product::TYPE_ASSINANTES) {
+                $config['platform_subscription'] = [
+                    'permissions' => is_array($platformPermissions) ? $platformPermissions : app(TeamAccessService::class)->defaultInfoprodutorPermissions(),
                 ];
             }
             $product->update(['checkout_config' => $config]);
@@ -598,7 +609,11 @@ class ProdutosController extends Controller
             'custom_prices_by_currency' => ['nullable', 'array'],
             'custom_prices_by_currency.enabled' => ['nullable', 'boolean'],
             'custom_prices_by_currency.amounts' => ['nullable', 'array'],
+            'platform_permissions' => ['nullable', 'array'],
         ]);
+        if (($validated['type'] ?? null) === Product::TYPE_ASSINANTES) {
+            $validated['billing_type'] = Product::BILLING_SUBSCRIPTION;
+        }
         $validated['is_active'] = $request->boolean('is_active', true);
         $validated['currency'] = $validated['currency'] ?? config('products.currency_default', 'BRL');
 
@@ -695,6 +710,8 @@ class ProdutosController extends Controller
         unset($validated['conversion_pixels']);
         $baseInterval = $validated['base_interval'] ?? null;
         unset($validated['base_interval']);
+        $platformPermissions = $validated['platform_permissions'] ?? null;
+        unset($validated['platform_permissions']);
         $produto->update($validated);
 
         if ($produto->billing_type === Product::BILLING_SUBSCRIPTION && $baseInterval !== null) {
@@ -823,6 +840,12 @@ class ProdutosController extends Controller
                 $config['custom_prices_by_currency']['amounts'] = [];
             }
             $config['custom_prices_by_currency'] = array_replace_recursive($defCp, $config['custom_prices_by_currency']);
+            $configUpdated = true;
+        }
+        if ($produto->type === Product::TYPE_ASSINANTES && $request->has('platform_permissions')) {
+            $config['platform_subscription'] = [
+                'permissions' => is_array($platformPermissions) ? $platformPermissions : app(TeamAccessService::class)->defaultInfoprodutorPermissions(),
+            ];
             $configUpdated = true;
         }
         if ($configUpdated) {
@@ -1182,6 +1205,7 @@ class ProdutosController extends Controller
             'conversion_pixels' => $p->conversion_pixels,
             'combo_product_ids' => $p->combo_product_ids ?? [],
             'business_product' => $p->checkout_config['business_product'] ?? null,
+            'platform_subscription' => $p->checkout_config['platform_subscription'] ?? null,
         ];
     }
 

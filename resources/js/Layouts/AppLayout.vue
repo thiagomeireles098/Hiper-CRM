@@ -1,5 +1,5 @@
 <script setup>
-import { computed, ref, watch, watchEffect, provide } from 'vue';
+import { computed, onMounted, onUnmounted, ref, watch, watchEffect, provide } from 'vue';
 import { usePage } from '@inertiajs/vue3';
 import { useSidebarProvider } from '@/composables/useSidebar';
 import { usePanelPushSubscribe } from '@/composables/usePanelPushSubscribe';
@@ -19,6 +19,9 @@ const pageTitle = computed(() => page.props.pageTitle ?? null);
 const pageTitleBadge = computed(() => page.props.pageTitleBadge ?? null);
 const contentMaxWidth = computed(() => (page.props.layoutFullWidth ? 'max-w-[1600px]' : 'max-w-7xl'));
 const layoutContentFlushLeft = computed(() => !!page.props.layoutContentFlushLeft);
+const activePlatformNotices = computed(() => page.props.activePlatformNotices ?? []);
+const visibleNotice = ref(null);
+let noticeTimer = null;
 
 const showNotificationsPanel = ref(false);
 const notificationsUnreadCount = ref(page.props.notifications_unread_count ?? 0);
@@ -41,6 +44,26 @@ watchEffect(() => {
     const primary = page.props.appSettings?.theme_primary || '#EF3E23';
     document.documentElement.style.setProperty('--color-primary', primary);
 });
+
+function showPlatformNotice() {
+    const first = activePlatformNotices.value?.[0];
+    if (!first) return;
+    visibleNotice.value = first;
+    window.clearTimeout(noticeTimer);
+    noticeTimer = window.setTimeout(() => {
+        visibleNotice.value = null;
+    }, 20000);
+}
+
+onMounted(() => {
+    window.addEventListener('platform-notice:show', showPlatformNotice);
+    showPlatformNotice();
+});
+
+onUnmounted(() => {
+    window.removeEventListener('platform-notice:show', showPlatformNotice);
+    window.clearTimeout(noticeTimer);
+});
 </script>
 
 <template>
@@ -62,6 +85,23 @@ watchEffect(() => {
                 <slot name="header-actions" />
             </div>
             <FlashToast />
+            <Teleport to="body">
+                <div
+                    v-if="visibleNotice"
+                    class="fixed bottom-5 right-5 z-[100500] w-[min(92vw,380px)] rounded-xl border border-orange-500/40 bg-white p-4 shadow-2xl dark:bg-zinc-900"
+                >
+                    <button
+                        type="button"
+                        class="absolute right-3 top-3 rounded-lg p-1 text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-800"
+                        aria-label="Fechar aviso"
+                        @click="visibleNotice = null"
+                    >
+                        ×
+                    </button>
+                    <p class="pr-8 text-sm font-semibold text-zinc-900 dark:text-white">{{ visibleNotice.title }}</p>
+                    <p class="mt-1 text-sm text-zinc-600 dark:text-zinc-300">{{ visibleNotice.description }}</p>
+                </div>
+            </Teleport>
             <PwaInstallPrompt />
             <NotificationsPanel
                 :open="showNotificationsPanel"

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Cashier;
 use App\Models\Product;
 use App\Models\User;
+use App\Services\TeamAccessService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -23,6 +24,10 @@ class CashierSyncController extends Controller
         $owner = $this->ownerFromToken($validated['token']);
         if (! $owner) {
             return response()->json(['message' => 'Token invÃ¡lido.'], 401);
+        }
+
+        if (! app(TeamAccessService::class)->hasActivePlatformSubscription($owner)) {
+            return response()->json(['message' => 'Assinatura da plataforma pendente. Regularize o pagamento pelo painel web.'], 402);
         }
 
         $cashier = Cashier::query()
@@ -168,6 +173,7 @@ class CashierSyncController extends Controller
 
         $owner = $this->ownerFromToken($validated['token']);
         abort_if(! $owner, 401, 'Token invÃ¡lido.');
+        abort_if(! app(TeamAccessService::class)->hasActivePlatformSubscription($owner), 402, 'Assinatura da plataforma pendente.');
 
         $cashier = Cashier::query()
             ->where('tenant_id', $owner->id)

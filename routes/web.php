@@ -205,6 +205,8 @@ Route::middleware(['auth', 'role:admin'])->prefix('usuarios')->name('usuarios.')
     Route::get('/create', [\App\Http\Controllers\UsersController::class, 'create'])->name('create');
     Route::post('/', [\App\Http\Controllers\UsersController::class, 'store'])->name('store');
     Route::put('/{user}', [\App\Http\Controllers\UsersController::class, 'update'])->name('update');
+    Route::post('/{user}/pagamento/pago', [\App\Http\Controllers\UsersController::class, 'markPlatformPaid'])->name('payment.paid');
+    Route::put('/{user}/pagamento', [\App\Http\Controllers\UsersController::class, 'updatePlatformBilling'])->name('payment.update');
     Route::delete('/{user}', [\App\Http\Controllers\UsersController::class, 'destroy'])->name('destroy');
 });
 
@@ -311,6 +313,13 @@ Route::middleware(['auth', 'admin.tenant', 'role:admin|infoprodutor|team', 'audi
     Route::get('/assinatura', [\App\Http\Controllers\PlatformSubscriptionController::class, 'edit'])
         ->middleware('team.permission:platform_subscription.view')
         ->name('platform-subscription.edit');
+    Route::middleware('role:admin')->prefix('avisos')->name('platform-notices.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\PlatformNoticeController::class, 'index'])->name('index');
+        Route::post('/', [\App\Http\Controllers\PlatformNoticeController::class, 'store'])->name('store');
+        Route::put('/{notice}', [\App\Http\Controllers\PlatformNoticeController::class, 'update'])->name('update');
+        Route::post('/{notice}/enviar', [\App\Http\Controllers\PlatformNoticeController::class, 'send'])->name('send');
+        Route::delete('/{notice}', [\App\Http\Controllers\PlatformNoticeController::class, 'destroy'])->name('destroy');
+    });
 
     Route::middleware('team.permission:reembolsos.view')->group(function () {
         Route::get('/reembolsos', [\App\Http\Controllers\ReembolsosController::class, 'index'])->name('reembolsos.index');

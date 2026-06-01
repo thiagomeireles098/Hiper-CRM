@@ -3,13 +3,14 @@ import { ref, computed } from 'vue';
 import { Link, router, useForm, usePage } from '@inertiajs/vue3';
 import LayoutInfoprodutor from '@/Layouts/LayoutInfoprodutor.vue';
 import Button from '@/components/ui/Button.vue';
-import { UserPlus, Trash2, Shield, User, Pencil, X, CreditCard, Percent } from 'lucide-vue-next';
+import { UserPlus, Trash2, Shield, User, Pencil, X, CreditCard, CalendarDays, Clock, CheckCircle } from 'lucide-vue-next';
 
 defineOptions({ layout: LayoutInfoprodutor });
 
 const props = defineProps({
     users: { type: Array, default: () => [] },
     defaultInfoprodutorPermissions: { type: Object, default: () => ({}) },
+    platformSubscriptionProducts: { type: Array, default: () => [] },
 });
 
 const page = usePage();
@@ -28,6 +29,8 @@ function isUsersTabActive(href) {
 
 const showCreateModal = ref(false);
 const editUser = ref(null);
+const billingUser = ref(null);
+const billingMode = ref(null);
 const deletingId = ref(null);
 
 const createForm = useForm({
@@ -43,14 +46,12 @@ const editForm = useForm({
     password: '',
     password_confirmation: '',
     platform_permissions: {},
-    platform_subscription_config: {
-        name: '',
-        price: '',
-        description: '',
-    },
+});
+
+const billingForm = useForm({
     platform_payment_due_day: '',
-    platform_payment_paid: false,
     platform_payment_grace_days: 0,
+    platform_subscription_product_ids: [],
 });
 
 const permissionGroups = [
@@ -82,6 +83,7 @@ const permissionGroups = [
         title: 'Tipos de entrega',
         items: [
             { key: 'products.delivery.produto', label: 'Produto fisico' },
+            { key: 'products.delivery.assinantes', label: 'Assinantes' },
             { key: 'products.delivery.area_membros', label: 'Area de membros' },
             { key: 'products.delivery.area_membros_externa', label: 'Area de membros externa' },
             { key: 'products.delivery.link', label: 'Link' },
@@ -138,19 +140,42 @@ function openEditModal(u) {
     editForm.password = '';
     editForm.password_confirmation = '';
     editForm.platform_permissions = withDefaultPermissions(u.platform_permissions);
-    editForm.platform_subscription_config = {
-        name: u.platform_subscription_config?.name ?? '',
-        price: u.platform_subscription_config?.price ?? '',
-        description: u.platform_subscription_config?.description ?? '',
-    };
-    editForm.platform_payment_due_day = u.platform_payment_due_day ?? '';
-    editForm.platform_payment_paid = !!u.platform_payment_paid;
-    editForm.platform_payment_grace_days = u.platform_payment_grace_days ?? 0;
     editForm.clearErrors();
 }
 
 function closeEditModal() {
     editUser.value = null;
+}
+
+function openBillingModal(u, mode) {
+    billingUser.value = u;
+    billingMode.value = mode;
+    billingForm.platform_payment_due_day = u.platform_payment_due_day ?? 1;
+    billingForm.platform_payment_grace_days = u.platform_payment_grace_days ?? 0;
+    billingForm.platform_subscription_product_ids = [...(u.platform_subscription_product_ids ?? [])];
+    billingForm.clearErrors();
+}
+
+function closeBillingModal() {
+    billingUser.value = null;
+    billingMode.value = null;
+}
+
+function markPaid(u) {
+    if (u.is_master) return;
+    router.post(`/usuarios/${u.id}/pagamento/pago`, {}, { preserveScroll: true });
+}
+
+function submitBilling() {
+    if (!billingUser.value) return;
+    const payload = {};
+    if (billingMode.value === 'grace') payload.platform_payment_grace_days = billingForm.platform_payment_grace_days;
+    if (billingMode.value === 'due') payload.platform_payment_due_day = billingForm.platform_payment_due_day;
+    if (billingMode.value === 'subscriptions') payload.platform_subscription_product_ids = billingForm.platform_subscription_product_ids;
+    router.put(`/usuarios/${billingUser.value.id}/pagamento`, payload, {
+        preserveScroll: true,
+        onSuccess: () => closeBillingModal(),
+    });
 }
 
 function copyToClipboard(text) {
@@ -180,6 +205,10 @@ function formatDate(value) {
         month: '2-digit',
         year: 'numeric',
     });
+}
+
+function formatBRL(value) {
+    return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value ?? 0);
 }
 
 function confirmDelete(u) {
@@ -272,6 +301,37 @@ function confirmDelete(u) {
                         <span class="text-sm text-zinc-500 dark:text-zinc-400 tabular-nums">
                             {{ formatDate(u.created_at) }}
                         </span>
+                        <template v-if="!u.is_master">
+                            <button
+                                type="button"
+                                class="rounded-lg border border-zinc-300 px-2.5 py-2 text-xs font-medium text-zinc-700 hover:border-[var(--color-primary)] hover:text-[var(--color-primary)] dark:border-zinc-600 dark:text-zinc-200"
+                                title="Marcar este mes como pago"
+                                @click="markPaid(u)"
+                            >
+                                <CheckCircle class="mr-1 inline h-3.5 w-3.5" /> Pago
+                            </button>
+                            <button
+                                type="button"
+                                class="rounded-lg border border-zinc-300 px-2.5 py-2 text-xs font-medium text-zinc-700 hover:border-[var(--color-primary)] hover:text-[var(--color-primary)] dark:border-zinc-600 dark:text-zinc-200"
+                                @click="openBillingModal(u, 'grace')"
+                            >
+                                <Clock class="mr-1 inline h-3.5 w-3.5" /> Dias extras
+                            </button>
+                            <button
+                                type="button"
+                                class="rounded-lg border border-zinc-300 px-2.5 py-2 text-xs font-medium text-zinc-700 hover:border-[var(--color-primary)] hover:text-[var(--color-primary)] dark:border-zinc-600 dark:text-zinc-200"
+                                @click="openBillingModal(u, 'due')"
+                            >
+                                <CalendarDays class="mr-1 inline h-3.5 w-3.5" /> Dia do pagamento
+                            </button>
+                            <button
+                                type="button"
+                                class="rounded-lg border border-zinc-300 px-2.5 py-2 text-xs font-medium text-zinc-700 hover:border-[var(--color-primary)] hover:text-[var(--color-primary)] dark:border-zinc-600 dark:text-zinc-200"
+                                @click="openBillingModal(u, 'subscriptions')"
+                            >
+                                <CreditCard class="mr-1 inline h-3.5 w-3.5" /> Assinaturas
+                            </button>
+                        </template>
                         <button
                             type="button"
                             class="rounded-lg p-2 text-zinc-400 hover:bg-zinc-200 hover:text-zinc-700 dark:hover:bg-zinc-600 dark:hover:text-zinc-200 transition-colors"
@@ -446,30 +506,6 @@ function confirmDelete(u) {
                                 />
                                 <p v-if="editForm.errors.email" class="mt-1 text-sm text-red-600 dark:text-red-400">{{ editForm.errors.email }}</p>
                             </div>
-                            <div class="rounded-lg border border-zinc-200 p-4 dark:border-zinc-700">
-                                <h3 class="flex items-center gap-2 text-sm font-semibold text-zinc-900 dark:text-white">
-                                    <CreditCard class="h-4 w-4" />
-                                    Pagamento da plataforma
-                                </h3>
-                                <div class="mt-3 grid gap-3 sm:grid-cols-2">
-                                    <label class="block text-sm text-zinc-700 dark:text-zinc-300">
-                                        Dia do pagamento
-                                        <input v-model="editForm.platform_payment_due_day" type="number" min="1" max="31" class="mt-1 block w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 dark:border-zinc-600 dark:bg-zinc-900" />
-                                    </label>
-                                    <label class="block text-sm text-zinc-700 dark:text-zinc-300">
-                                        Dias extras
-                                        <input v-model="editForm.platform_payment_grace_days" type="number" min="0" max="365" class="mt-1 block w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 dark:border-zinc-600 dark:bg-zinc-900" />
-                                    </label>
-                                </div>
-                                <label class="mt-3 flex items-center gap-2 text-sm text-zinc-700 dark:text-zinc-200">
-                                    <input v-model="editForm.platform_payment_paid" type="checkbox" class="rounded border-zinc-300 dark:border-zinc-600" />
-                                    Pagamento marcado como pago
-                                </label>
-                                <p class="mt-2 flex items-center gap-2 text-xs text-zinc-500 dark:text-zinc-400">
-                                    <Percent class="h-3.5 w-3.5" />
-                                    Os dias extras geram juros de {{ Number(editForm.platform_payment_grace_days || 0) }}% sem alterar o vencimento.
-                                </p>
-                            </div>
                         </section>
                         <section class="rounded-lg border border-zinc-200 p-4 dark:border-zinc-700">
                             <h3 class="text-sm font-semibold text-zinc-900 dark:text-white">Permissoes do infoprodutor</h3>
@@ -531,6 +567,61 @@ function confirmDelete(u) {
                         <Button type="button" variant="outline" @click="closeEditModal">
                             Cancelar
                         </Button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </Teleport>
+
+    <!-- Modal: Pagamento da plataforma -->
+    <Teleport to="body">
+        <div
+            v-if="billingUser"
+            class="fixed inset-0 z-[100002] flex items-center justify-center p-4"
+            role="dialog"
+            aria-modal="true"
+        >
+            <div class="fixed inset-0 bg-zinc-900/60 dark:bg-zinc-950/70" aria-hidden="true" @click="closeBillingModal" />
+            <div class="relative w-full max-w-lg rounded-xl border border-zinc-200 bg-white shadow-xl dark:border-zinc-700 dark:bg-zinc-800">
+                <div class="flex items-center justify-between border-b border-zinc-200 px-5 py-4 dark:border-zinc-700">
+                    <h2 class="text-lg font-semibold text-zinc-900 dark:text-white">
+                        {{ billingMode === 'grace' ? 'Dias extras' : billingMode === 'due' ? 'Dia do pagamento' : 'Assinaturas' }}
+                    </h2>
+                    <button type="button" class="rounded-lg p-2 text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-700" @click="closeBillingModal">
+                        <X class="h-5 w-5" />
+                    </button>
+                </div>
+                <form class="space-y-4 p-5" @submit.prevent="submitBilling">
+                    <p class="text-sm text-zinc-500 dark:text-zinc-400">{{ billingUser.name }} - {{ billingUser.email }}</p>
+
+                    <label v-if="billingMode === 'grace'" class="block text-sm text-zinc-700 dark:text-zinc-300">
+                        Quantos dias extras
+                        <input v-model="billingForm.platform_payment_grace_days" type="number" min="0" max="365" class="mt-1 block w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 dark:border-zinc-600 dark:bg-zinc-900" />
+                        <span class="mt-1 block text-xs text-zinc-500">Juros aplicado: {{ Number(billingForm.platform_payment_grace_days || 0) }}% sem alterar o vencimento original.</span>
+                    </label>
+
+                    <label v-else-if="billingMode === 'due'" class="block text-sm text-zinc-700 dark:text-zinc-300">
+                        Dia do pagamento
+                        <input v-model="billingForm.platform_payment_due_day" type="number" min="1" max="31" class="mt-1 block w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 dark:border-zinc-600 dark:bg-zinc-900" />
+                    </label>
+
+                    <div v-else class="space-y-2">
+                        <p class="text-sm font-medium text-zinc-700 dark:text-zinc-300">Assinaturas do infoprodutor</p>
+                        <label v-for="product in platformSubscriptionProducts" :key="product.id" class="flex items-center justify-between gap-3 rounded-lg border border-zinc-200 p-3 text-sm dark:border-zinc-700">
+                            <span>
+                                <span class="block font-medium text-zinc-900 dark:text-white">{{ product.name }}</span>
+                                <span class="text-xs text-zinc-500">{{ formatBRL(product.price) }} / mes</span>
+                            </span>
+                            <input v-model="billingForm.platform_subscription_product_ids" :value="product.id" type="checkbox" class="rounded border-zinc-300" />
+                        </label>
+                        <p v-if="!platformSubscriptionProducts.length" class="rounded-lg border border-dashed border-zinc-300 p-4 text-sm text-zinc-500 dark:border-zinc-700">
+                            Crie primeiro um produto do tipo Assinantes na pagina Produtos.
+                        </p>
+                    </div>
+
+                    <div class="flex gap-3 pt-2">
+                        <Button type="submit" :disabled="billingForm.processing">Salvar</Button>
+                        <Button type="button" variant="outline" @click="closeBillingModal">Cancelar</Button>
                     </div>
                 </form>
             </div>

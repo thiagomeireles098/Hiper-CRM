@@ -13,25 +13,18 @@ class EnsureTeamPermission
     {
         $user = $request->user();
         if (! $user) {
-            abort(403, 'Acesso não autorizado.');
+            abort(403, 'Acesso nao autorizado.');
         }
 
-        // Admin/infoprodutor passam (acesso total do tenant).
-        if ($user->isAdmin() || $user->isInfoprodutor()) {
+        if ($user->isAdmin()) {
             return $next($request);
-        }
-
-        // Qualquer outro papel fora equipe não acessa rotas protegidas por permissão.
-        if (! $user->isTeam()) {
-            abort(403, 'Acesso não autorizado.');
         }
 
         $access = app(TeamAccessService::class);
         if (! $access->can($user, $permission)) {
-            abort(403, 'Acesso não autorizado.');
+            abort(403, 'Acesso nao autorizado.');
         }
 
         return $next($request);
     }
 }
-

@@ -32,10 +32,58 @@ const selectedType = ref(null);
 const typeIcons = {
     aplicativo: Smartphone,
     area_membros: Users,
+    assinantes: Users,
     produto: Package,
     link: Link,
     link_pagamento: CreditCard,
 };
+
+const platformPermissionGroups = [
+    { title: 'Menu lateral', items: [
+        ['dashboard.view', 'Dashboard'],
+        ['vendas.view', 'Vendas'],
+        ['reembolsos.view', 'Reembolsos'],
+        ['produtos.view', 'Produtos'],
+        ['relatorios.view', 'Relatorios'],
+        ['integracoes.view', 'Integracoes'],
+        ['email_marketing.view', 'E-mail Marketing'],
+        ['api_pagamentos.view', 'API de Pagamentos'],
+        ['equipe.manage', 'Equipe'],
+        ['configuracoes.view', 'Configuracoes'],
+        ['platform_subscription.view', 'Assinatura da plataforma'],
+    ] },
+    { title: 'Vendas e cobranca', items: [
+        ['billing.one_time', 'Pagamento unico'],
+        ['billing.subscription', 'Produtos de assinatura'],
+        ['vendas.assinaturas.view', 'Aba Assinaturas'],
+    ] },
+    { title: 'Produtos', items: [
+        ['products.delivery.produto', 'Produto fisico'],
+        ['products.delivery.assinantes', 'Assinantes'],
+        ['products.delivery.area_membros', 'Area de membros'],
+        ['products.delivery.area_membros_externa', 'Area de membros externa'],
+        ['products.delivery.link', 'Link'],
+        ['products.delivery.link_pagamento', 'Somente link de pagamento'],
+        ['products.delivery.aplicativo', 'Aplicativo'],
+    ] },
+    { title: 'Tipos de negocio', items: [
+        ['products.business.supermercado', 'Supermercado'],
+        ['products.business.farmacia', 'Farmacia'],
+        ['products.business.loja_roupas', 'Loja de roupas'],
+        ['products.business.informatica_assistencia', 'Informatica / Assistencia'],
+        ['products.business.padaria', 'Padaria'],
+    ] },
+    { title: 'Configuracoes', items: [
+        ['settings.email', 'E-mail'],
+        ['settings.storage', 'Storage'],
+        ['settings.traducoes', 'Traducoes'],
+        ['settings.moedas', 'Moedas'],
+        ['settings.cron', 'Cron'],
+        ['settings.update', 'Update'],
+        ['settings.agente_bot', 'Agente Bot'],
+        ['settings.caixa', 'Caixa'],
+    ] },
+];
 
 const businessTypes = [
     { value: 'supermercado', label: 'Supermercado', description: 'Estoque, validade, fiscal, balanca e etiquetas.' },
@@ -239,6 +287,7 @@ const form = useForm({
     deliverable_link: '',
     business_type: '',
     business_product_data: {},
+    platform_permissions: {},
 });
 
 const priceNum = computed(() => parseFloat(form.price) || 0);
@@ -247,12 +296,33 @@ const priceUsd = computed(() => (priceNum.value * (props.exchangeRates.brl_usd ?
 const currentBusinessConfig = computed(() => businessFieldGroups[form.business_type] ?? []);
 const selectedBusinessTypeLabel = computed(() => businessTypes.find((type) => type.value === form.business_type)?.label ?? '');
 const isBusinessProduct = computed(() => form.type === 'produto');
+const isPlatformSubscription = computed(() => form.type === 'assinantes');
 const availableBusinessTypes = computed(() => businessTypes.filter((type) => !!perms.value?.[`products.business.${type.value}`]));
 
 function selectType(type) {
     if (!type.available) return;
     selectedType.value = type.value;
     form.type = type.value;
+    if (type.value === 'assinantes') {
+        form.billing_type = 'subscription';
+        form.platform_permissions = {
+            'dashboard.view': true,
+            'vendas.view': true,
+            'billing.one_time': true,
+            'reembolsos.view': true,
+            'produtos.view': true,
+            'products.delivery.produto': true,
+            'products.business.supermercado': true,
+            'relatorios.view': true,
+            'integracoes.view': true,
+            'equipe.manage': true,
+            'configuracoes.view': true,
+            'settings.moedas': true,
+            'settings.update': true,
+            'settings.caixa': true,
+            'platform_subscription.view': true,
+        };
+    }
     step.value = type.value === 'produto' ? 2 : 3;
 }
 
@@ -290,6 +360,7 @@ function back() {
     form.type = '';
     form.business_type = '';
     form.business_product_data = {};
+    form.platform_permissions = {};
 }
 
 function close() {
@@ -303,6 +374,7 @@ function resetState() {
     form.reset();
     form.billing_type = props.billingTypes[0]?.value ?? 'one_time';
     form.business_product_data = {};
+    form.platform_permissions = {};
 }
 
 function submit() {
@@ -533,7 +605,27 @@ watch(
                             </div>
                         </template>
 
-                        <div>
+                        <div v-if="isPlatformSubscription" class="space-y-3 rounded-xl border border-zinc-200 p-3 dark:border-zinc-700">
+                            <div>
+                                <h3 class="text-sm font-semibold text-zinc-900 dark:text-white">Permissoes liberadas ao pagar</h3>
+                                <p class="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
+                                    Quem comprar essa assinatura recebe estas permissoes enquanto o pagamento estiver em dia.
+                                </p>
+                            </div>
+                            <div class="grid gap-3 sm:grid-cols-2">
+                                <div v-for="group in platformPermissionGroups" :key="group.title" class="rounded-lg border border-zinc-200 p-3 dark:border-zinc-700">
+                                    <p class="text-xs font-semibold uppercase text-zinc-500 dark:text-zinc-400">{{ group.title }}</p>
+                                    <div class="mt-2 space-y-2">
+                                        <label v-for="[key, label] in group.items" :key="key" class="flex items-center gap-2 text-sm text-zinc-700 dark:text-zinc-200">
+                                            <input v-model="form.platform_permissions[key]" type="checkbox" class="rounded border-zinc-300 text-[var(--color-primary)] focus:ring-[var(--color-primary)]" />
+                                            {{ label }}
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div v-if="!isPlatformSubscription">
                             <label class="block text-sm font-medium text-zinc-700 dark:text-zinc-300">
                                 Tipo de cobranca
                             </label>
@@ -554,6 +646,9 @@ watch(
                                 </button>
                             </div>
                         </div>
+                        <p v-else class="rounded-lg bg-[var(--color-primary)]/10 px-3 py-2 text-sm font-medium text-[var(--color-primary)]">
+                            Assinantes sempre usa cobranca mensal de assinatura.
+                        </p>
 
                         <div v-if="form.type === 'link'">
                             <label class="block text-sm font-medium text-zinc-700 dark:text-zinc-300">

@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Subscription;
+use App\Models\Product;
+use App\Models\User;
 use App\Services\TeamAccessService;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -51,6 +53,39 @@ class AssinaturasController extends Controller
                 'mrr' => $mrr,
             ],
             'assinaturas' => $assinaturas,
+            'platformPlans' => $this->platformPlans(),
         ]);
+    }
+
+    private function platformPlans(): array
+    {
+        $user = auth()->user();
+        if (! $user?->isInfoprodutor()) {
+            return [];
+        }
+
+        $adminTenantId = User::query()
+            ->where('role', User::ROLE_ADMIN)
+            ->value('tenant_id');
+
+        if (! $adminTenantId) {
+            return [];
+        }
+
+        return Product::forTenant($adminTenantId)
+            ->where('type', Product::TYPE_ASSINANTES)
+            ->where('is_active', true)
+            ->orderBy('price')
+            ->get(['id', 'name', 'description', 'price', 'currency', 'checkout_slug'])
+            ->map(fn (Product $product) => [
+                'id' => $product->id,
+                'name' => $product->name,
+                'description' => $product->description,
+                'price' => (float) $product->price,
+                'currency' => $product->currency ?? 'BRL',
+                'checkout_url' => $product->checkout_slug ? url('/c/'.$product->checkout_slug) : null,
+            ])
+            ->values()
+            ->all();
     }
 }
