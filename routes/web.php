@@ -191,6 +191,7 @@ Route::prefix('hipercaixa')->middleware('throttle:120,1')->group(function () {
     Route::post('/login', [\App\Http\Controllers\CashierSyncController::class, 'login'])->name('hipercaixa.login');
     Route::post('/bootstrap', [\App\Http\Controllers\CashierSyncController::class, 'bootstrap'])->name('hipercaixa.bootstrap');
     Route::post('/push', [\App\Http\Controllers\CashierSyncController::class, 'push'])->name('hipercaixa.push');
+    Route::post('/fiscal/issue', [\App\Http\Controllers\CashierSyncController::class, 'issueFiscal'])->name('hipercaixa.fiscal.issue');
     Route::get('/update', [\App\Http\Controllers\CashierSyncController::class, 'updateInfo'])->name('hipercaixa.update');
     Route::get('/download', [\App\Http\Controllers\CashierSyncController::class, 'download'])->name('hipercaixa.download');
 });

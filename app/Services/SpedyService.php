@@ -55,6 +55,59 @@ class SpedyService
     }
 
     /**
+     * Create a fiscal order from an offline/online HiperCaixa sale and trigger invoice issuance.
+     *
+     * @param array<string, mixed> $sale
+     * @return array<string, mixed>
+     *
+     * @throws \RuntimeException
+     */
+    public function createCashierSaleAndIssueInvoices(array $sale, string $apiKey, string $environment): array
+    {
+        $baseUrl = $environment === \App\Models\SpedyIntegration::ENVIRONMENT_SANDBOX
+            ? self::BASE_URL_SANDBOX
+            : self::BASE_URL_PRODUCTION;
+
+        $payload = $this->buildCashierSalePayload($sale);
+        $response = $this->post($baseUrl, $apiKey, 'orders', $payload);
+
+        if (! $response->successful()) {
+            throw new \RuntimeException(
+                'Spedy API error on create cashier order: ' . $response->status() . ' ' . $response->body()
+            );
+        }
+
+        $data = $response->json();
+        $spedyOrderId = $data['id'] ?? $data['orderId'] ?? null;
+
+        if ($spedyOrderId) {
+            $issueResponse = $this->post($baseUrl, $apiKey, "orders/{$spedyOrderId}/invoices/issue", []);
+            if (! $issueResponse->successful()) {
+                throw new \RuntimeException(
+                    'Spedy API error on issue cashier invoices: ' . $issueResponse->status() . ' ' . $issueResponse->body()
+                );
+            }
+
+            $issueData = $issueResponse->json();
+
+            return [
+                'provider' => 'spedy',
+                'order_id' => (string) $spedyOrderId,
+                'access_key' => $issueData['accessKey'] ?? $issueData['access_key'] ?? $issueData['key'] ?? null,
+                'danfe_url' => $issueData['danfeUrl'] ?? $issueData['danfe_url'] ?? $issueData['pdfUrl'] ?? null,
+                'create_response' => $data,
+                'issue_response' => $issueData,
+            ];
+        }
+
+        return [
+            'provider' => 'spedy',
+            'order_id' => null,
+            'create_response' => $data,
+        ];
+    }
+
+    /**
      * Build OrderPostDto payload from Order.
      *
      * @return array<string, mixed>
@@ -123,6 +176,58 @@ class SpedyService
         return $payload;
     }
 
+    /**
+     * @param array<string, mixed> $sale
+     * @return array<string, mixed>
+     */
+    public function buildCashierSalePayload(array $sale): array
+    {
+        $items = [];
+        foreach ($sale['items'] ?? [] as $item) {
+            $quantity = (float) ($item['qty'] ?? 1);
+            $price = (float) ($item['price'] ?? 0);
+            $amount = (float) ($item['total'] ?? ($quantity * $price));
+            $items[] = [
+                'quantity' => $quantity,
+                'price' => $price,
+                'amount' => $amount,
+                'product' => [
+                    'code' => (string) ($item['code'] ?? $item['product_id'] ?? ''),
+                    'name' => mb_substr((string) ($item['name'] ?? 'Produto'), 0, 120),
+                    'price' => $price,
+                ],
+            ];
+        }
+
+        if (empty($items)) {
+            $items[] = [
+                'quantity' => 1,
+                'price' => (float) ($sale['total'] ?? 0),
+                'amount' => (float) ($sale['total'] ?? 0),
+                'product' => [
+                    'code' => (string) ($sale['local_id'] ?? ''),
+                    'name' => 'Venda HiperCaixa',
+                    'price' => (float) ($sale['total'] ?? 0),
+                ],
+            ];
+        }
+
+        return [
+            'transactionId' => (string) ($sale['local_id'] ?? uniqid('cashier-', true)),
+            'customer' => [
+                'name' => 'Cliente PDV',
+                'federalTaxNumber' => $this->normalizeCpfCnpj($sale['cpf'] ?? null),
+            ],
+            'amount' => (float) ($sale['total'] ?? 0),
+            'date' => isset($sale['created_at'])
+                ? gmdate('Y-m-d\TH:i:s\Z', strtotime((string) $sale['created_at']))
+                : gmdate('Y-m-d\TH:i:s\Z'),
+            'status' => 'approved',
+            'paymentMethod' => $this->mapPaymentMethod($sale['payment_method'] ?? null),
+            'items' => $items,
+        ];
+    }
+
     private function normalizeCpfCnpj(?string $value): ?string
     {
         if ($value === null || $value === '') {
@@ -142,14 +247,20 @@ class SpedyService
         if (str_contains($g, 'pix')) {
             return 'pix';
         }
+        if (str_contains($g, 'dinheiro') || str_contains($g, 'cash')) {
+            return 'cash';
+        }
+        if (str_contains($g, 'cheque') || str_contains($g, 'check')) {
+            return 'check';
+        }
         if (str_contains($g, 'boleto') || str_contains($g, 'ticket')) {
             return 'billetBank';
         }
-        if (str_contains($g, 'card') || str_contains($g, 'credit') || str_contains($g, 'cartao')) {
-            return 'creditCard';
-        }
-        if (str_contains($g, 'debit')) {
+        if (str_contains($g, 'debit') || str_contains($g, 'debito')) {
             return 'debitCard';
+        }
+        if (str_contains($g, 'card') || str_contains($g, 'credit') || str_contains($g, 'credito') || str_contains($g, 'cartao')) {
+            return 'creditCard';
         }
 
         return 'pix';

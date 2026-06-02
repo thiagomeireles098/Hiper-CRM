@@ -82,3 +82,40 @@ ipcMain.handle('hipercaixa:download-update', async (_event, url) => {
 
     return targetPath;
 });
+
+ipcMain.handle('hipercaixa:print-html', async (_event, html) => {
+    if (typeof html !== 'string' || html.trim() === '') {
+        throw new Error('Conteudo de impressao invalido.');
+    }
+
+    const printWindow = new BrowserWindow({
+        width: 420,
+        height: 720,
+        show: false,
+        autoHideMenuBar: true,
+        webPreferences: {
+            contextIsolation: true,
+            nodeIntegration: false,
+        },
+    });
+
+    try {
+        await printWindow.loadURL(`data:text/html;charset=utf-8,${encodeURIComponent(html)}`);
+        await new Promise((resolve, reject) => {
+            printWindow.webContents.print({ silent: false, printBackground: true }, (success, failureReason) => {
+                if (!success) {
+                    reject(new Error(failureReason || 'Impressao cancelada.'));
+                    return;
+                }
+
+                resolve();
+            });
+        });
+    } finally {
+        if (!printWindow.isDestroyed()) {
+            printWindow.close();
+        }
+    }
+
+    return true;
+});

@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\Cashier;
+use App\Models\CashierFiscalDocument;
 use App\Models\Product;
 use App\Models\User;
+use App\Services\CashierFiscalService;
 use App\Services\TeamAccessService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -80,6 +82,7 @@ class CashierSyncController extends Controller
                 'username' => $cashier->username,
             ],
             'products' => $products,
+            'fiscal' => app(CashierFiscalService::class)->configFor($owner),
             'server_time' => now()->toIso8601String(),
         ]);
     }
@@ -108,15 +111,16 @@ class CashierSyncController extends Controller
         ]);
 
         $accepted = [];
+        $fiscalDocuments = [];
         foreach ($validated['sales'] ?? [] as $sale) {
-            $alreadyExists = DB::table('cashier_sales')
+            $saleRow = DB::table('cashier_sales')
                 ->where('tenant_id', $owner->id)
                 ->where('cashier_id', $cashier->id)
                 ->where('local_id', $sale['local_id'])
-                ->exists();
+                ->first(['id']);
 
-            if (! $alreadyExists) {
-                DB::table('cashier_sales')->insert([
+            if (! $saleRow) {
+                $saleId = DB::table('cashier_sales')->insertGetId([
                     'tenant_id' => $owner->id,
                     'cashier_id' => $cashier->id,
                     'local_id' => $sale['local_id'],
@@ -131,14 +135,56 @@ class CashierSyncController extends Controller
                     'created_at' => now(),
                     'updated_at' => now(),
                 ]);
+            } else {
+                $saleId = (int) $saleRow->id;
             }
 
+            $document = app(CashierFiscalService::class)->issueForCashierSale($owner, $cashier, $saleId, $sale);
+            $fiscalDocuments[] = $this->fiscalDocumentToArray($document);
             $accepted[] = $sale['local_id'];
         }
 
         return response()->json([
             'ok' => true,
             'accepted_sales' => $accepted,
+            'fiscal_documents' => $fiscalDocuments,
+            'server_time' => now()->toIso8601String(),
+        ]);
+    }
+
+    public function issueFiscal(Request $request): JsonResponse
+    {
+        [$owner, $cashier] = $this->authenticate($request);
+
+        $validated = $request->validate([
+            'sale' => ['required', 'array'],
+            'sale.local_id' => ['required', 'string', 'max:80'],
+            'sale.cpf' => ['nullable', 'string', 'max:20'],
+            'sale.subtotal' => ['nullable', 'numeric', 'min:0'],
+            'sale.discount' => ['nullable', 'numeric', 'min:0'],
+            'sale.total' => ['required', 'numeric', 'min:0'],
+            'sale.payment_method' => ['nullable', 'string', 'max:40'],
+            'sale.payment_payload' => ['nullable', 'array'],
+            'sale.items' => ['required', 'array', 'max:300'],
+            'sale.created_at' => ['nullable', 'date'],
+        ]);
+
+        $sale = $validated['sale'];
+        $saleRow = DB::table('cashier_sales')
+            ->where('tenant_id', $owner->id)
+            ->where('cashier_id', $cashier->id)
+            ->where('local_id', $sale['local_id'])
+            ->first(['id']);
+
+        if (! $saleRow) {
+            return response()->json(['message' => 'Sincronize a venda antes de emitir a nota fiscal.'], 422);
+        }
+
+        $document = app(CashierFiscalService::class)->issueForCashierSale($owner, $cashier, (int) $saleRow->id, $sale);
+
+        return response()->json([
+            'ok' => true,
+            'fiscal_document' => $this->fiscalDocumentToArray($document),
             'server_time' => now()->toIso8601String(),
         ]);
     }
@@ -190,5 +236,21 @@ class CashierSyncController extends Controller
             ->where('cashier_sync_token', strtoupper($token))
             ->whereIn('role', [User::ROLE_ADMIN, User::ROLE_INFOPRODUTOR])
             ->first();
+    }
+
+    private function fiscalDocumentToArray(CashierFiscalDocument $document): array
+    {
+        return [
+            'local_id' => $document->local_id,
+            'type' => $document->type,
+            'status' => $document->status,
+            'provider' => $document->provider,
+            'provider_document_id' => $document->provider_document_id,
+            'access_key' => $document->access_key,
+            'danfe_url' => $document->danfe_url,
+            'error_message' => $document->error_message,
+            'print_payload' => $document->print_payload ?? [],
+            'issued_at' => $document->issued_at?->toIso8601String(),
+        ];
     }
 }
