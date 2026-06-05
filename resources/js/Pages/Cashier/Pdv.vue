@@ -7,6 +7,7 @@ const props = defineProps({
     manager_mode: { type: Boolean, default: false },
 });
 
+const panelView = ref('menu');
 const cpf = ref('');
 const saleStarted = ref(false);
 const barcode = ref('');
@@ -24,6 +25,10 @@ const debit = ref({ value: '', brand: '' });
 const credit = ref({ value: '', installments: 1, brand: '' });
 const barcodeEl = ref(null);
 const moneyEl = ref(null);
+const configServerUrl = ref('https://app.hiperlinksolutions.com.br');
+const configToken = ref('');
+const fiscalPrinting = ref(true);
+const configMessage = ref('');
 
 const products = [
     { code: '7898132951382', name: 'COCA COLA LATA 350ML', unit: 'UN', price: 2.3 },
@@ -50,9 +55,28 @@ function currency(value) {
 }
 
 function startSale() {
+    panelView.value = 'sale';
     saleStarted.value = true;
     finished.value = false;
     nextTick(() => barcodeEl.value?.focus());
+}
+
+function openStock() {
+    panelView.value = 'stock';
+}
+
+function openConfig() {
+    panelView.value = 'config';
+    configMessage.value = '';
+}
+
+function backToMenu() {
+    panelView.value = 'menu';
+    saleStarted.value = false;
+}
+
+function saveWebCashierConfig() {
+    configMessage.value = 'Configuracao salva para este caixa web.';
 }
 
 function addBarcode() {
@@ -109,6 +133,7 @@ function cancelSale() {
     moneyReceived.value = '';
     finished.value = false;
     saleStarted.value = false;
+    panelView.value = 'menu';
 }
 
 function printReceipt() {
@@ -148,7 +173,7 @@ onUnmounted(() => window.removeEventListener('keydown', onKeydown));
             </div>
         </header>
 
-        <main v-if="!saleStarted" class="grid min-h-[calc(100vh-6rem)] place-items-center p-8">
+        <main v-if="!saleStarted && panelView === 'menu'" class="grid min-h-[calc(100vh-6rem)] place-items-center p-8">
             <section class="w-full max-w-3xl rounded-2xl bg-white p-8 shadow-xl">
                 <h1 class="text-3xl font-bold">HiperCaixa</h1>
                 <p class="mt-2 text-zinc-600">Login sincronizado para caixa online e offline.</p>
@@ -157,11 +182,11 @@ onUnmounted(() => window.removeEventListener('keydown', onKeydown));
                         <MonitorCog class="mb-3 h-7 w-7" />
                         Abrir caixa
                     </button>
-                    <button class="rounded-xl border border-zinc-200 p-5 text-left font-semibold text-zinc-700">
+                    <button class="rounded-xl border border-zinc-200 p-5 text-left font-semibold text-zinc-700 hover:border-[#003f6d] hover:bg-[#003f6d]/5" @click="openStock">
                         <PackageSearch class="mb-3 h-7 w-7" />
                         Estoque
                     </button>
-                    <button class="rounded-xl border border-zinc-200 p-5 text-left font-semibold text-zinc-700">
+                    <button class="rounded-xl border border-zinc-200 p-5 text-left font-semibold text-zinc-700 hover:border-[#003f6d] hover:bg-[#003f6d]/5" @click="openConfig">
                         <Settings class="mb-3 h-7 w-7" />
                         Configuracao
                     </button>
@@ -169,6 +194,76 @@ onUnmounted(() => window.removeEventListener('keydown', onKeydown));
                 <div class="mt-6 rounded-xl border border-amber-200 bg-amber-50 p-5 text-amber-900">
                     Backup: ao trocar de computador, use o token em Configuracoes para baixar os dados do web para este caixa.
                 </div>
+            </section>
+        </main>
+
+        <main v-else-if="!saleStarted && panelView === 'stock'" class="min-h-[calc(100vh-6rem)] p-8">
+            <section class="mx-auto w-full max-w-5xl rounded-2xl bg-white p-8 shadow-xl">
+                <div class="flex flex-wrap items-center justify-between gap-4">
+                    <div>
+                        <h1 class="text-3xl font-bold">Estoque local</h1>
+                        <p class="mt-2 text-zinc-600">Produtos disponiveis para venda neste caixa web.</p>
+                    </div>
+                    <button class="rounded-lg bg-[#003f6d] px-5 py-3 font-bold text-white" @click="backToMenu">Voltar</button>
+                </div>
+
+                <div class="mt-8 overflow-hidden rounded-xl border border-zinc-200">
+                    <table class="w-full text-sm">
+                        <thead class="bg-[#003f6d] text-left text-white">
+                            <tr>
+                                <th class="p-3">Codigo</th>
+                                <th class="p-3">Produto</th>
+                                <th class="p-3">Unidade</th>
+                                <th class="p-3 text-right">Preco</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="product in products" :key="product.code" class="border-t border-zinc-100">
+                                <td class="p-3 font-mono text-xs">{{ product.code }}</td>
+                                <td class="p-3 font-semibold">{{ product.name }}</td>
+                                <td class="p-3">{{ product.unit }}</td>
+                                <td class="p-3 text-right font-semibold">{{ currency(product.price) }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </main>
+
+        <main v-else-if="!saleStarted && panelView === 'config'" class="grid min-h-[calc(100vh-6rem)] place-items-center p-8">
+            <section class="w-full max-w-3xl rounded-2xl bg-white p-8 shadow-xl">
+                <div class="flex flex-wrap items-center justify-between gap-4">
+                    <div>
+                        <h1 class="text-3xl font-bold">Configuracao</h1>
+                        <p class="mt-2 text-zinc-600">Ajustes do caixa web e sincronizacao.</p>
+                    </div>
+                    <button class="rounded-lg bg-[#003f6d] px-5 py-3 font-bold text-white" @click="backToMenu">Voltar</button>
+                </div>
+
+                <div class="mt-8 grid gap-4">
+                    <label class="block font-semibold text-zinc-700">
+                        Caixa
+                        <input :value="cashier.name" readonly class="mt-2 w-full rounded-lg border border-zinc-200 bg-zinc-50 px-4 py-3" />
+                    </label>
+                    <label class="block font-semibold text-zinc-700">
+                        URL do servidor
+                        <input v-model="configServerUrl" class="mt-2 w-full rounded-lg border border-zinc-200 px-4 py-3" />
+                    </label>
+                    <label class="block font-semibold text-zinc-700">
+                        Token de sincronizacao
+                        <input v-model="configToken" maxlength="26" class="mt-2 w-full rounded-lg border border-zinc-200 px-4 py-3 uppercase" placeholder="26 caracteres" />
+                    </label>
+                    <label class="flex items-center gap-3 rounded-xl border border-zinc-200 p-4 font-semibold text-zinc-700">
+                        <input v-model="fiscalPrinting" type="checkbox" class="h-5 w-5 rounded" />
+                        Emitir/imprimir nota fiscal ao finalizar venda
+                    </label>
+                </div>
+
+                <div class="mt-6 flex flex-wrap gap-3">
+                    <button class="rounded-lg bg-[#003f6d] px-5 py-3 font-bold text-white" @click="saveWebCashierConfig">Salvar configuracao</button>
+                    <button class="rounded-lg bg-zinc-100 px-5 py-3 font-bold text-[#003f6d]" @click="configMessage = 'Caixa web esta atualizado.'">Verificar atualizacao</button>
+                </div>
+                <p v-if="configMessage" class="mt-4 rounded-lg bg-emerald-50 p-3 font-semibold text-emerald-700">{{ configMessage }}</p>
             </section>
         </main>
 
