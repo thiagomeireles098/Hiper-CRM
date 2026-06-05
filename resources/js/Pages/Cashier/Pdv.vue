@@ -401,7 +401,7 @@ onUnmounted(() => window.removeEventListener('keydown', onKeydown));
             <form class="w-full max-w-sm rounded-xl bg-white p-5" @submit.prevent="confirmQuantity">
                 <h2 class="text-lg font-bold">Inserir quantidade</h2>
                 <input v-model="quantityInput" autofocus type="number" min="1" step="1" class="mt-4 w-full rounded border px-3 py-3 text-2xl" />
-                <button class="mt-4 w-full rounded bg-[#003f6d] p-3 font-bold text-white">Confirmar</button>
+                <button type="submit" class="mt-4 w-full rounded bg-[#003f6d] p-3 font-bold text-white">Confirmar</button>
             </form>
         </div>
 
@@ -410,7 +410,7 @@ onUnmounted(() => window.removeEventListener('keydown', onKeydown));
                 <h2 class="text-lg font-bold">Login do infoprodutor</h2>
                 <p class="mt-1 text-sm text-zinc-600">Necessario para excluir item no aplicativo.</p>
                 <input v-model="managerPassword" autofocus type="password" class="mt-4 w-full rounded border px-3 py-3" placeholder="Senha do infoprodutor" />
-                <button class="mt-4 w-full rounded bg-[#003f6d] p-3 font-bold text-white">Autorizar exclusao</button>
+                <button type="submit" class="mt-4 w-full rounded bg-[#003f6d] p-3 font-bold text-white">Autorizar exclusao</button>
             </form>
         </div>
     </div>

@@ -106,6 +106,7 @@ const panelClasses = computed(() => {
                     :class="{ 'bg-gray-100 text-gray-700': openState }"
                     :aria-label="ariaLabel"
                     :aria-expanded="openState"
+                    @click.stop="toggle"
                 >
                     <component v-if="icon" :is="icon" class="h-5 w-5" aria-hidden="true" />
                 </button>
