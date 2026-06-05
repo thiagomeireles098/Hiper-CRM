@@ -16,6 +16,8 @@
         .screen.active { display: block; }
         .card { background: white; border-radius: 14px; box-shadow: 0 12px 40px rgba(0,63,109,.12); padding: 24px; }
         .center { min-height: calc(100vh - 142px); display: grid; place-items: center; }
+        .screen:not(.active) { display: none !important; }
+        .screen.active.center { display: grid; }
         .login { width: min(520px, 100%); }
         .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
         .grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
